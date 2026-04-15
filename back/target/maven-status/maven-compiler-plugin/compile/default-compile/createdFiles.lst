@@ -1,0 +1,10 @@
+com/pokemon/tfg/controller/AuthController.class
+com/pokemon/tfg/dto/RegisterRequest.class
+com/pokemon/tfg/service/AuthService.class
+com/pokemon/tfg/dto/LoginRequest.class
+com/pokemon/tfg/dto/AuthResponse.class
+com/pokemon/tfg/config/JwtUtils.class
+com/pokemon/tfg/entity/Usuario.class
+com/pokemon/tfg/PokemonTfgApplication.class
+com/pokemon/tfg/repository/UsuarioRepository.class
+com/pokemon/tfg/config/SecurityConfig.class
