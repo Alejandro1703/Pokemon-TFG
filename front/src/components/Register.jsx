@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Form, Button, Container, Row, Col, Card, Alert, ListGroup } from 'react-bootstrap';
+import { Form, Button, Card, Alert, ListGroup, Spinner, InputGroup, Row, Col } from 'react-bootstrap';
+import { useNavigate, Link } from 'react-router-dom';
+import AuthLayout from './layout/AuthLayout';
 
 function Register() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nombre: '',
     apellidos: '',
@@ -21,7 +24,6 @@ function Register() {
   
   const pokemonInputRef = useRef(null);
 
-  // Cargar lista de Pokémon desde PokeAPI
   useEffect(() => {
     if (formData.pokemonFavorito.length >= 2) {
       fetchPokemonSuggestions(formData.pokemonFavorito);
@@ -40,8 +42,8 @@ function Register() {
         .slice(0, 5);
       setPokemonSuggestions(filtered);
       setShowSuggestions(filtered.length > 0);
-    } catch (err) {
-      console.error('Error fetching Pokemon:', err);
+    } catch {
+      console.error('Error fetching Pokemon');
     }
   };
 
@@ -59,23 +61,23 @@ function Register() {
   const validateForm = () => {
     if (!formData.nombre || !formData.apellidos || !formData.fechaNacimiento || 
         !formData.username || !formData.password || !formData.telefono) {
-      setError('Todos los campos son obligatorios');
+      setError('Todos los campos son obligatorios para completar tu registro');
       return false;
     }
     
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError('Las contrasenas no coinciden');
       return false;
     }
     
     if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError('La contrasena debe tener al menos 6 caracteres');
       return false;
     }
     
     const phoneRegex = /^[0-9]{9}$/;
     if (!phoneRegex.test(formData.telefono)) {
-      setError('El teléfono debe tener 9 dígitos');
+      setError('El telefono debe tener exactamente 9 digitos numericos');
       return false;
     }
     
@@ -105,29 +107,21 @@ function Register() {
       });
       
       if (response.ok) {
-        setSuccess('¡Registro exitoso! Ya puedes iniciar sesión.');
-        setFormData({
-          nombre: '',
-          apellidos: '',
-          fechaNacimiento: '',
-          username: '',
-          password: '',
-          confirmPassword: '',
-          telefono: '',
-          pokemonFavorito: ''
-        });
+        setSuccess('Registro completado exitosamente. Redirigiendo al login...');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
         const data = await response.json();
-        setError(data.message || 'Error en el registro');
+        setError(data.message || 'Hubo un problema con el registro');
       }
     } catch {
-      setError('Error de conexión con el servidor');
+      setError('No se puede conectar con el servidor');
     } finally {
       setLoading(false);
     }
   };
 
-  // Cerrar sugerencias al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (pokemonInputRef.current && !pokemonInputRef.current.contains(event.target)) {
@@ -139,166 +133,258 @@ function Register() {
   }, []);
 
   return (
-    <Container className="py-5">
-      <Row className="justify-content-center">
-        <Col md={8} lg={6}>
-          <Card className="shadow" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--warm-light)' }}>
-            <Card.Body className="p-4">
-              <h2 className="text-center mb-4" style={{ color: 'var(--text-h)' }}>
-                🎮 Registro de Entrenador
-              </h2>
+    <AuthLayout>
+      <Card 
+        className="border-0 shadow-lg overflow-hidden"
+        style={{ borderRadius: '20px' }}
+      >
+        <div 
+          className="p-4 text-center"
+          style={{
+            background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+            borderBottom: '4px solid #1b5e20'
+          }}
+        >
+          <h2 
+            className="fw-bold text-white mb-2"
+            style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}
+          >
+            Crear Cuenta
+          </h2>
+          <p className="text-white text-opacity-90 mb-0">
+            Unete a la comunidad de entrenadores Pokemon
+          </p>
+        </div>
+        
+        <Card.Body className="p-5 bg-white">
+          {error && (
+            <Alert 
+              variant="danger" 
+              className="rounded-3 border-0 mb-4"
+              style={{ backgroundColor: '#ffebee', color: '#c62828' }}
+            >
+              <span className="small fw-semibold">{error}</span>
+            </Alert>
+          )}
+          {success && (
+            <Alert 
+              variant="success" 
+              className="rounded-3 border-0 mb-4"
+              style={{ backgroundColor: '#e8f5e9', color: '#2e7d32' }}
+            >
+              <span className="small fw-semibold">{success}</span>
+            </Alert>
+          )}
+          
+          <Form onSubmit={handleSubmit}>
+            <div 
+              className="p-4 mb-4 rounded-3"
+              style={{ backgroundColor: '#f8f9fa', borderLeft: '4px solid #4caf50' }}
+            >
+              <h5 className="text-dark mb-4 fw-bold">Informacion Personal</h5>
+              <Row>
+                <Col md={6} className="mb-3">
+                  <Form.Label className="fw-bold text-dark mb-2">Nombre</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    placeholder="Tu nombre"
+                    className="border-2 py-3 px-4"
+                    style={{ borderRadius: '12px', borderColor: '#e0e0e0' }}
+                    disabled={loading}
+                  />
+                </Col>
+                <Col md={6} className="mb-3">
+                  <Form.Label className="fw-bold text-dark mb-2">Apellidos</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="apellidos"
+                    value={formData.apellidos}
+                    onChange={handleChange}
+                    placeholder="Tus apellidos"
+                    className="border-2 py-3 px-4"
+                    style={{ borderRadius: '12px', borderColor: '#e0e0e0' }}
+                    disabled={loading}
+                  />
+                </Col>
+              </Row>
               
-              {error && <Alert variant="danger">{error}</Alert>}
-              {success && <Alert variant="success">{success}</Alert>}
-              
-              <Form onSubmit={handleSubmit}>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: 'var(--text-h)', fontWeight: 500 }}>Nombre</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="nombre"
-                        value={formData.nombre}
-                        onChange={handleChange}
-                        placeholder="Tu nombre"
-                        style={{ borderColor: 'var(--border)' }}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: 'var(--text-h)', fontWeight: 500 }}>Apellidos</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="apellidos"
-                        value={formData.apellidos}
-                        onChange={handleChange}
-                        placeholder="Tus apellidos"
-                        style={{ borderColor: 'var(--border)' }}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                <Form.Group className="mb-3">
-                  <Form.Label style={{ color: 'var(--text-h)', fontWeight: 500 }}>Fecha de Nacimiento</Form.Label>
+              <Row>
+                <Col md={6} className="mb-3">
+                  <Form.Label className="fw-bold text-dark mb-2">Fecha de Nacimiento</Form.Label>
                   <Form.Control
                     type="date"
                     name="fechaNacimiento"
                     value={formData.fechaNacimiento}
                     onChange={handleChange}
-                    style={{ borderColor: 'var(--border)' }}
+                    className="border-2 py-3 px-4"
+                    style={{ borderRadius: '12px', borderColor: '#e0e0e0' }}
+                    disabled={loading}
                   />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label style={{ color: 'var(--text-h)', fontWeight: 500 }}>Nombre de Usuario</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    placeholder="Elige un nombre de usuario"
-                    style={{ borderColor: 'var(--border)' }}
-                  />
-                </Form.Group>
-
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: 'var(--text-h)', fontWeight: 500 }}>Contraseña</Form.Label>
-                      <Form.Control
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Mínimo 6 caracteres"
-                        style={{ borderColor: 'var(--border)' }}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: 'var(--text-h)', fontWeight: 500 }}>Repetir Contraseña</Form.Label>
-                      <Form.Control
-                        type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        placeholder="Confirma tu contraseña"
-                        style={{ borderColor: 'var(--border)' }}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                <Form.Group className="mb-3">
-                  <Form.Label style={{ color: 'var(--text-h)', fontWeight: 500 }}>Teléfono</Form.Label>
+                </Col>
+                <Col md={6} className="mb-3">
+                  <Form.Label className="fw-bold text-dark mb-2">Telefono</Form.Label>
                   <Form.Control
                     type="tel"
                     name="telefono"
                     value={formData.telefono}
                     onChange={handleChange}
-                    placeholder="9 dígitos"
-                    style={{ borderColor: 'var(--border)' }}
+                    placeholder="9 digitos"
+                    className="border-2 py-3 px-4"
+                    style={{ borderRadius: '12px', borderColor: '#e0e0e0' }}
+                    disabled={loading}
                   />
-                </Form.Group>
+                </Col>
+              </Row>
+            </div>
 
-                <Form.Group className="mb-4" ref={pokemonInputRef}>
-                  <Form.Label style={{ color: 'var(--text-h)', fontWeight: 500 }}>
-                    Pokémon Favorito ✨
-                  </Form.Label>
+            <div 
+              className="p-4 mb-4 rounded-3"
+              style={{ backgroundColor: '#fff8e1', borderLeft: '4px solid #ffc107' }}
+            >
+              <h5 className="text-dark mb-4 fw-bold">Credenciales de Acceso</h5>
+              <Row>
+                <Col md={12} className="mb-3">
+                  <Form.Label className="fw-bold text-dark mb-2">Nombre de Usuario</Form.Label>
                   <Form.Control
                     type="text"
-                    name="pokemonFavorito"
-                    value={formData.pokemonFavorito}
+                    name="username"
+                    value={formData.username}
                     onChange={handleChange}
-                    placeholder="Escribe el nombre de tu Pokémon favorito"
-                    style={{ borderColor: 'var(--border)' }}
-                    autoComplete="off"
+                    placeholder="Elige un nombre unico"
+                    className="border-2 py-3 px-4"
+                    style={{ borderRadius: '12px', borderColor: '#e0e0e0' }}
+                    disabled={loading}
                   />
-                  {showSuggestions && (
-                    <ListGroup className="position-absolute w-100" style={{ zIndex: 1000, boxShadow: 'var(--shadow)' }}>
-                      {pokemonSuggestions.map((pokemon) => (
-                        <ListGroup.Item
-                          key={pokemon.name}
-                          action
-                          onClick={() => selectPokemon(pokemon.name)}
-                          style={{ cursor: 'pointer', textTransform: 'capitalize' }}
-                        >
-                          {pokemon.name}
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
-                  )}
-                </Form.Group>
-
-                <Button
-                  type="submit"
-                  className="w-100"
-                  disabled={loading}
-                  style={{
-                    backgroundColor: 'var(--accent)',
-                    borderColor: 'var(--accent)',
-                    fontWeight: 600,
-                    padding: '12px'
-                  }}
-                >
-                  {loading ? 'Registrando...' : '🎯 Crear Cuenta'}
-                </Button>
-              </Form>
+                  <Form.Text className="text-muted small ms-1">
+                    Este sera tu identificador para iniciar sesion
+                  </Form.Text>
+                </Col>
+              </Row>
               
-              <div className="text-center mt-3">
-                <a href="/login" style={{ color: 'var(--accent)', textDecoration: 'none' }}>
-                  ¿Ya tienes cuenta? Inicia sesión
-                </a>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+              <Row>
+                <Col md={6} className="mb-3">
+                  <Form.Label className="fw-bold text-dark mb-2">Contrasena</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Minimo 6 caracteres"
+                    className="border-2 py-3 px-4"
+                    style={{ borderRadius: '12px', borderColor: '#e0e0e0' }}
+                    disabled={loading}
+                  />
+                </Col>
+                <Col md={6} className="mb-3">
+                  <Form.Label className="fw-bold text-dark mb-2">Confirmar Contrasena</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Repite tu contrasena"
+                    className="border-2 py-3 px-4"
+                    style={{ borderRadius: '12px', borderColor: '#e0e0e0' }}
+                    disabled={loading}
+                  />
+                </Col>
+              </Row>
+            </div>
+
+            <div 
+              className="p-4 mb-4 rounded-3"
+              style={{ backgroundColor: '#e3f2fd', borderLeft: '4px solid #2196f3' }}
+              ref={pokemonInputRef}
+            >
+              <h5 className="text-dark mb-3 fw-bold">Pokemon Favorito</h5>
+              <Form.Group className="mb-2">
+                <Form.Label className="fw-bold text-dark mb-2">Selecciona tu companero</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="pokemonFavorito"
+                  value={formData.pokemonFavorito}
+                  onChange={handleChange}
+                  placeholder="Escribe el nombre de tu Pokemon favorito"
+                  className="border-2 py-3 px-4"
+                  style={{ borderRadius: '12px', borderColor: '#e0e0e0' }}
+                  autoComplete="off"
+                  disabled={loading}
+                />
+                <Form.Text className="text-muted small ms-1">
+                  Escribe al menos 2 letras para ver sugerencias
+                </Form.Text>
+              </Form.Group>
+              
+              {showSuggestions && (
+                <ListGroup 
+                  className="mt-3 shadow rounded-3 overflow-hidden" 
+                  style={{ zIndex: 1000 }}
+                >
+                  {pokemonSuggestions.map((pokemon) => (
+                    <ListGroup.Item
+                      key={pokemon.name}
+                      action
+                      onClick={() => selectPokemon(pokemon.name)}
+                      className="py-3 text-capitalize border-0 border-bottom"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {pokemon.name}
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              )}
+            </div>
+
+            <div className="d-grid mb-4">
+              <Button
+                type="submit"
+                className="fw-bold py-3 border-0"
+                style={{ 
+                  borderRadius: '12px',
+                  fontSize: '1.1rem',
+                  background: loading 
+                    ? '#ccc' 
+                    : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+                  boxShadow: '0 4px 15px rgba(76, 175, 80, 0.4)',
+                  transition: 'all 0.3s ease'
+                }}
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Spinner as="span" animation="border" size="sm" className="me-2" />
+                    Creando cuenta...
+                  </>
+                ) : (
+                  'Crear Cuenta'
+                )}
+              </Button>
+            </div>
+          </Form>
+          
+          <div 
+            className="text-center p-3 rounded-3"
+            style={{ backgroundColor: '#f5f5f5' }}
+          >
+            <p className="text-secondary mb-3">
+              ¿Ya tienes una cuenta?
+            </p>
+            <Button 
+              variant="outline-dark"
+              as={Link}
+              to="/login" 
+              className="fw-semibold px-4"
+              style={{ borderRadius: '10px' }}
+            >
+              Iniciar sesion
+            </Button>
+          </div>
+        </Card.Body>
+      </Card>
+    </AuthLayout>
   );
 }
 
