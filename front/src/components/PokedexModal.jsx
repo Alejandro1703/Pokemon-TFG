@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Button, Form, Row, Col, Badge, Spinner, Card, ToggleButtonGroup, ToggleButton } from 'react-bootstrap';
+import { Modal, Button, Form, Row, Col, Badge, Spinner, Card, ToggleButtonGroup, ToggleButton, OverlayTrigger, Popover } from 'react-bootstrap';
 
 const POKEMON_TYPES = [
   'all', 'normal', 'fire', 'water', 'electric', 'grass', 'ice', 
@@ -56,6 +56,8 @@ function PokedexModal({ show, onHide }) {
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [strictMode, setStrictMode] = useState(false);
+  const [shinyMode, setShinyMode] = useState(false);
+  const [shinyPokemon, setShinyPokemon] = useState(new Set());
   const itemsPerPage = 20;
 
   // Cargar Pokémon cuando cambia la vista
@@ -66,11 +68,11 @@ function PokedexModal({ show, onHide }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, pokedexView]);
 
-  // Filtrar cuando cambian los tipos
+  // Filtrar cuando cambian los tipos o el modo estricto
   useEffect(() => {
     filterPokemon();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTypes, pokemonList]);
+  }, [selectedTypes, strictMode, pokemonList]);
 
   const loadPokemon = async () => {
     setLoading(true);
@@ -165,7 +167,7 @@ function PokedexModal({ show, onHide }) {
         <div className="text-center p-3" style={{ backgroundColor: '#f8f9fa' }}>
           {pokemon.sprite ? (
             <img 
-              src={pokemon.sprite} 
+              src={(shinyMode || shinyPokemon.has(pokemon.id)) ? pokemon.shinySprite || pokemon.sprite.replace('/pokemon/', '/pokemon/shiny/') : pokemon.sprite} 
               alt={pokemon.name}
               style={{ width: '80px', height: '80px', imageRendering: 'pixelated' }}
             />
@@ -176,6 +178,25 @@ function PokedexModal({ show, onHide }) {
         <Card.Body className="p-3">
           <div className="d-flex justify-content-between align-items-center mb-2">
             <small className="text-muted">#{String(pokemon.id).padStart(3, '0')}</small>
+            <Button
+              size="sm"
+              variant={shinyPokemon.has(pokemon.id) ? 'warning' : 'outline-warning'}
+              onClick={(e) => {
+                e.stopPropagation();
+                const newShinySet = new Set(shinyPokemon);
+                if (newShinySet.has(pokemon.id)) {
+                  newShinySet.delete(pokemon.id);
+                } else {
+                  newShinySet.add(pokemon.id);
+                }
+                setShinyPokemon(newShinySet);
+              }}
+              className="p-0 px-1"
+              style={{ fontSize: '0.75rem' }}
+              title={shinyPokemon.has(pokemon.id) ? 'Desactivar Shiny' : 'Activar Shiny'}
+            >
+              ✨
+            </Button>
           </div>
           <h6 className="text-capitalize fw-bold mb-2" style={{ fontSize: '0.95rem' }}>
             {pokemon.name}
@@ -229,9 +250,36 @@ function PokedexModal({ show, onHide }) {
           minHeight: '60px'
         }}
       >
-        <Modal.Title className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
-          Pokedex
-        </Modal.Title>
+        <div className="d-flex align-items-center gap-2">
+          <Modal.Title className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
+            Pokédex
+          </Modal.Title>
+          <OverlayTrigger
+            placement="bottom"
+            overlay={
+              <Popover>
+                <Popover.Header as="h3">📖 Guía de Pokédex</Popover.Header>
+                <Popover.Body>
+                  <strong>Navegación:</strong><br/>
+                  • Nacional: Todos los Pokémon (1-649)<br/>
+                  • Regional: Por generación (Kanto, Johto, etc.)<br/>
+                  • ✨ Shiny: Alterna entre sprites normales y shiny<br/><br/>
+                  <strong>Filtros de Tipo:</strong><br/>
+                  • Pulsa "Filtros" para mostrar/ocultar<br/>
+                  • Selecciona múltiples tipos<br/>
+                  • <strong>Duro:</strong> Solo Pokémon con EXACTAMENTE esos tipos<br/>
+                  • Sin Duro: Pokémon con al menos un tipo seleccionado<br/><br/>
+                  <strong>Filtro Duro + Fuego:</strong> Charizard ❌ (Fuego/Volador)<br/>
+                  <strong>Filtro Duro + Fuego:</strong> Magmar ✓ (Fuego puro)<br/>
+                  <strong>Filtro Duro + Fuego+Volador:</strong> Charizard ✓<br/><br/>
+                  <strong>Click en Pokémon:</strong> Ver detalles, stats y habilidades
+                </Popover.Body>
+              </Popover>
+            }
+          >
+            <Button variant="light" size="sm" className="rounded-circle px-2">❓</Button>
+          </OverlayTrigger>
+        </div>
         <Button 
           variant="light" 
           size="sm" 
@@ -250,30 +298,39 @@ function PokedexModal({ show, onHide }) {
             {/* Selector de vista */}
             <Col md={6}>
               <Form.Label className="fw-bold">Vista Pokedex</Form.Label>
-              <ToggleButtonGroup
-                type="radio"
-                name="pokedex-view"
-                value={pokedexView}
-                onChange={(val) => setPokedexView(val)}
-                className="w-100"
-              >
-                <ToggleButton
-                  id="tbg-radio-national"
-                  value="national"
-                  variant={pokedexView === 'national' ? 'danger' : 'outline-danger'}
+              <div className="d-flex gap-2">
+                <ToggleButtonGroup
+                  type="radio"
+                  name="pokedex-view"
+                  value={pokedexView}
+                  onChange={(val) => setPokedexView(val)}
                   className="flex-grow-1"
                 >
-                  Nacional
-                </ToggleButton>
-                <ToggleButton
-                  id="tbg-radio-regional"
-                  value="kanto"
-                  variant={pokedexView !== 'national' ? 'danger' : 'outline-danger'}
-                  className="flex-grow-1"
+                  <ToggleButton
+                    id="tbg-radio-national"
+                    value="national"
+                    variant={pokedexView === 'national' ? 'danger' : 'outline-danger'}
+                  >
+                    Nacional
+                  </ToggleButton>
+                  <ToggleButton
+                    id="tbg-radio-regional"
+                    value="kanto"
+                    variant={pokedexView !== 'national' ? 'danger' : 'outline-danger'}
+                  >
+                    Regional
+                  </ToggleButton>
+                </ToggleButtonGroup>
+                
+                {/* Toggle ShinyDex */}
+                <Button
+                  variant={shinyMode ? 'warning' : 'outline-warning'}
+                  onClick={() => setShinyMode(!shinyMode)}
+                  title={shinyMode ? 'Desactivar ShinyDex' : 'Activar ShinyDex'}
                 >
-                  Regional
-                </ToggleButton>
-              </ToggleButtonGroup>
+                  ✨ Shiny
+                </Button>
+              </div>
               
               {pokedexView !== 'national' && (
                 <Form.Select 
@@ -292,44 +349,24 @@ function PokedexModal({ show, onHide }) {
             
             {/* Filtro de tipo colapsable */}
             <Col md={6}>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <Form.Label className="fw-bold mb-0">Filtrar por Tipo</Form.Label>
+              <div className="d-flex justify-content-end mb-2">
                 <Button 
-                  size="sm" 
-                  variant={showFilters ? 'primary' : 'outline-primary'}
+                  variant={showFilters ? 'danger' : 'outline-danger'}
                   onClick={() => setShowFilters(!showFilters)}
+                  className="d-flex align-items-center gap-2"
                 >
-                  {showFilters ? '▲ Ocultar Filtros' : '▼ Mostrar Filtros'}
+                  <span>Filtros</span>
                   {selectedTypes.length > 0 && (
-                    <Badge bg="danger" className="ms-2">{selectedTypes.length}</Badge>
+                    <Badge bg="light" text="dark">{selectedTypes.length}</Badge>
                   )}
+                  <span>{showFilters ? '▲' : '▼'}</span>
                 </Button>
               </div>
               
               {showFilters && (
                 <>
-                  {/* Toggle Filtro Duro */}
-                  <div className="mb-3 p-2 bg-light rounded">
-                    <Form.Check
-                      type="switch"
-                      id="strict-mode-switch"
-                      label={
-                        <span className="fw-bold">
-                          Filtro Duro {strictMode && <Badge bg="warning" text="dark">ACTIVADO</Badge>}
-                        </span>
-                      }
-                      checked={strictMode}
-                      onChange={(e) => setStrictMode(e.target.checked)}
-                    />
-                    <small className="text-muted d-block mt-1">
-                      {strictMode 
-                        ? 'Solo Pokémon con TODOS los tipos seleccionados (tipo puro)' 
-                        : 'Pokémon con AL MENOS UNO de los tipos seleccionados'}
-                    </small>
-                  </div>
-                  
-                  {/* Iconos de tipos */}
-                  <div className="d-flex flex-wrap gap-2">
+                  {/* Iconos de tipos - 3 filas de 6 */}
+                  <div className="d-flex flex-wrap gap-1 justify-content-center">
                     {POKEMON_TYPES.filter(t => t !== 'all').map(type => (
                       <Button
                         key={type}
@@ -343,7 +380,8 @@ function PokedexModal({ show, onHide }) {
                         }}
                         className="p-1"
                         style={{ 
-                          minWidth: '40px',
+                          width: 'calc(16.66% - 6px)',
+                          minWidth: '36px',
                           backgroundColor: selectedTypes.includes(type) ? TYPE_COLORS[type] : 'transparent',
                           borderColor: TYPE_COLORS[type]
                         }}
@@ -358,7 +396,7 @@ function PokedexModal({ show, onHide }) {
                     ))}
                   </div>
                   
-                  <div className="mt-3 d-flex gap-2">
+                  <div className="mt-3 d-flex gap-2 justify-content-center">
                     <Button 
                       size="sm" 
                       variant="outline-secondary"
@@ -366,12 +404,12 @@ function PokedexModal({ show, onHide }) {
                     >
                       Limpiar filtros
                     </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline-primary"
-                      onClick={() => setStrictMode(false)}
+                    <Button
+                      size="sm"
+                      variant={strictMode ? 'danger' : 'outline-danger'}
+                      onClick={() => setStrictMode(!strictMode)}
                     >
-                      Modo Normal
+                      Filtro exacto {strictMode && '✓'}
                     </Button>
                   </div>
                   
@@ -464,7 +502,7 @@ function PokedexModal({ show, onHide }) {
             <div className="text-center mb-4">
               {selectedPokemon.sprite && (
                 <img 
-                  src={selectedPokemon.sprite} 
+                  src={(shinyMode || shinyPokemon.has(selectedPokemon.id)) ? selectedPokemon.sprite.replace('/pokemon/', '/pokemon/shiny/') : selectedPokemon.sprite} 
                   alt={selectedPokemon.name}
                   style={{ width: '120px', height: '120px', imageRendering: 'pixelated' }}
                 />
