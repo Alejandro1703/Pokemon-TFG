@@ -1,12 +1,19 @@
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 
-function Sidebar() {
+function Sidebar({ onShowPokedex, onShowComparator, onShowProfile }) {
   const location = useLocation();
+  const isLoggedIn = !!localStorage.getItem('token');
 
-  const navItems = [
+  const authItems = [
     { path: '/login', label: 'Iniciar Sesion', icon: '→' },
     { path: '/register', label: 'Registro', icon: '+' },
+  ];
+
+  const dashboardItems = [
+    { key: 'pokedex', label: 'Ver Pokedex', icon: 'P', action: onShowPokedex },
+    { key: 'comparador', label: 'Comparador', icon: 'C', action: onShowComparator },
+    { key: 'perfil', label: 'Mi Perfil', icon: 'U', action: onShowProfile },
   ];
 
   return (
@@ -30,62 +37,77 @@ function Sidebar() {
         <h6 className="text-warning fw-bold m-0" style={{ fontSize: '1.1rem' }}>MENU PRINCIPAL</h6>
       </div>
       
-      <div className="p-3">
-        <small className="text-secondary">Acceso de usuarios</small>
+      <div className="p-3 text-center">
+        <small className="text-secondary">
+          {isLoggedIn ? 'Herramientas' : 'Acceso de usuarios'}
+        </small>
       </div>
       
       <Nav className="flex-column p-3">
-        {navItems.map((item) => (
-          <Nav.Link
-            key={item.path}
-            as={Link}
-            to={item.path}
-            className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
-              location.pathname === item.path 
-                ? 'bg-warning text-dark fw-bold shadow' 
-                : 'text-light'
-            }`}
-            style={{
-              backgroundColor: location.pathname === item.path ? '#ffc107' : 'rgba(255,255,255,0.05)',
-              border: location.pathname === item.path ? 'none' : '1px solid rgba(255,255,255,0.1)',
-              transition: 'all 0.3s ease',
-              fontSize: '1rem'
-            }}
-          >
-            <span 
-              className="me-3 d-flex align-items-center justify-content-center rounded-circle"
-              style={{ 
-                width: '32px', 
-                height: '32px',
-                backgroundColor: location.pathname === item.path ? '#000' : '#ffc107',
-                color: location.pathname === item.path ? '#ffc107' : '#000',
-                fontWeight: 'bold'
+        {isLoggedIn ? (
+          dashboardItems.map((item) => (
+            <Nav.Link
+              key={item.key}
+              onClick={item.action}
+              className="d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none text-light"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                transition: 'all 0.3s ease',
+                fontSize: '1rem',
+                cursor: 'pointer'
               }}
             >
-              {item.icon}
-            </span>
-            <span>{item.label}</span>
-          </Nav.Link>
-        ))}
+              <span 
+                className="me-3 d-flex align-items-center justify-content-center rounded-circle"
+                style={{ 
+                  width: '32px', 
+                  height: '32px',
+                  backgroundColor: '#ffc107',
+                  color: '#000',
+                  fontWeight: 'bold'
+                }}
+              >
+                {item.icon}
+              </span>
+              <span>{item.label}</span>
+            </Nav.Link>
+          ))
+        ) : (
+          authItems.map((item) => (
+            <Nav.Link
+              key={item.path}
+              as={Link}
+              to={item.path}
+              className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
+                location.pathname === item.path 
+                  ? 'bg-warning text-dark fw-bold shadow' 
+                  : 'text-light'
+              }`}
+              style={{
+                backgroundColor: location.pathname === item.path ? '#ffc107' : 'rgba(255,255,255,0.05)',
+                border: location.pathname === item.path ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                transition: 'all 0.3s ease',
+                fontSize: '1rem'
+              }}
+            >
+              <span 
+                className="me-3 d-flex align-items-center justify-content-center rounded-circle"
+                style={{ 
+                  width: '32px', 
+                  height: '32px',
+                  backgroundColor: location.pathname === item.path ? '#000' : '#ffc107',
+                  color: location.pathname === item.path ? '#ffc107' : '#000',
+                  fontWeight: 'bold'
+                }}
+              >
+                {item.icon}
+              </span>
+              <span>{item.label}</span>
+            </Nav.Link>
+          ))
+        )}
       </Nav>
-
-      <div className="mt-auto p-4 border-top border-secondary">
-        <div className="text-secondary small mb-2 fw-bold">Juegos disponibles:</div>
-        <div className="d-flex flex-wrap gap-1">
-          <span className="badge bg-danger">Rojo Fuego</span>
-          <span className="badge bg-success">Verde Hoja</span>
-          <span className="badge bg-success">Esmeralda</span>
-          <span className="badge bg-primary">Rubi</span>
-          <span className="badge bg-info text-dark">Zafiro</span>
-          <span className="badge" style={{backgroundColor: '#9b59b6'}}>Diamante</span>
-          <span className="badge" style={{backgroundColor: '#e91e63'}}>Perla</span>
-          <span className="badge" style={{backgroundColor: '#795548'}}>Platino</span>
-          <span className="badge bg-light text-dark">Blanco</span>
-          <span className="badge bg-dark border">Negro</span>
-          <span className="badge bg-light text-dark">Blanco 2</span>
-          <span className="badge bg-dark border">Negro 2</span>
-        </div>
-      </div>
     </div>
   );
 }

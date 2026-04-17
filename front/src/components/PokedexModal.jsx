@@ -257,7 +257,7 @@ function PokedexModal({ show, onHide }) {
           <OverlayTrigger
             placement="bottom"
             overlay={
-              <Popover>
+              <Popover style={{ zIndex: 10001 }}>
                 <Popover.Header as="h3">📖 Guía de Pokédex</Popover.Header>
                 <Popover.Body>
                   <strong>Navegación:</strong><br/>
@@ -269,10 +269,10 @@ function PokedexModal({ show, onHide }) {
                   • Selecciona múltiples tipos<br/>
                   • <strong>Duro:</strong> Solo Pokémon con EXACTAMENTE esos tipos<br/>
                   • Sin Duro: Pokémon con al menos un tipo seleccionado<br/><br/>
-                  <strong>Filtro Duro + Fuego:</strong> Charizard ❌ (Fuego/Volador)<br/>
+                  <strong>Filtro Duro + Fuego:</strong> Charizard (NO) (Fuego/Volador)<br/>
                   <strong>Filtro Duro + Fuego:</strong> Magmar ✓ (Fuego puro)<br/>
                   <strong>Filtro Duro + Fuego+Volador:</strong> Charizard ✓<br/><br/>
-                  <strong>Click en Pokémon:</strong> Ver detalles, stats y habilidades
+                  <strong>Click en Pokémon:</strong> Ver detalles y stats.
                 </Popover.Body>
               </Popover>
             }

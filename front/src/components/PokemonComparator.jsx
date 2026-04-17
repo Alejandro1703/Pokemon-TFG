@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Button, Form, Row, Col, Card, Badge, Spinner, ListGroup, ToggleButton, ButtonGroup } from 'react-bootstrap';
+import { Modal, Button, Form, Row, Col, Card, Badge, Spinner, ListGroup, ToggleButton, ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
 
 const STAT_NAMES = {
   hp: { name: 'PS', fullName: 'Puntos de Salud', color: '#ff6b6b' },
@@ -283,9 +283,35 @@ function PokemonComparator({ show, onHide }) {
           minHeight: '60px'
         }}
       >
-        <Modal.Title className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
-          Comparador Competitivo
-        </Modal.Title>
+        <div className="d-flex align-items-center gap-2">
+          <Modal.Title className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
+            Comparador Competitivo
+          </Modal.Title>
+          <OverlayTrigger
+            placement="bottom"
+            overlay={
+              <Popover style={{ zIndex: 10001 }}>
+                <Popover.Header as="h3">📖 Guía del Comparador</Popover.Header>
+                <Popover.Body>
+                  <strong>Como usar:</strong><br/>
+                  • Busca y selecciona 2 Pokémon para comparar<br/>
+                  • Escribe el nombre y selecciona de la lista<br/><br/>
+                  <strong>Filtros de Stats:</strong><br/>
+                  • Activa/desactiva las estadísticas que quieres ver<br/>
+                  • PS, Ataque, Defensa, At. Esp., Def. Esp., Velocidad<br/><br/>
+                  <strong>Filtros de Tipos:</strong><br/>
+                  • Selecciona tipos para filtrar la lista de Pokémon<br/>
+                  • Facilita encontrar Pokémon específicos<br/><br/>
+                  <strong>Visualización:</strong><br/>
+                  • Flechas indican qué Pokémon gana en cada stat<br/>
+                  • Diferencias numéricas en cada comparación
+                </Popover.Body>
+              </Popover>
+            }
+          >
+            <Button variant="light" size="sm" className="rounded-circle px-2">❓</Button>
+          </OverlayTrigger>
+        </div>
         <Button 
           variant="light" 
           size="sm" 

@@ -49,6 +49,9 @@ public class Usuario {
     @Column(name = "pokemon_favorito")
     private String pokemonFavorito;
     
+    @Column(unique = true)
+    private String email;
+    
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
     
