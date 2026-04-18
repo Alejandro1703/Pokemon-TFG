@@ -11,6 +11,7 @@ function Sidebar({ onShowPokedex, onShowComparator, onShowProfile }) {
   ];
 
   const dashboardItems = [
+    { key: 'mis-juegos', label: 'Mis Juegos', icon: 'G', action: () => {} },
     { key: 'pokedex', label: 'Ver Pokedex', icon: 'P', action: onShowPokedex },
     { key: 'comparador', label: 'Comparador', icon: 'C', action: onShowComparator },
     { key: 'perfil', label: 'Mi Perfil', icon: 'U', action: onShowProfile },
