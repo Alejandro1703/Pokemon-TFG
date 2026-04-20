@@ -44,6 +44,7 @@ function Login() {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        setError('');
         setSuccess('Inicio de sesion exitoso. Redirigiendo...');
         setTimeout(() => {
           navigate('/dashboard');
