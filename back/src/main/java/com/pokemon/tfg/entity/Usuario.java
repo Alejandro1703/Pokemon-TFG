@@ -1,5 +1,6 @@
 package com.pokemon.tfg.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -53,8 +54,9 @@ public class Usuario {
     private String email;
     
     @Column(name = "fecha_creacion")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechaCreacion;
-    
+
     @PrePersist
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();

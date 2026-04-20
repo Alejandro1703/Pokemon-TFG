@@ -6,6 +6,7 @@ import PokedexModal from './PokedexModal';
 import PokemonComparator from './PokemonComparator';
 import ProfileModal from './ProfileModal';
 import MisJuegosModal from './MisJuegosModal';
+import ProgresoModal from './ProgresoModal';
 
 // Precios por estado del juego
 const ESTADOS_JUEGO = {
@@ -58,6 +59,7 @@ function Dashboard() {
   const [showComparator, setShowComparator] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showMisJuegos, setShowMisJuegos] = useState(false);
+  const [showProgreso, setShowProgreso] = useState(false);
   const [filtroGeneracion, setFiltroGeneracion] = useState('Todas');
 
   const juegosFiltrados = filtroGeneracion === 'Todas' 
@@ -104,6 +106,7 @@ function Dashboard() {
       onShowComparator={() => setShowComparator(true)}
       onShowProfile={() => setShowProfile(true)}
       onShowMisJuegos={() => setShowMisJuegos(true)}
+      onShowProgreso={() => setShowProgreso(true)}
     >
       <div className="p-4">
         {/* Header del Dashboard */}
@@ -268,6 +271,13 @@ function Dashboard() {
       <MisJuegosModal
         show={showMisJuegos}
         onHide={() => setShowMisJuegos(false)}
+        juegosDisponibles={JUEGOS_DISPONIBLES}
+      />
+
+      {/* Modal Progreso */}
+      <ProgresoModal
+        show={showProgreso}
+        onHide={() => setShowProgreso(false)}
         juegosDisponibles={JUEGOS_DISPONIBLES}
       />
     </DashboardLayout>

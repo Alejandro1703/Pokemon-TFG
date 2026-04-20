@@ -2,20 +2,21 @@ import Header from './Header';
 import Footer from './Footer';
 import Sidebar from './Sidebar';
 
-function DashboardLayout({ children, onShowPokedex, onShowComparator, onShowProfile, onShowMisJuegos }) {
+function DashboardLayout({ children, onShowPokedex, onShowComparator, onShowProfile, onShowMisJuegos, onShowProgreso }) {
   return (
-    <div 
+    <div
       className="min-vh-100"
       style={{
         background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%)'
       }}
     >
       <Header />
-      <Sidebar 
+      <Sidebar
         onShowPokedex={onShowPokedex}
         onShowComparator={onShowComparator}
         onShowProfile={onShowProfile}
         onShowMisJuegos={onShowMisJuegos}
+        onShowProgreso={onShowProgreso}
       />
       <Footer />
       

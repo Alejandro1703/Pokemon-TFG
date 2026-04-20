@@ -58,6 +58,7 @@ function PokedexModal({ show, onHide }) {
   const [strictMode, setStrictMode] = useState(false);
   const [shinyMode, setShinyMode] = useState(false);
   const [shinyPokemon, setShinyPokemon] = useState(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 20;
 
   // Cargar Pokémon cuando cambia la vista
@@ -68,11 +69,11 @@ function PokedexModal({ show, onHide }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, pokedexView]);
 
-  // Filtrar cuando cambian los tipos o el modo estricto
+  // Filtrar cuando cambian los tipos, modo estricto o búsqueda
   useEffect(() => {
     filterPokemon();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTypes, strictMode, pokemonList]);
+  }, [selectedTypes, strictMode, pokemonList, searchQuery]);
 
   const loadPokemon = async () => {
     setLoading(true);
@@ -130,21 +131,34 @@ function PokedexModal({ show, onHide }) {
   };
 
   const filterPokemon = () => {
-    if (selectedTypes.length === 0) {
-      setFilteredPokemon(pokemonList);
-    } else if (strictMode) {
-      // FILTRO DURO: Pokémon deben tener EXACTAMENTE los tipos seleccionados
-      setFilteredPokemon(pokemonList.filter(p => {
-        // El Pokémon debe tener los mismos tipos que los seleccionados (sin importar orden)
-        if (p.types.length !== selectedTypes.length) return false;
-        return selectedTypes.every(type => p.types.includes(type));
-      }));
-    } else {
-      // FILTRO NORMAL: Pokémon con AL MENOS UNO de los tipos seleccionados (OR)
-      setFilteredPokemon(pokemonList.filter(p => 
-        p.types.some(type => selectedTypes.includes(type))
-      ));
+    let filtered = pokemonList;
+
+    // Filtro por búsqueda de nombre (coincide desde el inicio)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().startsWith(query) ||
+        p.id.toString() === query
+      );
     }
+
+    // Filtro por tipos
+    if (selectedTypes.length > 0) {
+      if (strictMode) {
+        // FILTRO DURO: Pokémon deben tener EXACTAMENTE los tipos seleccionados
+        filtered = filtered.filter(p => {
+          if (p.types.length !== selectedTypes.length) return false;
+          return selectedTypes.every(type => p.types.includes(type));
+        });
+      } else {
+        // FILTRO NORMAL: Pokémon con AL MENOS UNO de los tipos seleccionados (OR)
+        filtered = filtered.filter(p =>
+          p.types.some(type => selectedTypes.includes(type))
+        );
+      }
+    }
+
+    setFilteredPokemon(filtered);
     setCurrentPage(1);
   };
 
@@ -294,135 +308,151 @@ function PokedexModal({ show, onHide }) {
       <Modal.Body className="p-0">
         {/* Controles */}
         <div className="p-4 border-bottom" style={{ backgroundColor: '#f8f9fa' }}>
-          <Row className="g-3">
-            {/* Selector de vista */}
-            <Col md={6}>
-              <Form.Label className="fw-bold">Vista Pokedex</Form.Label>
-              <div className="d-flex gap-2">
+          {/* Fila 1: Buscador y Filtros */}
+          <Row className="g-3 mb-3">
+            {/* Buscador */}
+            <Col md={8} lg={9}>
+              <Form.Control
+                type="text"
+                placeholder="🔍 Buscar por nombre o número..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="border-2 py-2"
+                style={{ borderRadius: '25px', fontSize: '1rem' }}
+              />
+            </Col>
+
+            {/* Botón Filtros */}
+            <Col md={4} lg={3} className="d-flex justify-content-end">
+              <Button
+                variant={showFilters ? 'danger' : 'outline-danger'}
+                onClick={() => setShowFilters(!showFilters)}
+                className="d-flex align-items-center gap-2 rounded-pill px-4 py-2 fw-bold"
+              >
+                <span>⚡ Filtros</span>
+                {selectedTypes.length > 0 && (
+                  <Badge bg="light" text="dark" className="rounded-pill">{selectedTypes.length}</Badge>
+                )}
+                <span>{showFilters ? '▲' : '▼'}</span>
+              </Button>
+            </Col>
+          </Row>
+
+          {/* Fila 2: Vista y Shiny */}
+          <Row className="g-3 align-items-center">
+            <Col md={8} lg={9}>
+              <div className="d-flex gap-2 align-items-center">
                 <ToggleButtonGroup
                   type="radio"
                   name="pokedex-view"
                   value={pokedexView}
                   onChange={(val) => setPokedexView(val)}
-                  className="flex-grow-1"
                 >
                   <ToggleButton
                     id="tbg-radio-national"
                     value="national"
                     variant={pokedexView === 'national' ? 'danger' : 'outline-danger'}
+                    className="rounded-pill px-4"
                   >
-                    Nacional
+                    🌍 Nacional
                   </ToggleButton>
                   <ToggleButton
                     id="tbg-radio-regional"
                     value="kanto"
                     variant={pokedexView !== 'national' ? 'danger' : 'outline-danger'}
+                    className="rounded-pill px-4"
                   >
-                    Regional
+                    📍 Regional
                   </ToggleButton>
                 </ToggleButtonGroup>
-                
-                {/* Toggle ShinyDex */}
-                <Button
-                  variant={shinyMode ? 'warning' : 'outline-warning'}
-                  onClick={() => setShinyMode(!shinyMode)}
-                  title={shinyMode ? 'Desactivar ShinyDex' : 'Activar ShinyDex'}
-                >
-                  ✨ Shiny
-                </Button>
+
+                {pokedexView !== 'national' && (
+                  <Form.Select
+                    value={pokedexView}
+                    onChange={(e) => setPokedexView(e.target.value)}
+                    className="w-auto rounded-pill border-2"
+                    style={{ maxWidth: '150px' }}
+                  >
+                    <option value="kanto">Kanto</option>
+                    <option value="johto">Johto</option>
+                    <option value="hoenn">Hoenn</option>
+                    <option value="sinnoh">Sinnoh</option>
+                    <option value="unova">Unova</option>
+                  </Form.Select>
+                )}
               </div>
-              
-              {pokedexView !== 'national' && (
-                <Form.Select 
-                  className="mt-2"
-                  value={pokedexView}
-                  onChange={(e) => setPokedexView(e.target.value)}
-                >
-                  <option value="kanto">Kanto (Gen 1)</option>
-                  <option value="johto">Johto (Gen 2)</option>
-                  <option value="hoenn">Hoenn (Gen 3)</option>
-                  <option value="sinnoh">Sinnoh (Gen 4)</option>
-                  <option value="unova">Unova (Gen 5)</option>
-                </Form.Select>
-              )}
             </Col>
-            
-            {/* Filtro de tipo colapsable */}
-            <Col md={6}>
-              <div className="d-flex justify-content-end mb-2">
-                <Button 
-                  variant={showFilters ? 'danger' : 'outline-danger'}
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="d-flex align-items-center gap-2"
-                >
-                  <span>Filtros</span>
-                  {selectedTypes.length > 0 && (
-                    <Badge bg="light" text="dark">{selectedTypes.length}</Badge>
-                  )}
-                  <span>{showFilters ? '▲' : '▼'}</span>
-                </Button>
-              </div>
-              
-              {showFilters && (
-                <>
-                  {/* Iconos de tipos - 3 filas de 6 */}
-                  <div className="d-flex flex-wrap gap-1 justify-content-center">
-                    {POKEMON_TYPES.filter(t => t !== 'all').map(type => (
-                      <Button
-                        key={type}
-                        variant={selectedTypes.includes(type) ? 'primary' : 'outline-secondary'}
-                        onClick={() => {
-                          if (selectedTypes.includes(type)) {
-                            setSelectedTypes(selectedTypes.filter(t => t !== type));
-                          } else {
-                            setSelectedTypes([...selectedTypes, type]);
-                          }
-                        }}
-                        className="p-1"
-                        style={{ 
-                          width: 'calc(16.66% - 6px)',
-                          minWidth: '36px',
-                          backgroundColor: selectedTypes.includes(type) ? TYPE_COLORS[type] : 'transparent',
-                          borderColor: TYPE_COLORS[type]
-                        }}
-                        title={TYPE_NAMES_ES[type]}
-                      >
-                        <img
-                          src={`https://play.pokemonshowdown.com/sprites/types/${type.charAt(0).toUpperCase() + type.slice(1)}.png`}
-                          alt={TYPE_NAMES_ES[type]}
-                          style={{ width: '32px', height: '16px', imageRendering: 'pixelated' }}
-                        />
-                      </Button>
-                    ))}
-                  </div>
-                  
-                  <div className="mt-3 d-flex gap-2 justify-content-center">
-                    <Button 
-                      size="sm" 
-                      variant="outline-secondary"
-                      onClick={() => setSelectedTypes([])}
-                    >
-                      Limpiar filtros
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={strictMode ? 'danger' : 'outline-danger'}
-                      onClick={() => setStrictMode(!strictMode)}
-                    >
-                      Filtro exacto {strictMode && '✓'}
-                    </Button>
-                  </div>
-                  
-                  {selectedTypes.length > 0 && (
-                    <small className="text-muted d-block mt-2">
-                      {selectedTypes.length} tipo(s) seleccionado(s) | 
-                      Modo: {strictMode ? 'Filtro Duro (AND)' : 'Filtro Normal (OR)'}
-                    </small>
-                  )}
-                </>
-              )}
+
+            <Col md={4} lg={3} className="d-flex justify-content-end">
+              <Button
+                variant={shinyMode ? 'warning' : 'outline-warning'}
+                onClick={() => setShinyMode(!shinyMode)}
+                className="rounded-pill px-4 fw-bold"
+              >
+                ✨ ShinyDex
+              </Button>
             </Col>
           </Row>
+
+          {/* Filtros de tipo desplegables */}
+          {showFilters && (
+            <div className="mt-3 p-3 rounded-3" style={{ backgroundColor: 'white', border: '2px solid #dee2e6' }}>
+              {/* Iconos de tipos - 3 filas de 6 */}
+              <div className="d-flex flex-wrap gap-1 justify-content-center">
+                {POKEMON_TYPES.filter(t => t !== 'all').map(type => (
+                  <Button
+                    key={type}
+                    variant={selectedTypes.includes(type) ? 'primary' : 'outline-secondary'}
+                    onClick={() => {
+                      if (selectedTypes.includes(type)) {
+                        setSelectedTypes(selectedTypes.filter(t => t !== type));
+                      } else {
+                        setSelectedTypes([...selectedTypes, type]);
+                      }
+                    }}
+                    className="p-1"
+                    style={{
+                      width: 'calc(16.66% - 6px)',
+                      minWidth: '36px',
+                      backgroundColor: selectedTypes.includes(type) ? TYPE_COLORS[type] : 'transparent',
+                      borderColor: TYPE_COLORS[type]
+                    }}
+                    title={TYPE_NAMES_ES[type]}
+                  >
+                    <img
+                      src={`https://play.pokemonshowdown.com/sprites/types/${type.charAt(0).toUpperCase() + type.slice(1)}.png`}
+                      alt={TYPE_NAMES_ES[type]}
+                      style={{ width: '32px', height: '16px', imageRendering: 'pixelated' }}
+                    />
+                  </Button>
+                ))}
+              </div>
+
+              <div className="mt-3 d-flex gap-2 justify-content-center">
+                <Button
+                  size="sm"
+                  variant="outline-secondary"
+                  onClick={() => setSelectedTypes([])}
+                >
+                  Limpiar filtros
+                </Button>
+                <Button
+                  size="sm"
+                  variant={strictMode ? 'danger' : 'outline-danger'}
+                  onClick={() => setStrictMode(!strictMode)}
+                >
+                  Filtro exacto {strictMode && '✓'}
+                </Button>
+              </div>
+
+              {selectedTypes.length > 0 && (
+                <small className="text-muted d-block mt-2 text-center">
+                  {selectedTypes.length} tipo(s) seleccionado(s) |
+                  Modo: {strictMode ? 'Filtro Duro (AND)' : 'Filtro Normal (OR)'}
+                </small>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Lista de Pokemon */}
