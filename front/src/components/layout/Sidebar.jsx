@@ -1,7 +1,7 @@
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 
-function Sidebar({ onShowPokedex, onShowComparator, onShowProfile }) {
+function Sidebar({ onShowPokedex, onShowComparator, onShowProfile, onShowMisJuegos }) {
   const location = useLocation();
   const isLoggedIn = !!localStorage.getItem('token');
 
@@ -11,7 +11,7 @@ function Sidebar({ onShowPokedex, onShowComparator, onShowProfile }) {
   ];
 
   const dashboardItems = [
-    { key: 'mis-juegos', label: 'Mis Juegos', icon: 'G', action: () => {} },
+    { key: 'mis-juegos', label: 'Mis Juegos', icon: 'G', action: onShowMisJuegos },
     { key: 'pokedex', label: 'Ver Pokedex', icon: 'P', action: onShowPokedex },
     { key: 'comparador', label: 'Comparador', icon: 'C', action: onShowComparator },
     { key: 'perfil', label: 'Mi Perfil', icon: 'U', action: onShowProfile },

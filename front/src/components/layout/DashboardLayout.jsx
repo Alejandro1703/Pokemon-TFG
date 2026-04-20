@@ -2,7 +2,7 @@ import Header from './Header';
 import Footer from './Footer';
 import Sidebar from './Sidebar';
 
-function DashboardLayout({ children, onShowPokedex, onShowComparator, onShowProfile }) {
+function DashboardLayout({ children, onShowPokedex, onShowComparator, onShowProfile, onShowMisJuegos }) {
   return (
     <div 
       className="min-vh-100"
@@ -15,6 +15,7 @@ function DashboardLayout({ children, onShowPokedex, onShowComparator, onShowProf
         onShowPokedex={onShowPokedex}
         onShowComparator={onShowComparator}
         onShowProfile={onShowProfile}
+        onShowMisJuegos={onShowMisJuegos}
       />
       <Footer />
       

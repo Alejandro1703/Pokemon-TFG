@@ -5,23 +5,47 @@ import DashboardLayout from './layout/DashboardLayout';
 import PokedexModal from './PokedexModal';
 import PokemonComparator from './PokemonComparator';
 import ProfileModal from './ProfileModal';
+import MisJuegosModal from './MisJuegosModal';
 
-// Lista de juegos disponibles con sus imagenes y precios (EUR)
+// Precios por estado del juego
+const ESTADOS_JUEGO = {
+  completo: { label: 'Completo (CIB + VIP)', key: 'completo' },
+  semi: { label: 'Semi completo (Sin VIP)', key: 'semi' },
+  sinManual: { label: 'Sin manual', key: 'sinManual' },
+  soloCartucho: { label: 'Solo cartucho', key: 'soloCartucho' },
+  caratulaCartucho: { label: 'Caratula y cartucho', key: 'caratulaCartucho' }
+};
+
+// Lista de juegos con precios por estado (EUR)
 const JUEGOS_DISPONIBLES = [
-  { id: 1, nombre: 'Rojo Fuego', imagen: '/images/juegos/Rojo Fuego.jpeg', generacion: 'Gen 1', precio: 45 },
-  { id: 2, nombre: 'Verde Hoja', imagen: '/images/juegos/Verde Hoja.jpeg', generacion: 'Gen 1', precio: 40 },
-  { id: 3, nombre: 'Esmeralda', imagen: '/images/juegos/Esmeralda.jpeg', generacion: 'Gen 3', precio: 85 },
-  { id: 4, nombre: 'Rubi', imagen: '/images/juegos/Rubi.jpeg', generacion: 'Gen 3', precio: 35 },
-  { id: 5, nombre: 'Zafiro', imagen: '/images/juegos/Zafiro.jpeg', generacion: 'Gen 3', precio: 35 },
-  { id: 6, nombre: 'Diamante', imagen: '/images/juegos/Diamante.jpeg', generacion: 'Gen 4', precio: 30 },
-  { id: 7, nombre: 'Perla', imagen: '/images/juegos/Perla.jpeg', generacion: 'Gen 4', precio: 30 },
-  { id: 8, nombre: 'Platino', imagen: '/images/juegos/Platino.jpeg', generacion: 'Gen 4', precio: 55 },
-  { id: 9, nombre: 'Oro HeartGold', imagen: '/images/juegos/Oro HeartGold.jpeg', generacion: 'Gen 2', precio: 95 },
-  { id: 10, nombre: 'Plata SoulSilver', imagen: '/images/juegos/Plata SoulSilver.jpeg', generacion: 'Gen 2', precio: 90 },
-  { id: 11, nombre: 'Negro', imagen: '/images/juegos/Negro.jpeg', generacion: 'Gen 5', precio: 35 },
-  { id: 12, nombre: 'Blanco', imagen: '/images/juegos/Blanco.jpeg', generacion: 'Gen 5', precio: 35 },
-  { id: 13, nombre: 'Negro 2', imagen: '/images/juegos/Negro 2.jpeg', generacion: 'Gen 5', precio: 40 },
-  { id: 14, nombre: 'Blanco 2', imagen: '/images/juegos/Blanco 2.jpeg', generacion: 'Gen 5', precio: 40 }
+  { id: 1, nombre: 'Rojo Fuego', imagen: '/images/juegos/Rojo Fuego.jpeg', generacion: 'Gen 1', 
+    precios: { completo: 240, semi: 210, sinManual: 165, soloCartucho: 75, caratulaCartucho: 145 }},
+  { id: 2, nombre: 'Verde Hoja', imagen: '/images/juegos/Verde Hoja.jpeg', generacion: 'Gen 1',
+    precios: { completo: 230, semi: 200, sinManual: 155, soloCartucho: 70, caratulaCartucho: 135 }},
+  { id: 3, nombre: 'Rubi', imagen: '/images/juegos/Rubi.jpeg', generacion: 'Gen 3',
+    precios: { completo: 210, semi: 185, sinManual: 140, soloCartucho: 65, caratulaCartucho: 125 }},
+  { id: 4, nombre: 'Zafiro', imagen: '/images/juegos/Zafiro.jpeg', generacion: 'Gen 3',
+    precios: { completo: 210, semi: 185, sinManual: 140, soloCartucho: 65, caratulaCartucho: 125 }},
+  { id: 5, nombre: 'Esmeralda', imagen: '/images/juegos/Esmeralda.jpeg', generacion: 'Gen 3',
+    precios: { completo: 520, semi: 460, sinManual: 350, soloCartucho: 140, caratulaCartucho: 310 }},
+  { id: 6, nombre: 'Diamante', imagen: '/images/juegos/Diamante.jpeg', generacion: 'Gen 4',
+    precios: { completo: 90, semi: 75, sinManual: 60, soloCartucho: 35, caratulaCartucho: 70 }},
+  { id: 7, nombre: 'Perla', imagen: '/images/juegos/Perla.jpeg', generacion: 'Gen 4',
+    precios: { completo: 85, semi: 70, sinManual: 55, soloCartucho: 35, caratulaCartucho: 65 }},
+  { id: 8, nombre: 'Platino', imagen: '/images/juegos/Platino.jpeg', generacion: 'Gen 4',
+    precios: { completo: 160, semi: 140, sinManual: 115, soloCartucho: 75, caratulaCartucho: 130 }},
+  { id: 9, nombre: 'Oro HeartGold', imagen: '/images/juegos/Oro HeartGold.jpeg', generacion: 'Gen 2',
+    precios: { completo: 175, semi: 155, sinManual: 130, soloCartucho: 95, caratulaCartucho: 145, conPokewalker: 450 }},
+  { id: 10, nombre: 'Plata SoulSilver', imagen: '/images/juegos/Plata SoulSilver.jpeg', generacion: 'Gen 2',
+    precios: { completo: 175, semi: 155, sinManual: 130, soloCartucho: 95, caratulaCartucho: 145, conPokewalker: 450 }},
+  { id: 11, nombre: 'Negro', imagen: '/images/juegos/Negro.jpeg', generacion: 'Gen 5',
+    precios: { completo: 110, semi: 95, sinManual: 80, soloCartucho: 60, caratulaCartucho: 90 }},
+  { id: 12, nombre: 'Blanco', imagen: '/images/juegos/Blanco.jpeg', generacion: 'Gen 5',
+    precios: { completo: 110, semi: 95, sinManual: 80, soloCartucho: 60, caratulaCartucho: 90 }},
+  { id: 13, nombre: 'Negro 2', imagen: '/images/juegos/Negro 2.jpeg', generacion: 'Gen 5',
+    precios: { completo: 200, semi: 180, sinManual: 150, soloCartucho: 100, caratulaCartucho: 165 }},
+  { id: 14, nombre: 'Blanco 2', imagen: '/images/juegos/Blanco 2.jpeg', generacion: 'Gen 5',
+    precios: { completo: 200, semi: 180, sinManual: 150, soloCartucho: 100, caratulaCartucho: 165 }}
 ];
 
 const GENERACIONES = ['Todas', 'Gen 1', 'Gen 2', 'Gen 3', 'Gen 4', 'Gen 5'];
@@ -33,6 +57,7 @@ function Dashboard() {
   const [showPokedex, setShowPokedex] = useState(false);
   const [showComparator, setShowComparator] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showMisJuegos, setShowMisJuegos] = useState(false);
   const [filtroGeneracion, setFiltroGeneracion] = useState('Todas');
 
   const juegosFiltrados = filtroGeneracion === 'Todas' 
@@ -78,6 +103,7 @@ function Dashboard() {
       onShowPokedex={() => setShowPokedex(true)}
       onShowComparator={() => setShowComparator(true)}
       onShowProfile={() => setShowProfile(true)}
+      onShowMisJuegos={() => setShowMisJuegos(true)}
     >
       <div className="p-4">
         {/* Header del Dashboard */}
@@ -201,8 +227,11 @@ function Dashboard() {
                       fontSize: '1.1rem'
                     }}
                   >
-                    {juego.precio} €
+                    {juego.precios.completo} €
                   </div>
+                  <small className="text-muted" style={{ fontSize: '0.75rem' }}>
+                    Precio completo (CIB + VIP)
+                  </small>
                 </Card.Body>
               </Card>
             </Col>
@@ -233,6 +262,13 @@ function Dashboard() {
           setUser(updatedUser);
           localStorage.setItem('user', JSON.stringify(updatedUser));
         }}
+      />
+
+      {/* Modal Mis Juegos */}
+      <MisJuegosModal
+        show={showMisJuegos}
+        onHide={() => setShowMisJuegos(false)}
+        juegosDisponibles={JUEGOS_DISPONIBLES}
       />
     </DashboardLayout>
   );
