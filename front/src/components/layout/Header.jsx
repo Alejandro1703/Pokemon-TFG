@@ -14,7 +14,7 @@ function Header() {
 
   return (
     <header 
-      className="bg-dark border-bottom border-warning d-flex align-items-center px-4"
+      className="d-flex align-items-center px-4"
       style={{ 
         height: '70px',
         position: 'fixed',
@@ -22,11 +22,13 @@ function Header() {
         left: 0,
         right: 0,
         zIndex: 2000,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+        background: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%)',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+        borderBottom: '3px solid #ffc107'
       }}
     >
       {nombre && (
-        <span className="text-white fw-bold" style={{ fontSize: '1.1rem' }}>
+        <span className="text-dark fw-bold" style={{ fontSize: '1.1rem' }}>
           Bienvenido, {nombre}
         </span>
       )}

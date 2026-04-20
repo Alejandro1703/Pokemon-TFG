@@ -1,7 +1,6 @@
 function Footer() {
   return (
     <footer 
-      className="bg-dark"
       style={{ 
         height: '50px',
         position: 'fixed',
@@ -9,6 +8,7 @@ function Footer() {
         left: 0,
         right: 0,
         zIndex: 1000,
+        background: 'linear-gradient(135deg, #ffe082 0%, #ffecb3 50%, #fff8e1 100%)',
         borderTop: '3px solid #ffc107'
       }}
     />

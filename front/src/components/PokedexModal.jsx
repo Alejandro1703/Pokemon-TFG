@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Modal, Button, Form, Row, Col, Badge, Spinner, Card, ToggleButtonGroup, ToggleButton, OverlayTrigger, Popover } from 'react-bootstrap';
+import { useState, useEffect, useCallback } from 'react';
+import { Modal, Button, Form, Row, Col, Badge, Spinner, Card, ToggleButtonGroup, ToggleButton, OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
 
 const POKEMON_TYPES = [
   'all', 'normal', 'fire', 'water', 'electric', 'grass', 'ice', 
@@ -38,7 +38,7 @@ const TYPE_NAMES_ES = {
 
 // Rangos de Pokédex para cada región/generación
 const POKEDEX_RANGES = {
-  national: { start: 1, end: 649, name: 'Nacional' }, // Hasta Gen 5 (Negro/Blanco 2)
+  national: { start: 1, end: 649, name: 'Nacional' },
   kanto: { start: 1, end: 151, name: 'Kanto' },
   johto: { start: 152, end: 251, name: 'Johto' },
   hoenn: { start: 252, end: 386, name: 'Hoenn' },
@@ -46,12 +46,21 @@ const POKEDEX_RANGES = {
   unova: { start: 494, end: 649, name: 'Unova' }
 };
 
+// Configuración de gráficos por generación (ordenado: Gen 1 → Gen 5)
+const GRAPHIC_GENERATIONS = {
+  gen1: { end: 151, label: 'RF/VD', spritePath: 'generation-iii/firered-leafgreen', animated: false },
+  gen2: { end: 251, label: 'HG/SS', spritePath: 'generation-iv/heartgold-soulsilver', animated: false },
+  gen3: { end: 386, label: 'R/Z/E', spritePath: 'generation-iii/emerald', animated: false },
+  gen4: { end: 493, label: 'D/P/Pt', spritePath: 'generation-iv/diamond-pearl', animated: false },
+  gen5: { end: 649, label: 'B/N/B2/N2', spritePath: 'generation-v/black-white', animated: true }
+};
+
 function PokedexModal({ show, onHide, standalone = false }) {
   const [pokemonList, setPokemonList] = useState([]);
   const [filteredPokemon, setFilteredPokemon] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState([]);
-  const [pokedexView, setPokedexView] = useState('national');
+  const [pokedexView, setPokedexView] = useState('national'); // Por defecto Nacional
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -59,78 +68,34 @@ function PokedexModal({ show, onHide, standalone = false }) {
   const [shinyMode, setShinyMode] = useState(false);
   const [shinyPokemon, setShinyPokemon] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedGraphicGen, setSelectedGraphicGen] = useState('gen5'); // Por defecto B/N/B2/N2 (máxima generación)
   const itemsPerPage = 20;
 
-  // Cargar Pokémon cuando cambia la vista
+  // Cargar Pokémon cuando cambia la vista o generación de gráficos
   useEffect(() => {
     if (standalone || show) {
       loadPokemon();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [show, pokedexView, standalone]);
+  }, [show, pokedexView, selectedGraphicGen, standalone]);
 
-  // Filtrar cuando cambian los tipos, modo estricto o búsqueda
-  useEffect(() => {
-    filterPokemon();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTypes, strictMode, pokemonList, searchQuery]);
-
-  const loadPokemon = async () => {
-    setLoading(true);
-    try {
-      const range = POKEDEX_RANGES[pokedexView];
-      const pokemonData = [];
-      
-      // Cargar TODOS los Pokémon en el rango especificado (sin límite de 50)
-      const batchSize = 20; // Procesar en lotes para no sobrecargar
-      
-      for (let batchStart = range.start; batchStart <= range.end; batchStart += batchSize) {
-        const batchEnd = Math.min(batchStart + batchSize - 1, range.end);
-        const batchPromises = [];
-        
-        for (let i = batchStart; i <= batchEnd; i++) {
-          batchPromises.push(
-            fetch(`https://pokeapi.co/api/v2/pokemon/${i}`)
-              .then(res => res.ok ? res.json() : null)
-              .catch(() => null)
-          );
-        }
-        
-        const batchResults = await Promise.all(batchPromises);
-        
-        batchResults.forEach(data => {
-          if (data) {
-            pokemonData.push({
-              id: data.id,
-              name: data.name,
-              sprite: data.sprites.front_default,
-              types: data.types.map(t => t.type.name),
-              stats: {
-                hp: data.stats[0].base_stat,
-                attack: data.stats[1].base_stat,
-                defense: data.stats[2].base_stat,
-                specialAttack: data.stats[3].base_stat,
-                specialDefense: data.stats[4].base_stat,
-                speed: data.stats[5].base_stat
-              }
-            });
-          }
-        });
-        
-        // Actualizar progreso parcial para que el usuario vea que está cargando
-        setPokemonList([...pokemonData]);
-      }
-      
-      setPokemonList(pokemonData);
-      setCurrentPage(1);
-    } catch {
-      console.error('Error loading pokemon list');
-    } finally {
-      setLoading(false);
-    }
+  // Función para obtener regiones disponibles según la generación seleccionada
+  const getAvailableRegions = () => {
+    const genEnd = GRAPHIC_GENERATIONS[selectedGraphicGen].end;
+    const selectedGen = selectedGraphicGen;
+    const regions = [
+      { key: 'national', label: '🌍 Nacional', end: 649 },
+      { key: 'kanto', label: '📍 Kanto', end: 151 },
+      { key: 'johto', label: '📍 Johto', end: 251 }
+    ];
+    // HG/SS (gen2) incluye Hoenn y Sinnoh como excepción especial
+    if (genEnd >= 386 || selectedGen === 'gen2') regions.push({ key: 'hoenn', label: '📍 Hoenn', end: 386 });
+    if (genEnd >= 493 || selectedGen === 'gen2') regions.push({ key: 'sinnoh', label: '📍 Sinnoh', end: 493 });
+    if (genEnd >= 649) regions.push({ key: 'unova', label: '📍 Unova', end: 649 });
+    return regions;
   };
 
-  const filterPokemon = () => {
+  const filterPokemon = useCallback(() => {
     let filtered = pokemonList;
 
     // Filtro por búsqueda de nombre (coincide desde el inicio)
@@ -160,6 +125,92 @@ function PokedexModal({ show, onHide, standalone = false }) {
 
     setFilteredPokemon(filtered);
     setCurrentPage(1);
+  }, [pokemonList, searchQuery, selectedTypes, strictMode]);
+
+  // Filtrar cuando cambian los tipos, modo estricto o búsqueda
+  useEffect(() => {
+    filterPokemon();
+  }, [selectedTypes, strictMode, pokemonList, searchQuery, filterPokemon]);
+
+  // Resetear a Nacional cuando cambia la generación de gráficos
+  useEffect(() => {
+    setPokedexView('national');
+    setCurrentPage(1);
+  }, [selectedGraphicGen]);
+
+  const loadPokemon = async () => {
+    setLoading(true);
+    try {
+      // Obtener configuración de la generación de gráficos seleccionada
+      const graphicConfig = GRAPHIC_GENERATIONS[selectedGraphicGen];
+      const range = POKEDEX_RANGES[pokedexView];
+      
+      // Si es Nacional, usar el límite de la generación de gráficos seleccionada
+      // Si es una región específica, usar el menor entre la región y la generación
+      const effectiveEnd = pokedexView === 'national' 
+        ? graphicConfig.end 
+        : Math.min(range.end, graphicConfig.end);
+      const pokemonData = [];
+      
+      // Cargar TODOS los Pokémon en el rango especificado (sin límite de 50)
+      const batchSize = 20; // Procesar en lotes para no sobrecargar
+      
+      for (let batchStart = range.start; batchStart <= effectiveEnd; batchStart += batchSize) {
+        const batchEnd = Math.min(batchStart + batchSize - 1, effectiveEnd);
+        const batchPromises = [];
+        
+        for (let i = batchStart; i <= batchEnd; i++) {
+          batchPromises.push(
+            fetch(`https://pokeapi.co/api/v2/pokemon/${i}`)
+              .then(res => res.ok ? res.json() : null)
+              .catch(() => null)
+          );
+        }
+        
+        const batchResults = await Promise.all(batchPromises);
+        
+        batchResults.forEach(data => {
+          if (data) {
+            // Construir URL del sprite según la generación seleccionada
+            // Para Gen 5 (B/N) usamos sprites animados
+            const basePath = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions';
+            const spritePath = graphicConfig.animated 
+              ? `${basePath}/${graphicConfig.spritePath}/animated/${data.id}.gif`
+              : `${basePath}/${graphicConfig.spritePath}/${data.id}.png`;
+            const shinyPath = graphicConfig.animated
+              ? `${basePath}/${graphicConfig.spritePath}/animated/shiny/${data.id}.gif`
+              : `${basePath}/${graphicConfig.spritePath}/shiny/${data.id}.png`;
+            
+            pokemonData.push({
+              id: data.id,
+              name: data.name,
+              sprite: spritePath,
+              shinySprite: shinyPath,
+              animated: graphicConfig.animated,
+              types: data.types.map(t => t.type.name),
+              stats: {
+                hp: data.stats[0].base_stat,
+                attack: data.stats[1].base_stat,
+                defense: data.stats[2].base_stat,
+                specialAttack: data.stats[3].base_stat,
+                specialDefense: data.stats[4].base_stat,
+                speed: data.stats[5].base_stat
+              }
+            });
+          }
+        });
+        
+        // Actualizar progreso parcial para que el usuario vea que está cargando
+        setPokemonList([...pokemonData]);
+      }
+      
+      setPokemonList(pokemonData);
+      setCurrentPage(1);
+    } catch {
+      console.error('Error loading pokemon list');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const paginatedPokemon = filteredPokemon.slice(
@@ -181,9 +232,19 @@ function PokedexModal({ show, onHide, standalone = false }) {
         <div className="text-center p-3" style={{ backgroundColor: '#f8f9fa' }}>
           {pokemon.sprite ? (
             <img 
-              src={(shinyMode || shinyPokemon.has(pokemon.id)) ? pokemon.shinySprite || pokemon.sprite.replace('/pokemon/', '/pokemon/shiny/') : pokemon.sprite} 
+              src={(shinyMode || shinyPokemon.has(pokemon.id)) ? pokemon.shinySprite : pokemon.sprite} 
               alt={pokemon.name}
-              style={{ width: '80px', height: '80px', imageRendering: 'pixelated' }}
+              style={{ 
+                width: pokemon.animated ? '70px' : '80px', 
+                height: pokemon.animated ? '70px' : '80px', 
+                imageRendering: pokemon.animated ? 'auto' : 'pixelated'
+              }}
+              onError={(e) => {
+                // Fallback si el sprite animado no existe
+                if (pokemon.animated) {
+                  e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/${pokemon.id}.png`;
+                }
+              }}
             />
           ) : (
             <div style={{ width: '80px', height: '80px', margin: '0 auto', backgroundColor: '#ddd', borderRadius: '50%' }} />
@@ -317,12 +378,12 @@ function PokedexModal({ show, onHide, standalone = false }) {
               />
             </Col>
 
-            {/* Botón Filtros */}
-            <Col md={4} lg={3} className="d-flex justify-content-end">
+            {/* Botón Filtros y ShinyDex */}
+            <Col md={4} lg={3} className="d-flex justify-content-end gap-2">
               <Button
                 variant={showFilters ? 'danger' : 'outline-danger'}
                 onClick={() => setShowFilters(!showFilters)}
-                className="d-flex align-items-center gap-2 rounded-pill px-4 py-2 fw-bold"
+                className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-bold"
               >
                 <span>⚡ Filtros</span>
                 {selectedTypes.length > 0 && (
@@ -330,62 +391,94 @@ function PokedexModal({ show, onHide, standalone = false }) {
                 )}
                 <span>{showFilters ? '▲' : '▼'}</span>
               </Button>
-            </Col>
-          </Row>
-
-          {/* Fila 2: Vista y Shiny */}
-          <Row className="g-3 align-items-center">
-            <Col md={8} lg={9}>
-              <div className="d-flex gap-2 align-items-center">
-                <ToggleButtonGroup
-                  type="radio"
-                  name="pokedex-view"
-                  value={pokedexView}
-                  onChange={(val) => setPokedexView(val)}
-                >
-                  <ToggleButton
-                    id="tbg-radio-national"
-                    value="national"
-                    variant={pokedexView === 'national' ? 'danger' : 'outline-danger'}
-                    className="rounded-pill px-4"
-                  >
-                    🌍 Nacional
-                  </ToggleButton>
-                  <ToggleButton
-                    id="tbg-radio-regional"
-                    value="kanto"
-                    variant={pokedexView !== 'national' ? 'danger' : 'outline-danger'}
-                    className="rounded-pill px-4"
-                  >
-                    📍 Regional
-                  </ToggleButton>
-                </ToggleButtonGroup>
-
-                {pokedexView !== 'national' && (
-                  <Form.Select
-                    value={pokedexView}
-                    onChange={(e) => setPokedexView(e.target.value)}
-                    className="w-auto rounded-pill border-2"
-                    style={{ maxWidth: '150px' }}
-                  >
-                    <option value="kanto">Kanto</option>
-                    <option value="johto">Johto</option>
-                    <option value="hoenn">Hoenn</option>
-                    <option value="sinnoh">Sinnoh</option>
-                    <option value="unova">Unova</option>
-                  </Form.Select>
-                )}
-              </div>
-            </Col>
-
-            <Col md={4} lg={3} className="d-flex justify-content-end">
               <Button
                 variant={shinyMode ? 'warning' : 'outline-warning'}
                 onClick={() => setShinyMode(!shinyMode)}
-                className="rounded-pill px-4 fw-bold"
+                className="rounded-pill px-3 fw-bold"
               >
                 ✨ ShinyDex
               </Button>
+            </Col>
+          </Row>
+
+          {/* Fila 1.5: Selector de Gráficos por Generación */}
+          <Row className="g-3 mb-3">
+            <Col md={12}>
+              <div className="d-flex align-items-center gap-3 flex-wrap">
+                <span className="fw-bold text-secondary">Gráficos de Generación:</span>
+                <ToggleButtonGroup
+                  type="radio"
+                  name="graphic-generation"
+                  value={selectedGraphicGen}
+                  onChange={(val) => {
+                    setSelectedGraphicGen(val);
+                    setCurrentPage(1);
+                  }}
+                >
+                  {Object.entries(GRAPHIC_GENERATIONS).map(([key, { label }]) => (
+                    <ToggleButton
+                      key={key}
+                      id={`gfx-${key}`}
+                      value={key}
+                      variant={selectedGraphicGen === key ? 'danger' : 'outline-danger'}
+                      className="px-3"
+                      size="sm"
+                    >
+                      {label}
+                    </ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
+                <small className="text-muted">
+                  (Limita Pokémon y cambia sprites)
+                </small>
+              </div>
+            </Col>
+          </Row>
+
+          {/* Fila 2: Selector de Región (desplegable) */}
+          <Row className="g-3 align-items-center">
+            <Col md={12}>
+              <div className="d-flex gap-2 align-items-center">
+                <span className="fw-bold text-secondary">Región:</span>
+                <div className="d-flex gap-2">
+                  {/* Botón Nacional */}
+                  <Button
+                    variant={pokedexView === 'national' ? 'danger' : 'outline-danger'}
+                    onClick={() => setPokedexView('national')}
+                    className="rounded-pill px-3"
+                    size="sm"
+                  >
+                    🌍 Nacional
+                  </Button>
+                  
+                  {/* Dropdown de regiones - botón que parece igual que Nacional */}
+                  <Dropdown>
+                    <Dropdown.Toggle
+                      variant={pokedexView !== 'national' ? 'danger' : 'outline-danger'}
+                      size="sm"
+                      className="rounded-pill px-3"
+                    >
+                      {pokedexView !== 'national' 
+                        ? getAvailableRegions().find(r => r.key === pokedexView)?.label.replace('📍 ', '') || '📍 Región'
+                        : '📍 Región'
+                      }
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      {getAvailableRegions()
+                        .filter(r => r.key !== 'national')
+                        .map((region) => (
+                          <Dropdown.Item 
+                            key={region.key} 
+                            onClick={() => setPokedexView(region.key)}
+                            active={pokedexView === region.key}
+                          >
+                            {region.label}
+                          </Dropdown.Item>
+                        ))}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </div>
+              </div>
             </Col>
           </Row>
 
@@ -529,9 +622,19 @@ function PokedexModal({ show, onHide, standalone = false }) {
         <div className="text-center mb-4">
           {selectedPokemon.sprite && (
             <img
-              src={(shinyMode || shinyPokemon.has(selectedPokemon.id)) ? selectedPokemon.sprite.replace('/pokemon/', '/pokemon/shiny/') : selectedPokemon.sprite}
+              src={(shinyMode || shinyPokemon.has(selectedPokemon.id)) ? selectedPokemon.shinySprite || selectedPokemon.sprite : selectedPokemon.sprite}
               alt={selectedPokemon.name}
-              style={{ width: '120px', height: '120px', imageRendering: 'pixelated' }}
+              style={{ 
+                width: selectedPokemon.animated ? '140px' : '120px', 
+                height: selectedPokemon.animated ? '140px' : '120px', 
+                imageRendering: selectedPokemon.animated ? 'auto' : 'pixelated'
+              }}
+              onError={(e) => {
+                // Fallback a sprite estático si el animado falla
+                if (selectedPokemon.animated) {
+                  e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/${selectedPokemon.id}.png`;
+                }
+              }}
             />
           )}
           <div className="d-flex justify-content-center gap-2 mt-3">

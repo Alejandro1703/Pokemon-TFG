@@ -50,7 +50,7 @@ function Sidebar() {
 
   return (
     <div
-      className="bg-dark text-white d-flex flex-column"
+      className="d-flex flex-column"
       style={{
         width: '250px',
         position: 'fixed',
@@ -58,19 +58,24 @@ function Sidebar() {
         top: 0,
         bottom: 0,
         zIndex: 500,
+        background: 'linear-gradient(180deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%)',
         borderRight: '3px solid #ffc107',
-        boxShadow: '4px 0 20px rgba(0,0,0,0.3)'
+        boxShadow: '4px 0 20px rgba(0,0,0,0.1)'
       }}
     >
       <div
-        className="border-bottom border-secondary d-flex align-items-center justify-content-center"
-        style={{ height: '70px', backgroundColor: 'rgba(0,0,0,0.3)' }}
+        className="d-flex align-items-center justify-content-center"
+        style={{ 
+          height: '70px', 
+          backgroundColor: 'rgba(255,193,7,0.3)',
+          borderBottom: '2px solid #ffc107'
+        }}
       >
-        <h6 className="text-warning fw-bold m-0" style={{ fontSize: '1.1rem' }}>MENU PRINCIPAL</h6>
+        <h6 className="fw-bold m-0" style={{ fontSize: '1.1rem', color: '#5d4037' }}>MENU PRINCIPAL</h6>
       </div>
 
       <div className="p-3 text-center">
-        <small className="text-secondary">
+        <small style={{ color: '#8d6e63' }}>
           {isLoggedIn ? 'Herramientas' : 'Acceso de usuarios'}
         </small>
       </div>
@@ -83,11 +88,12 @@ function Sidebar() {
               as={Link}
               to="/dashboard"
               className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
-                isActive('/dashboard') ? 'bg-warning text-dark fw-bold shadow' : 'text-light'
+                isActive('/dashboard') ? 'fw-bold shadow' : ''
               }`}
               style={{
-                backgroundColor: isActive('/dashboard') ? '#ffc107' : 'rgba(255,255,255,0.05)',
-                border: isActive('/dashboard') ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                backgroundColor: isActive('/dashboard') ? '#ffc107' : 'rgba(255,255,255,0.5)',
+                color: isActive('/dashboard') ? '#5d4037' : '#5d4037',
+                border: isActive('/dashboard') ? '2px solid #ff8f00' : '1px solid rgba(255,193,7,0.5)',
                 transition: 'all 0.3s ease',
                 fontSize: '1rem'
               }}
@@ -103,11 +109,12 @@ function Sidebar() {
                   as={Link}
                   to={item.path}
                   className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
-                    active ? 'bg-warning text-dark fw-bold shadow' : 'text-light'
+                    active ? 'fw-bold shadow' : ''
                   }`}
                   style={{
-                    backgroundColor: active ? '#ffc107' : 'rgba(255,255,255,0.05)',
-                    border: active ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                    backgroundColor: active ? '#ffc107' : 'rgba(255,255,255,0.5)',
+                    color: active ? '#5d4037' : '#5d4037',
+                    border: active ? '2px solid #ff8f00' : '1px solid rgba(255,193,7,0.5)',
                     transition: 'all 0.3s ease',
                     fontSize: '1rem'
                   }}
@@ -125,10 +132,11 @@ function Sidebar() {
                 window.dispatchEvent(new Event('auth-change'));
                 window.location.href = '/login';
               }}
-              className="d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none text-light"
+              className="d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none"
               style={{
-                backgroundColor: 'rgba(220, 53, 69, 0.3)',
-                border: '1px solid rgba(220, 53, 69, 0.5)',
+                backgroundColor: 'rgba(255,138,101,0.3)',
+                color: '#5d4037',
+                border: '1px solid rgba(255,138,101,0.6)',
                 transition: 'all 0.3s ease',
                 fontSize: '1rem',
                 cursor: 'pointer'
@@ -146,11 +154,12 @@ function Sidebar() {
                 as={Link}
                 to={item.path}
                 className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
-                  active ? 'bg-warning text-dark fw-bold shadow' : 'text-light'
+                  active ? 'fw-bold shadow' : ''
                 }`}
                 style={{
-                  backgroundColor: active ? '#ffc107' : 'rgba(255,255,255,0.05)',
-                  border: active ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                  backgroundColor: active ? '#ffc107' : 'rgba(255,255,255,0.5)',
+                  color: active ? '#5d4037' : '#5d4037',
+                  border: active ? '2px solid #ff8f00' : '1px solid rgba(255,193,7,0.5)',
                   transition: 'all 0.3s ease',
                   fontSize: '1rem'
                 }}
