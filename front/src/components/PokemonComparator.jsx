@@ -39,7 +39,7 @@ const TYPE_NAMES_ES = {
   fairy: 'Hada'
 };
 
-function PokemonComparator({ show, onHide }) {
+function PokemonComparator({ show, onHide, standalone = false }) {
   const [pokemonList, setPokemonList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm1, setSearchTerm1] = useState('');
@@ -66,10 +66,10 @@ function PokemonComparator({ show, onHide }) {
 
   // Cargar lista de Pokémon al abrir
   useEffect(() => {
-    if (show) {
+    if (standalone || show) {
       loadPokemonList();
     }
-  }, [show]);
+  }, [show, standalone]);
 
   const loadPokemonList = async () => {
     try {
@@ -266,64 +266,59 @@ function PokemonComparator({ show, onHide }) {
     );
   };
 
-  return (
-    <Modal 
-      show={show} 
-      onHide={onHide} 
-      size="xl" 
-      fullscreen="lg-down" 
-      centered
-      style={{ zIndex: 9999 }}
+  const headerContent = (
+    <div className="d-flex justify-content-between align-items-center py-3 px-4"
+      style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        border: 'none',
+        minHeight: '60px'
+      }}
     >
-      <Modal.Header 
-        className="d-flex justify-content-between align-items-center py-3 px-4"
-        style={{ 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          border: 'none',
-          minHeight: '60px'
-        }}
-      >
-        <div className="d-flex align-items-center gap-2">
-          <Modal.Title className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
-            Comparador Competitivo
-          </Modal.Title>
-          <OverlayTrigger
-            placement="bottom"
-            overlay={
-              <Popover style={{ zIndex: 10001 }}>
-                <Popover.Header as="h3">📖 Guía del Comparador</Popover.Header>
-                <Popover.Body>
-                  <strong>Como usar:</strong><br/>
-                  • Busca y selecciona 2 Pokémon para comparar<br/>
-                  • Escribe el nombre y selecciona de la lista<br/><br/>
-                  <strong>Filtros de Stats:</strong><br/>
-                  • Activa/desactiva las estadísticas que quieres ver<br/>
-                  • PS, Ataque, Defensa, At. Esp., Def. Esp., Velocidad<br/><br/>
-                  <strong>Filtros de Tipos:</strong><br/>
-                  • Selecciona tipos para filtrar la lista de Pokémon<br/>
-                  • Facilita encontrar Pokémon específicos<br/><br/>
-                  <strong>Visualización:</strong><br/>
-                  • Flechas indican qué Pokémon gana en cada stat<br/>
-                  • Diferencias numéricas en cada comparación
-                </Popover.Body>
-              </Popover>
-            }
-          >
-            <Button variant="light" size="sm" className="rounded-circle px-2">❓</Button>
-          </OverlayTrigger>
-        </div>
-        <Button 
-          variant="light" 
-          size="sm" 
+      <div className="d-flex align-items-center gap-2">
+        <span className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
+          Comparador Competitivo
+        </span>
+        <OverlayTrigger
+          placement="bottom"
+          overlay={
+            <Popover style={{ zIndex: 10001 }}>
+              <Popover.Header as="h3">📖 Guía del Comparador</Popover.Header>
+              <Popover.Body>
+                <strong>Como usar:</strong><br/>
+                • Busca y selecciona 2 Pokémon para comparar<br/>
+                • Escribe el nombre y selecciona de la lista<br/><br/>
+                <strong>Filtros de Stats:</strong><br/>
+                • Activa/desactiva las estadísticas que quieres ver<br/>
+                • PS, Ataque, Defensa, At. Esp., Def. Esp., Velocidad<br/><br/>
+                <strong>Filtros de Tipos:</strong><br/>
+                • Selecciona tipos para filtrar la lista de Pokémon<br/>
+                • Facilita encontrar Pokémon específicos<br/><br/>
+                <strong>Visualización:</strong><br/>
+                • Flechas indican qué Pokémon gana en cada stat<br/>
+                • Diferencias numéricas en cada comparación
+              </Popover.Body>
+            </Popover>
+          }
+        >
+          <Button variant="light" size="sm" className="rounded-circle px-2">❓</Button>
+        </OverlayTrigger>
+      </div>
+      {!standalone && (
+        <Button
+          variant="light"
+          size="sm"
           onClick={onHide}
           className="rounded-circle d-flex align-items-center justify-content-center p-0 ms-3"
           style={{ width: '36px', height: '36px', fontWeight: 'bold', fontSize: '1.2rem' }}
         >
           ✕
         </Button>
-      </Modal.Header>
+      )}
+    </div>
+  );
 
-      <Modal.Body className="p-0">
+  const mainContent = (
+    <div className={standalone ? 'p-0' : 'p-0'}>
         {/* Panel de selección */}
         <div className="p-4 bg-light border-bottom">
           <Row className="g-4">
@@ -578,6 +573,30 @@ function PokemonComparator({ show, onHide }) {
             </div>
           )}
         </div>
+    </div>
+  );
+
+  if (standalone) {
+    return (
+      <div>
+        {headerContent}
+        {mainContent}
+      </div>
+    );
+  }
+
+  return (
+    <Modal
+      show={show}
+      onHide={onHide}
+      size="xl"
+      fullscreen="lg-down"
+      centered
+      style={{ zIndex: 9999 }}
+    >
+      {headerContent}
+      <Modal.Body className="p-0">
+        {mainContent}
       </Modal.Body>
     </Modal>
   );

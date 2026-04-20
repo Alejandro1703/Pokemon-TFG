@@ -27,4 +27,6 @@ public class JuegoUsuarioRequest {
     private Double precioMercado;
 
     private LocalDate fechaCompra;
+
+    private String comentario;
 }

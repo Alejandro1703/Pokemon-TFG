@@ -46,7 +46,7 @@ const POKEDEX_RANGES = {
   unova: { start: 494, end: 649, name: 'Unova' }
 };
 
-function PokedexModal({ show, onHide }) {
+function PokedexModal({ show, onHide, standalone = false }) {
   const [pokemonList, setPokemonList] = useState([]);
   const [filteredPokemon, setFilteredPokemon] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -63,11 +63,11 @@ function PokedexModal({ show, onHide }) {
 
   // Cargar Pokémon cuando cambia la vista
   useEffect(() => {
-    if (show) {
+    if (standalone || show) {
       loadPokemon();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [show, pokedexView]);
+  }, [show, pokedexView, standalone]);
 
   // Filtrar cuando cambian los tipos, modo estricto o búsqueda
   useEffect(() => {
@@ -247,67 +247,62 @@ function PokedexModal({ show, onHide }) {
     </Col>
   );
 
-  return (
-    <Modal 
-      show={show} 
-      onHide={onHide} 
-      size="xl" 
-      fullscreen="lg-down"
-      centered
-      style={{ zIndex: 9999 }}
+  const headerContent = (
+    <div className="d-flex justify-content-between align-items-center py-3 px-4"
+      style={{
+        background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
+        border: 'none',
+        minHeight: '60px'
+      }}
     >
-      <Modal.Header 
-        className="d-flex justify-content-between align-items-center py-3 px-4"
-        style={{ 
-          background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
-          border: 'none',
-          minHeight: '60px'
-        }}
-      >
-        <div className="d-flex align-items-center gap-2">
-          <Modal.Title className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
-            Pokédex
-          </Modal.Title>
-          <OverlayTrigger
-            placement="bottom"
-            overlay={
-              <Popover style={{ zIndex: 10001 }}>
-                <Popover.Header as="h3">📖 Guía de Pokédex</Popover.Header>
-                <Popover.Body>
-                  <strong>Navegación:</strong><br/>
-                  • Nacional: Todos los Pokémon (1-649)<br/>
-                  • Regional: Por generación (Kanto, Johto, etc.)<br/>
-                  • ✨ Shiny: Alterna entre sprites normales y shiny<br/><br/>
-                  <strong>Filtros de Tipo:</strong><br/>
-                  • Pulsa "Filtros" para mostrar/ocultar<br/>
-                  • Selecciona múltiples tipos<br/>
-                  • <strong>Duro:</strong> Solo Pokémon con EXACTAMENTE esos tipos<br/>
-                  • Sin Duro: Pokémon con al menos un tipo seleccionado<br/><br/>
-                  <strong>Filtro Duro + Fuego:</strong> Charizard (NO) (Fuego/Volador)<br/>
-                  <strong>Filtro Duro + Fuego:</strong> Magmar ✓ (Fuego puro)<br/>
-                  <strong>Filtro Duro + Fuego+Volador:</strong> Charizard ✓<br/><br/>
-                  <strong>Click en Pokémon:</strong> Ver detalles y stats.
-                </Popover.Body>
-              </Popover>
-            }
-          >
-            <Button variant="light" size="sm" className="rounded-circle px-2">❓</Button>
-          </OverlayTrigger>
-        </div>
-        <Button 
-          variant="light" 
-          size="sm" 
+      <div className="d-flex align-items-center gap-2">
+        <span className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
+          Pokédex
+        </span>
+        <OverlayTrigger
+          placement="bottom"
+          overlay={
+            <Popover style={{ zIndex: 10001 }}>
+              <Popover.Header as="h3">📖 Guía de Pokédex</Popover.Header>
+              <Popover.Body>
+                <strong>Navegación:</strong><br/>
+                • Nacional: Todos los Pokémon (1-649)<br/>
+                • Regional: Por generación (Kanto, Johto, etc.)<br/>
+                • ✨ Shiny: Alterna entre sprites normales y shiny<br/><br/>
+                <strong>Filtros de Tipo:</strong><br/>
+                • Pulsa "Filtros" para mostrar/ocultar<br/>
+                • Selecciona múltiples tipos<br/>
+                • <strong>Duro:</strong> Solo Pokémon con EXACTAMENTE esos tipos<br/>
+                • Sin Duro: Pokémon con al menos un tipo seleccionado<br/><br/>
+                <strong>Filtro Duro + Fuego:</strong> Charizard (NO) (Fuego/Volador)<br/>
+                <strong>Filtro Duro + Fuego:</strong> Magmar ✓ (Fuego puro)<br/>
+                <strong>Filtro Duro + Fuego+Volador:</strong> Charizard ✓<br/><br/>
+                <strong>Click en Pokémon:</strong> Ver detalles y stats.
+              </Popover.Body>
+            </Popover>
+          }
+        >
+          <Button variant="light" size="sm" className="rounded-circle px-2">❓</Button>
+        </OverlayTrigger>
+      </div>
+      {!standalone && (
+        <Button
+          variant="light"
+          size="sm"
           onClick={onHide}
           className="rounded-circle d-flex align-items-center justify-content-center p-0 ms-3"
           style={{ width: '36px', height: '36px', fontWeight: 'bold', fontSize: '1.2rem' }}
         >
           ✕
         </Button>
-      </Modal.Header>
-      
-      <Modal.Body className="p-0">
-        {/* Controles */}
-        <div className="p-4 border-bottom" style={{ backgroundColor: '#f8f9fa' }}>
+      )}
+    </div>
+  );
+
+  const mainContent = (
+    <>
+      {/* Controles */}
+      <div className="p-4 border-bottom" style={{ backgroundColor: '#f8f9fa' }}>
           {/* Fila 1: Buscador y Filtros */}
           <Row className="g-3 mb-3">
             {/* Buscador */}
@@ -497,94 +492,123 @@ function PokedexModal({ show, onHide }) {
             </>
           )}
         </div>
-      </Modal.Body>
 
-      {/* Modal de detalle de Pokemon */}
-      {selectedPokemon && (
-        <Modal
-          show={!!selectedPokemon}
-          onHide={() => setSelectedPokemon(null)}
-          centered
-          size="md"
-          style={{ zIndex: 10000 }}
+    </>
+  );
+
+  // Modal de detalle de Pokemon (separado para evitar anidamiento)
+  const detailModal = selectedPokemon && (
+    <Modal
+      show={!!selectedPokemon}
+      onHide={() => setSelectedPokemon(null)}
+      centered
+      size="md"
+      style={{ zIndex: 10000 }}
+    >
+      <Modal.Header
+        className="d-flex justify-content-between align-items-center py-3 px-4"
+        style={{
+          background: `linear-gradient(135deg, ${TYPE_COLORS[selectedPokemon.types[0]]} 0%, ${TYPE_COLORS[selectedPokemon.types[1]] || TYPE_COLORS[selectedPokemon.types[0]]} 100%)`,
+          minHeight: '60px'
+        }}
+      >
+        <Modal.Title className="text-white text-capitalize fw-bold m-0" style={{ fontSize: '1.3rem' }}>
+          #{String(selectedPokemon.id).padStart(3, '0')} {selectedPokemon.name}
+        </Modal.Title>
+        <Button
+          variant="light"
+          size="sm"
+          onClick={() => setSelectedPokemon(null)}
+          className="rounded-circle d-flex align-items-center justify-content-center p-0 ms-3"
+          style={{ width: '36px', height: '36px', fontWeight: 'bold', fontSize: '1.2rem' }}
         >
-          <Modal.Header 
-            className="d-flex justify-content-between align-items-center py-3 px-4"
-            style={{ 
-              background: `linear-gradient(135deg, ${TYPE_COLORS[selectedPokemon.types[0]]} 0%, ${TYPE_COLORS[selectedPokemon.types[1]] || TYPE_COLORS[selectedPokemon.types[0]]} 100%)`,
-              minHeight: '60px'
-            }}
-          >
-            <Modal.Title className="text-white text-capitalize fw-bold m-0" style={{ fontSize: '1.3rem' }}>
-              #{String(selectedPokemon.id).padStart(3, '0')} {selectedPokemon.name}
-            </Modal.Title>
-            <Button 
-              variant="light" 
-              size="sm" 
-              onClick={() => setSelectedPokemon(null)}
-              className="rounded-circle d-flex align-items-center justify-content-center p-0 ms-3"
-              style={{ width: '36px', height: '36px', fontWeight: 'bold', fontSize: '1.2rem' }}
-            >
-              ✕
-            </Button>
-          </Modal.Header>
-          <Modal.Body className="p-4">
-            <div className="text-center mb-4">
-              {selectedPokemon.sprite && (
-                <img 
-                  src={(shinyMode || shinyPokemon.has(selectedPokemon.id)) ? selectedPokemon.sprite.replace('/pokemon/', '/pokemon/shiny/') : selectedPokemon.sprite} 
-                  alt={selectedPokemon.name}
-                  style={{ width: '120px', height: '120px', imageRendering: 'pixelated' }}
-                />
-              )}
-              <div className="d-flex justify-content-center gap-2 mt-3">
-                {selectedPokemon.types.map(type => (
-                  <img
-                    key={type}
-                    src={`https://play.pokemonshowdown.com/sprites/types/${type.charAt(0).toUpperCase() + type.slice(1)}.png`}
-                    alt={TYPE_NAMES_ES[type] || type}
-                    style={{ width: '40px', height: '20px', imageRendering: 'pixelated', margin: '0 4px' }}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'inline-block';
-                    }}
-                  />
-                ))}
-                {selectedPokemon.types.map(type => (
-                  <Badge 
-                    key={`fallback-${type}`}
-                    style={{ 
-                      backgroundColor: TYPE_COLORS[type],
-                      fontSize: '0.9rem',
-                      textTransform: 'capitalize',
-                      padding: '8px 16px',
-                      display: 'none'
-                    }}
-                  >
-                    {TYPE_NAMES_ES[type] || type}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            
-            <h6 className="fw-bold mb-3">Estadisticas Base</h6>
-            <div className="row g-2">
-              {Object.entries(selectedPokemon.stats).map(([stat, value]) => (
-                <div key={stat} className="col-6">
-                  <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: '#f8f9fa' }}>
-                    <small className="text-secondary text-capitalize">
-                      {stat === 'specialAttack' ? 'At. Esp.' : 
-                       stat === 'specialDefense' ? 'Def. Esp.' : stat}
-                    </small>
-                    <span className="fw-bold">{value}</span>
-                  </div>
+          ✕
+        </Button>
+      </Modal.Header>
+      <Modal.Body className="p-4">
+        <div className="text-center mb-4">
+          {selectedPokemon.sprite && (
+            <img
+              src={(shinyMode || shinyPokemon.has(selectedPokemon.id)) ? selectedPokemon.sprite.replace('/pokemon/', '/pokemon/shiny/') : selectedPokemon.sprite}
+              alt={selectedPokemon.name}
+              style={{ width: '120px', height: '120px', imageRendering: 'pixelated' }}
+            />
+          )}
+          <div className="d-flex justify-content-center gap-2 mt-3">
+            {selectedPokemon.types.map(type => (
+              <img
+                key={type}
+                src={`https://play.pokemonshowdown.com/sprites/types/${type.charAt(0).toUpperCase() + type.slice(1)}.png`}
+                alt={TYPE_NAMES_ES[type] || type}
+                style={{ width: '40px', height: '20px', imageRendering: 'pixelated', margin: '0 4px' }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'inline-block';
+                }}
+              />
+            ))}
+            {selectedPokemon.types.map(type => (
+              <Badge
+                key={`fallback-${type}`}
+                style={{
+                  backgroundColor: TYPE_COLORS[type],
+                  fontSize: '0.9rem',
+                  textTransform: 'capitalize',
+                  padding: '8px 16px',
+                  display: 'none'
+                }}
+              >
+                {TYPE_NAMES_ES[type] || type}
+              </Badge>
+            ))}
+          </div>
+
+          <h6 className="fw-bold mb-3">Estadísticas Base</h6>
+          <div className="row g-2">
+            {Object.entries(selectedPokemon.stats).map(([stat, value]) => (
+              <div key={stat} className="col-6">
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: 'white' }}>
+                  <small className="text-secondary text-capitalize">
+                    {stat === 'specialAttack' ? 'At. Esp.' :
+                     stat === 'specialDefense' ? 'Def. Esp.' : stat}
+                  </small>
+                  <span className="fw-bold">{value}</span>
                 </div>
-              ))}
-            </div>
-          </Modal.Body>
-        </Modal>
-      )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </Modal.Body>
     </Modal>
+  );
+
+  if (standalone) {
+    return (
+      <div className={standalone ? '' : 'p-0'}>
+        {headerContent}
+        {mainContent}
+        {detailModal}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Modal
+        show={show}
+        onHide={onHide}
+        size="xl"
+        fullscreen="lg-down"
+        centered
+        style={{ zIndex: 9999 }}
+      >
+        {headerContent}
+        <Modal.Body className="p-0">
+          {mainContent}
+        </Modal.Body>
+      </Modal>
+      {detailModal}
+    </>
   );
 }
 

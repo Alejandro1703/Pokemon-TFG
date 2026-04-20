@@ -3,17 +3,17 @@ import { Modal, Row, Col, Card, Badge, Spinner, Alert } from 'react-bootstrap';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
 
-function ProgresoModal({ show, onHide, juegosDisponibles }) {
+function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) {
   const [misJuegos, setMisJuegos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Cargar juegos desde la API
   useEffect(() => {
-    if (show) {
+    if (standalone || show) {
       cargarJuegos();
     }
-  }, [show]);
+  }, [show, standalone]);
 
   const cargarJuegos = async () => {
     setLoading(true);
@@ -58,21 +58,31 @@ function ProgresoModal({ show, onHide, juegosDisponibles }) {
 
   const juegosUnicos = getJuegosUnicos();
 
-  return (
-    <Modal show={show} onHide={onHide} size="xl" centered>
-      <Modal.Header 
-        closeButton 
-        style={{ 
-          background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
-          borderBottom: '3px solid #1b5e20'
-        }}
-      >
-        <Modal.Title className="fw-bold text-white">
-          Tu Progreso - Colección de Juegos
-        </Modal.Title>
-      </Modal.Header>
+  const content = (
+    <div style={{ backgroundColor: '#f8f9fa' }} className={standalone ? '' : 'p-4'}>
+      {standalone && (
+        <Card className="mb-4 border-0 shadow-sm">
+          <Card.Body style={{ background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)' }}>
+            <h4 className="fw-bold text-white mb-0">Tu Progreso - Colección de Juegos</h4>
+          </Card.Body>
+        </Card>
+      )}
       
-      <Modal.Body className="p-4" style={{ backgroundColor: '#f8f9fa' }}>
+      {!standalone && (
+        <Modal.Header
+          closeButton
+          style={{
+            background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+            borderBottom: '3px solid #1b5e20'
+          }}
+        >
+          <Modal.Title className="fw-bold text-white">
+            Tu Progreso - Colección de Juegos
+          </Modal.Title>
+        </Modal.Header>
+      )}
+      
+      <div className={standalone ? '' : 'p-4'}>
         {error && (
           <Alert variant="danger" className="mb-3" onClose={() => setError(null)} dismissible>
             {error}
@@ -167,7 +177,17 @@ function ProgresoModal({ show, onHide, juegosDisponibles }) {
             </Row>
           </>
         )}
-      </Modal.Body>
+      </div>
+    </div>
+  );
+
+  if (standalone) {
+    return content;
+  }
+
+  return (
+    <Modal show={show} onHide={onHide} size="xl" centered>
+      {content}
     </Modal>
   );
 }

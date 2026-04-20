@@ -65,4 +65,13 @@ public class JuegoUsuarioService {
     public Optional<JuegoUsuario> obtenerJuegoPorIdYUsuario(Long id, Long usuarioId) {
         return juegoUsuarioRepository.findByIdAndUsuarioId(id, usuarioId);
     }
+
+    @Transactional
+    public JuegoUsuario actualizarComentario(Long id, Long usuarioId, String comentario) {
+        JuegoUsuario juego = juegoUsuarioRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new RuntimeException("Juego no encontrado o no pertenece al usuario"));
+
+        juego.setComentario(comentario);
+        return juegoUsuarioRepository.save(juego);
+    }
 }

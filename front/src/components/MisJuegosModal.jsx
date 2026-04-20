@@ -16,7 +16,7 @@ const ESTADO_POKEWALKER = { conPokewalker: 'Con Pokewalker' };
 // Juegos que tienen la opcion Con Pokewalker
 const JUEGOS_CON_POKEWALKER = ['Oro HeartGold', 'Plata SoulSilver'];
 
-function MisJuegosModal({ show, onHide, juegosDisponibles }) {
+function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false }) {
   const [misJuegos, setMisJuegos] = useState([]);
   const [juegoSeleccionado, setJuegoSeleccionado] = useState('');
   const [estado, setEstado] = useState('');
@@ -36,10 +36,10 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
 
   // Cargar juegos desde la API
   useEffect(() => {
-    if (show) {
+    if (standalone || show) {
       cargarJuegos();
     }
-  }, [show]);
+  }, [show, standalone]);
 
   const cargarJuegos = async () => {
     setLoading(true);
@@ -239,25 +239,37 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
     setJuegoAEliminar(null);
   };
 
-  const totalInvertido = misJuegos.reduce((sum, j) => sum + (j.precioCompra || 0), 0);
-  const totalMercado = misJuegos.reduce((sum, j) => sum + j.precioMercado, 0);
+  // Solo calcular beneficios para juegos con precio de compra definido
+  const juegosConPrecio = misJuegos.filter(j => j.precioCompra !== null && j.precioCompra !== undefined);
+  const totalInvertido = juegosConPrecio.reduce((sum, j) => sum + j.precioCompra, 0);
+  const totalMercado = juegosConPrecio.reduce((sum, j) => sum + j.precioMercado, 0);
   const beneficio = totalMercado - totalInvertido;
 
-  return (
-    <Modal show={show} onHide={onHide} size="xl" centered>
-      <Modal.Header 
-        closeButton 
-        style={{ 
-          background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
-          borderBottom: '3px solid #e65100'
-        }}
-      >
-        <Modal.Title className="fw-bold text-white">
-          Mis Juegos
-        </Modal.Title>
-      </Modal.Header>
+  const content = (
+    <>
+      {standalone && (
+        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: '#f8f9fa' }}>
+          <Card.Body>
+            <h4 className="fw-bold mb-0">Mis Juegos</h4>
+          </Card.Body>
+        </Card>
+      )}
       
-      <Modal.Body className="p-4">
+      {!standalone && (
+        <Modal.Header
+          closeButton
+          style={{
+            background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
+            borderBottom: '3px solid #e65100'
+          }}
+        >
+          <Modal.Title className="fw-bold text-white">
+            Mis Juegos
+          </Modal.Title>
+        </Modal.Header>
+      )}
+      
+      <div className={standalone ? '' : 'p-4'}>
         {error && (
           <Alert variant="danger" className="mb-3" onClose={() => setError(null)} dismissible>
             {error}
@@ -484,19 +496,20 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
         )}
           </>
         )}
-      </Modal.Body>
+      </div>
 
-      <Modal.Footer className="border-top-0">
-        <Button variant="secondary" onClick={onHide} className="rounded-pill px-4">
-          Cerrar
-        </Button>
-      </Modal.Footer>
+      {!standalone && (
+        <Modal.Footer className="border-top-0">
+          <Button variant="secondary" onClick={onHide} className="rounded-pill px-4">
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      )}
 
       {/* Modal de Confirmación Eliminar */}
       <Modal show={showConfirmModal} onHide={cancelarEliminar} centered>
-        <Modal.Header 
-          closeButton 
-          style={{ 
+        <Modal.Header
+          style={{
             background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
             borderBottom: '3px solid #a71e2a'
           }}
@@ -523,6 +536,16 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
           </Button>
         </Modal.Footer>
       </Modal>
+    </>
+  );
+
+  if (standalone) {
+    return content;
+  }
+
+  return (
+    <Modal show={show} onHide={onHide} size="xl" centered>
+      {content}
     </Modal>
   );
 }

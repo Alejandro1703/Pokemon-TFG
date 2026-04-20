@@ -50,6 +50,9 @@ public class JuegoUsuario {
     @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime horaRegistro;
 
+    @Column(name = "comentario")
+    private String comentario;
+
     @PrePersist
     protected void onCreate() {
         fechaRegistro = LocalDate.now();

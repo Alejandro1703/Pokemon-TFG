@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
 
-function ProfileModal({ show, onHide, user, onLogout, onUserUpdate }) {
+function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone = false }) {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -108,36 +108,43 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate }) {
 
   if (!user) return null;
 
-  return (
-    <Modal
-      show={show}
-      onHide={onHide}
-      size="lg"
-      centered
-      style={{ zIndex: 9999 }}
-    >
-      <Modal.Header 
-        className="d-flex justify-content-between align-items-center py-3 px-4"
-        style={{ 
-          background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
-          border: 'none'
-        }}
-      >
-        <Modal.Title className="fw-bold text-dark m-0">
-          Mi Perfil
-        </Modal.Title>
-        <Button 
-          variant="dark" 
-          size="sm" 
-          onClick={onHide}
-          className="rounded-circle d-flex align-items-center justify-content-center p-0"
-          style={{ width: '36px', height: '36px', fontWeight: 'bold', fontSize: '1.2rem' }}
+  const content = (
+    <div className={standalone ? '' : 'p-4'}>
+      {standalone && (
+        <div className="d-flex justify-content-between align-items-center py-3 px-4 mb-4 rounded-3"
+          style={{
+            background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
+            border: 'none'
+          }}
         >
-          ✕
-        </Button>
-      </Modal.Header>
-
-      <Modal.Body className="p-4">
+          <h4 className="fw-bold text-dark m-0">Mi Perfil</h4>
+        </div>
+      )}
+      
+      {!standalone && (
+        <Modal.Header
+          className="d-flex justify-content-between align-items-center py-3 px-4"
+          style={{
+            background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
+            border: 'none'
+          }}
+        >
+          <Modal.Title className="fw-bold text-dark m-0">
+            Mi Perfil
+          </Modal.Title>
+          <Button
+            variant="dark"
+            size="sm"
+            onClick={onHide}
+            className="rounded-circle d-flex align-items-center justify-content-center p-0"
+            style={{ width: '36px', height: '36px', fontWeight: 'bold', fontSize: '1.2rem' }}
+          >
+            ✕
+          </Button>
+        </Modal.Header>
+      )}
+      
+      <div className={standalone ? 'p-4' : ''}>
         {message.text && (
           <Alert variant={message.type} className="mb-3">
             {message.text}
@@ -273,7 +280,17 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate }) {
             </div>
           )}
         </div>
-      </Modal.Body>
+      </div>
+    </div>
+  );
+
+  if (standalone) {
+    return content;
+  }
+
+  return (
+    <Modal show={show} onHide={onHide} size="lg" centered>
+      {content}
     </Modal>
   );
 }
