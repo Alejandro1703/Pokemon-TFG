@@ -1,114 +1,239 @@
+import { useState, useEffect } from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 
-function Sidebar({ onShowPokedex, onShowComparator, onShowProfile, onShowMisJuegos }) {
+function Sidebar() {
   const location = useLocation();
-  const isLoggedIn = !!localStorage.getItem('token');
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const [isVisible, setIsVisible] = useState(true);
+  const currentPath = location.pathname;
+
+  // Verificar estado de autenticación cuando cambia la ruta o el localStorage
+  useEffect(() => {
+    const checkAuth = () => {
+      setIsLoggedIn(!!localStorage.getItem('token'));
+    };
+    
+    checkAuth();
+    
+    // Escuchar cambios en localStorage (de otras pestañas)
+    window.addEventListener('storage', checkAuth);
+    
+    // Escuchar evento personalizado de cambio de auth (misma pestaña)
+    window.addEventListener('auth-change', checkAuth);
+    
+    // Verificar cada segundo (para cambios en la misma pestaña)
+    const interval = setInterval(checkAuth, 1000);
+    
+    // Escuchar evento de toggle del sidebar
+    const handleToggleSidebar = (e) => {
+      setIsVisible(e.detail.visible);
+    };
+    window.addEventListener('toggle-sidebar', handleToggleSidebar);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('auth-change', checkAuth);
+      window.removeEventListener('toggle-sidebar', handleToggleSidebar);
+      clearInterval(interval);
+    };
+  }, [location.pathname]); // También se ejecuta cuando cambia la ruta
 
   const authItems = [
-    { path: '/login', label: 'Iniciar Sesion', icon: '→' },
-    { path: '/register', label: 'Registro', icon: '+' },
+    { path: '/login', label: 'Iniciar Sesion' },
+    { path: '/register', label: 'Registro' },
   ];
 
   const dashboardItems = [
-    { key: 'mis-juegos', label: 'Mis Juegos', icon: 'G', action: onShowMisJuegos },
-    { key: 'pokedex', label: 'Ver Pokedex', icon: 'P', action: onShowPokedex },
-    { key: 'comparador', label: 'Comparador', icon: 'C', action: onShowComparator },
-    { key: 'perfil', label: 'Mi Perfil', icon: 'U', action: onShowProfile },
+    { path: '/juegos', label: 'Juegos' },
+    { path: '/mis-juegos', label: 'Mis Juegos' },
+    { path: '/pokedex', label: 'Ver Pokedex' },
+    { path: '/comparador', label: 'Comparador' },
+    { path: '/aventuras', label: 'Aventuras' },
+    { path: '/progreso', label: 'Progreso' },
+    { path: '/perfil', label: 'Mi Perfil' },
   ];
 
+  const isActive = (path) => currentPath === path;
+
+  const toggleSidebar = () => {
+    const newState = !isVisible;
+    setIsVisible(newState);
+    window.dispatchEvent(new CustomEvent('toggle-sidebar', { detail: { visible: newState } }));
+  };
+
   return (
-    <div 
-      className="bg-dark text-white d-flex flex-column"
-      style={{ 
-        width: '250px', 
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 500,
-        borderRight: '3px solid #ffc107',
-        boxShadow: '4px 0 20px rgba(0,0,0,0.3)'
-      }}
-    >
-      <div 
-        className="border-bottom border-secondary d-flex align-items-center justify-content-center"
-        style={{ height: '70px', backgroundColor: 'rgba(0,0,0,0.3)' }}
+    <div
+        className="d-flex flex-column"
+        style={{
+          width: isVisible ? '250px' : '32px',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 500,
+          backgroundColor: '#64b5f6',
+          borderRight: isVisible ? '3px solid #42a5f5' : '3px solid #42a5f5',
+          boxShadow: '4px 0 20px rgba(0,0,0,0.2)',
+          transition: 'all 0.4s ease-in-out',
+          overflow: 'visible'
+        }}
       >
-        <h6 className="text-warning fw-bold m-0" style={{ fontSize: '1.1rem' }}>MENU PRINCIPAL</h6>
-      </div>
-      
+        <div
+          className="d-flex align-items-center justify-content-center"
+          style={{ 
+            height: '70px', 
+            backgroundColor: '#42a5f5',
+            borderBottom: '2px solid #1976d2',
+            minWidth: '250px'
+          }}
+        >
+          <h6 className="fw-bold m-0" style={{ fontSize: '1.1rem', color: '#e3f2fd', opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>MENU PRINCIPAL</h6>
+        </div>
+
       <div className="p-3 text-center">
-        <small className="text-secondary">
-          {isLoggedIn ? 'Herramientas' : 'Acceso de usuarios'}
+        <small style={{ color: '#90caf9' }}>
+          {isLoggedIn ? '' : 'Acceso de usuarios'}
         </small>
       </div>
-      
+
       <Nav className="flex-column p-3">
         {isLoggedIn ? (
-          dashboardItems.map((item) => (
+          <>
+            {/* Dashboard - Inicio */}
             <Nav.Link
-              key={item.key}
-              onClick={item.action}
-              className="d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none text-light"
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                transition: 'all 0.3s ease',
-                fontSize: '1rem',
-                cursor: 'pointer'
-              }}
-            >
-              <span 
-                className="me-3 d-flex align-items-center justify-content-center rounded-circle"
-                style={{ 
-                  width: '32px', 
-                  height: '32px',
-                  backgroundColor: '#ffc107',
-                  color: '#000',
-                  fontWeight: 'bold'
-                }}
-              >
-                {item.icon}
-              </span>
-              <span>{item.label}</span>
-            </Nav.Link>
-          ))
-        ) : (
-          authItems.map((item) => (
-            <Nav.Link
-              key={item.path}
               as={Link}
-              to={item.path}
+              to="/dashboard"
               className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
-                location.pathname === item.path 
-                  ? 'bg-warning text-dark fw-bold shadow' 
-                  : 'text-light'
+                isActive('/dashboard') ? 'fw-bold shadow' : ''
               }`}
               style={{
-                backgroundColor: location.pathname === item.path ? '#ffc107' : 'rgba(255,255,255,0.05)',
-                border: location.pathname === item.path ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                transition: 'all 0.3s ease',
-                fontSize: '1rem'
+                backgroundColor: isActive('/dashboard') ? '#1976d2' : 'rgba(25,118,210,0.3)',
+                color: isActive('/dashboard') ? '#e3f2fd' : '#e3f2fd',
+                border: isActive('/dashboard') ? '2px solid #1565c0' : '1px solid rgba(25,118,210,0.5)',
+                transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+                fontSize: '1rem',
+                overflow: 'hidden',
+                transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? 'auto' : 'none'
               }}
             >
-              <span 
-                className="me-3 d-flex align-items-center justify-content-center rounded-circle"
-                style={{ 
-                  width: '32px', 
-                  height: '32px',
-                  backgroundColor: location.pathname === item.path ? '#000' : '#ffc107',
-                  color: location.pathname === item.path ? '#ffc107' : '#000',
-                  fontWeight: 'bold'
+              <span style={{ whiteSpace: 'nowrap' }}>Inicio</span>
+            </Nav.Link>
+
+            {dashboardItems.map((item) => {
+              const active = isActive(item.path);
+              return (
+                <Nav.Link
+                  key={item.path}
+                  as={Link}
+                  to={item.path}
+                  className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
+                    active ? 'fw-bold shadow' : ''
+                  }`}
+                  style={{
+                    backgroundColor: active ? '#1976d2' : 'rgba(25,118,210,0.3)',
+                    color: active ? '#e3f2fd' : '#e3f2fd',
+                    border: active ? '2px solid #1565c0' : '1px solid rgba(25,118,210,0.5)',
+                    transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+                    fontSize: '1rem',
+                    overflow: 'hidden',
+                    transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                    opacity: isVisible ? 1 : 0,
+                    pointerEvents: isVisible ? 'auto' : 'none'
+                  }}
+                >
+                  <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
+                </Nav.Link>
+              );
+            })}
+            
+            {/* Botón de Logout */}
+            <Nav.Link
+              onClick={() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.dispatchEvent(new Event('auth-change'));
+                window.location.href = '/login';
+              }}
+              className="d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none fw-bold"
+              style={{
+                backgroundColor: '#f44336',
+                color: 'white',
+                border: '2px solid #d32f2f',
+                transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+                fontSize: '1rem',
+                cursor: 'pointer',
+                overflow: 'hidden',
+                transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? 'auto' : 'none'
+              }}
+            >
+              <span style={{ whiteSpace: 'nowrap' }}>Cerrar Sesión</span>
+            </Nav.Link>
+          </>
+        ) : (
+          authItems.map((item) => {
+            const active = isActive(item.path);
+            return (
+              <Nav.Link
+                key={item.path}
+                as={Link}
+                to={item.path}
+                className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
+                  active ? 'fw-bold shadow' : ''
+                }`}
+                style={{
+                  backgroundColor: active ? '#1976d2' : 'rgba(25,118,210,0.3)',
+                  color: active ? '#e3f2fd' : '#e3f2fd',
+                  border: active ? '2px solid #1565c0' : '1px solid rgba(25,118,210,0.5)',
+                  transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+                  fontSize: '1rem',
+                  overflow: 'hidden',
+                  transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                  opacity: isVisible ? 1 : 0,
+                  pointerEvents: isVisible ? 'auto' : 'none'
                 }}
               >
-                {item.icon}
-              </span>
-              <span>{item.label}</span>
-            </Nav.Link>
-          ))
+                <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
+              </Nav.Link>
+            );
+          })
         )}
       </Nav>
+
+      {/* Botón de toggle en esquina superior derecha */}
+      <button
+        onClick={toggleSidebar}
+        className="d-flex align-items-center justify-content-center"
+        style={{
+          position: 'fixed',
+          top: '72px',
+          left: isVisible ? '216px' : '2px',
+          width: isVisible ? '32px' : '28px',
+          height: isVisible ? '32px' : '28px',
+          backgroundColor: '#1976d2',
+          border: '3px solid #1565c0',
+          borderRadius: '6px',
+          color: 'white',
+          fontSize: isVisible ? '14px' : '12px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          transition: 'all 0.4s ease-in-out',
+          zIndex: 501,
+          boxShadow: '2px 2px 8px rgba(0,0,0,0.3)'
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = '#1565c0';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = '#1976d2';
+        }}
+      >
+        {isVisible ? '◀' : '▶'}
+      </button>
     </div>
   );
 }

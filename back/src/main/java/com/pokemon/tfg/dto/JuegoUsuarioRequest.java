@@ -20,8 +20,6 @@ public class JuegoUsuarioRequest {
     @NotBlank(message = "El estado es obligatorio")
     private String estado;
 
-    @NotNull(message = "El precio de compra es obligatorio")
-    @Positive(message = "El precio de compra debe ser positivo")
     private Double precioCompra;
 
     @NotNull(message = "El precio de mercado es obligatorio")
@@ -29,4 +27,6 @@ public class JuegoUsuarioRequest {
     private Double precioMercado;
 
     private LocalDate fechaCompra;
+
+    private String comentario;
 }

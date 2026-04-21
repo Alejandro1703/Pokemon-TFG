@@ -14,7 +14,7 @@ function Header() {
 
   return (
     <header 
-      className="bg-dark border-bottom border-warning d-flex align-items-center px-4"
+      className="d-flex align-items-center px-4"
       style={{ 
         height: '70px',
         position: 'fixed',
@@ -22,7 +22,9 @@ function Header() {
         left: 0,
         right: 0,
         zIndex: 2000,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+        backgroundColor: '#42a5f5',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+        borderBottom: '3px solid #1976d2'
       }}
     >
       {nombre && (

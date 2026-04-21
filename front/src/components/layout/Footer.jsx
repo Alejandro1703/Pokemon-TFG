@@ -1,7 +1,6 @@
 function Footer() {
   return (
     <footer 
-      className="bg-dark"
       style={{ 
         height: '50px',
         position: 'fixed',
@@ -9,7 +8,8 @@ function Footer() {
         left: 0,
         right: 0,
         zIndex: 1000,
-        borderTop: '3px solid #ffc107'
+        backgroundColor: '#42a5f5',
+        borderTop: '3px solid #1976d2'
       }}
     />
   );

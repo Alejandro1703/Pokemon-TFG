@@ -16,15 +16,17 @@ const ESTADO_POKEWALKER = { conPokewalker: 'Con Pokewalker' };
 // Juegos que tienen la opcion Con Pokewalker
 const JUEGOS_CON_POKEWALKER = ['Oro HeartGold', 'Plata SoulSilver'];
 
-function MisJuegosModal({ show, onHide, juegosDisponibles }) {
+function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false }) {
   const [misJuegos, setMisJuegos] = useState([]);
   const [juegoSeleccionado, setJuegoSeleccionado] = useState('');
-  const [estado, setEstado] = useState('completo');
+  const [estado, setEstado] = useState('');
   const [precioCompra, setPrecioCompra] = useState('');
   const [fechaCompra, setFechaCompra] = useState('');
   const [editando, setEditando] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [juegoAEliminar, setJuegoAEliminar] = useState(null);
 
   // Helper para obtener juegoId desde juegoNombre
   const getJuegoIdFromNombre = (nombre) => {
@@ -34,10 +36,10 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
 
   // Cargar juegos desde la API
   useEffect(() => {
-    if (show) {
+    if (standalone || show) {
       cargarJuegos();
     }
-  }, [show]);
+  }, [show, standalone]);
 
   const cargarJuegos = async () => {
     setLoading(true);
@@ -93,15 +95,18 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
   const precioMercadoPreview = getPrecioMercado();
 
   const agregarJuego = async () => {
-    if (!juegoSeleccionado) return;
-    
+    if (!juegoSeleccionado || !estado) {
+      setError('Debes seleccionar un juego y un estado obligatoriamente');
+      return;
+    }
+
     const juegoInfo = juegosDisponibles.find(j => j.id === parseInt(juegoSeleccionado));
     if (!juegoInfo) return;
 
     const precioMercado = juegoInfo.precios[estado];
     if (precioMercado === undefined) return;
-    
-    const precioCompraValor = parseFloat(precioCompra) || precioMercado;
+
+    const precioCompraValor = precioCompra !== '' && !isNaN(parseFloat(precioCompra)) ? parseFloat(precioCompra) : null;
 
     const requestBody = {
       juegoNombre: juegoInfo.nombre,
@@ -125,6 +130,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
       if (response.ok) {
         await cargarJuegos();
         setJuegoSeleccionado('');
+        setEstado('');
         setPrecioCompra('');
         setFechaCompra('');
       } else {
@@ -144,15 +150,18 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
   };
 
   const guardarEdicion = async () => {
-    if (!editando || !juegoSeleccionado) return;
-    
+    if (!editando || !juegoSeleccionado || !estado) {
+      setError('Debes seleccionar un juego y un estado obligatoriamente');
+      return;
+    }
+
     const juegoInfo = juegosDisponibles.find(j => j.id === parseInt(juegoSeleccionado));
     if (!juegoInfo) return;
 
     const precioMercado = juegoInfo.precios[estado];
     if (precioMercado === undefined) return;
-    
-    const precioCompraValor = parseFloat(precioCompra) || precioMercado;
+
+    const precioCompraValor = precioCompra !== '' && !isNaN(parseFloat(precioCompra)) ? parseFloat(precioCompra) : null;
 
     const requestBody = {
       juegoNombre: juegoInfo.nombre,
@@ -177,6 +186,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
         await cargarJuegos();
         setEditando(null);
         setJuegoSeleccionado('');
+        setEstado('');
         setPrecioCompra('');
         setFechaCompra('');
       } else {
@@ -190,15 +200,22 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
   const cancelarEdicion = () => {
     setEditando(null);
     setJuegoSeleccionado('');
-    setEstado('completo');
+    setEstado('');
     setPrecioCompra('');
     setFechaCompra('');
   };
 
-  const eliminarJuego = async (id) => {
+  const mostrarConfirmacionEliminar = (id) => {
+    setJuegoAEliminar(id);
+    setShowConfirmModal(true);
+  };
+
+  const confirmarEliminar = async () => {
+    if (!juegoAEliminar) return;
+
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/juegos-usuario/${id}`, {
+      const response = await fetch(`${API_URL}/api/juegos-usuario/${juegoAEliminar}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -207,6 +224,8 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
 
       if (response.ok) {
         await cargarJuegos();
+        setShowConfirmModal(false);
+        setJuegoAEliminar(null);
       } else {
         setError('Error al eliminar el juego');
       }
@@ -215,25 +234,42 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
     }
   };
 
-  const totalInvertido = misJuegos.reduce((sum, j) => sum + j.precioCompra, 0);
-  const totalMercado = misJuegos.reduce((sum, j) => sum + j.precioMercado, 0);
+  const cancelarEliminar = () => {
+    setShowConfirmModal(false);
+    setJuegoAEliminar(null);
+  };
+
+  // Solo calcular beneficios para juegos con precio de compra definido
+  const juegosConPrecio = misJuegos.filter(j => j.precioCompra !== null && j.precioCompra !== undefined);
+  const totalInvertido = juegosConPrecio.reduce((sum, j) => sum + j.precioCompra, 0);
+  const totalMercado = juegosConPrecio.reduce((sum, j) => sum + j.precioMercado, 0);
   const beneficio = totalMercado - totalInvertido;
 
-  return (
-    <Modal show={show} onHide={onHide} size="xl" centered>
-      <Modal.Header 
-        closeButton 
-        style={{ 
-          background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
-          borderBottom: '3px solid #e65100'
-        }}
-      >
-        <Modal.Title className="fw-bold text-white">
-          Mis Juegos
-        </Modal.Title>
-      </Modal.Header>
+  const content = (
+    <>
+      {standalone && (
+        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: '#f8f9fa' }}>
+          <Card.Body>
+            <h4 className="fw-bold mb-0">Mis Juegos</h4>
+          </Card.Body>
+        </Card>
+      )}
       
-      <Modal.Body className="p-4">
+      {!standalone && (
+        <Modal.Header
+          closeButton
+          style={{
+            background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
+            borderBottom: '3px solid #e65100'
+          }}
+        >
+          <Modal.Title className="fw-bold text-white">
+            Mis Juegos
+          </Modal.Title>
+        </Modal.Header>
+      )}
+      
+      <div className={standalone ? '' : 'p-4'}>
         {error && (
           <Alert variant="danger" className="mb-3" onClose={() => setError(null)} dismissible>
             {error}
@@ -285,9 +321,11 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
             <h5 className="fw-bold mb-3">{editando ? 'Editar Juego' : 'Añadir Juego'}</h5>
             <Row className="g-3">
               <Col md={3}>
-                <Form.Label className="fw-semibold small">Juego</Form.Label>
-                <Form.Select 
-                  value={juegoSeleccionado} 
+                <Form.Label className="fw-semibold small">
+                  Juego <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Select
+                  value={juegoSeleccionado}
                   onChange={(e) => setJuegoSeleccionado(e.target.value)}
                   className="border-2"
                   style={{ borderRadius: '10px' }}
@@ -299,13 +337,16 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
                 </Form.Select>
               </Col>
               <Col md={3}>
-                <Form.Label className="fw-semibold small">Estado</Form.Label>
-                <Form.Select 
-                  value={estado} 
+                <Form.Label className="fw-semibold small">
+                  Estado <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Select
+                  value={estado}
                   onChange={(e) => setEstado(e.target.value)}
                   className="border-2"
                   style={{ borderRadius: '10px' }}
                 >
+                  <option value="">Selecciona un estado...</option>
                   {Object.entries(getEstadosDisponibles()).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
                   ))}
@@ -395,7 +436,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
                 <tr>
                   <th className="fw-bold">Juego</th>
                   <th className="fw-bold">Estado</th>
-                  <th className="fw-bold">Fecha Compra</th>
+                  <th className="fw-bold">Hora Registro</th>
                   <th className="fw-bold text-end">Precio Compra</th>
                   <th className="fw-bold text-end">Precio Mercado</th>
                   <th className="fw-bold text-end">Diferencia</th>
@@ -404,25 +445,29 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
               </thead>
               <tbody>
                 {misJuegos.map((juego) => {
-                  const diferencia = juego.precioMercado - juego.precioCompra;
+                  const diferencia = juego.precioCompra ? juego.precioMercado - juego.precioCompra : null;
                   return (
                     <tr key={juego.id}>
                       <td>
-                        <div className="fw-semibold">Pokemon {juego.nombre}</div>
+                        <div className="fw-semibold">Pokemon {juego.juegoNombre}</div>
                         <Badge bg="secondary" className="rounded-pill">{juego.generacion}</Badge>
                       </td>
                       <td>
                         <small className="text-muted">{getEstadoLabel(juego.estado)}</small>
                       </td>
                       <td>
-                        <small className="text-muted">{juego.fechaCompra ? new Date(juego.fechaCompra).toLocaleDateString('es-ES') : '-'}</small>
+                        <small className="text-muted">{juego.horaRegistro ? juego.horaRegistro : '-'}</small>
                       </td>
-                      <td className="text-end fw-semibold">{juego.precioCompra.toFixed(2)} €</td>
+                      <td className="text-end fw-semibold">{juego.precioCompra ? `${juego.precioCompra.toFixed(2)} €` : '-'}</td>
                       <td className="text-end">{juego.precioMercado.toFixed(2)} €</td>
                       <td className="text-end">
-                        <span className={diferencia >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}>
-                          {diferencia >= 0 ? '+' : ''}{diferencia.toFixed(2)} €
-                        </span>
+                        {diferencia !== null ? (
+                          <span className={diferencia >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}>
+                            {diferencia >= 0 ? '+' : ''}{diferencia.toFixed(2)} €
+                          </span>
+                        ) : (
+                          <span className="text-muted">No calculado</span>
+                        )}
                       </td>
                       <td className="text-center">
                         <Button 
@@ -436,7 +481,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
                         <Button 
                           variant="danger" 
                           size="sm"
-                          onClick={() => eliminarJuego(juego.id)}
+                          onClick={() => mostrarConfirmacionEliminar(juego.id)}
                           className="rounded-pill"
                         >
                           Eliminar
@@ -451,13 +496,56 @@ function MisJuegosModal({ show, onHide, juegosDisponibles }) {
         )}
           </>
         )}
-      </Modal.Body>
-      
-      <Modal.Footer className="border-top-0">
-        <Button variant="secondary" onClick={onHide} className="rounded-pill px-4">
-          Cerrar
-        </Button>
-      </Modal.Footer>
+      </div>
+
+      {!standalone && (
+        <Modal.Footer className="border-top-0">
+          <Button variant="secondary" onClick={onHide} className="rounded-pill px-4">
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      )}
+
+      {/* Modal de Confirmación Eliminar */}
+      <Modal show={showConfirmModal} onHide={cancelarEliminar} centered>
+        <Modal.Header
+          style={{
+            background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
+            borderBottom: '3px solid #a71e2a'
+          }}
+        >
+          <Modal.Title className="fw-bold text-white">
+            ¿Eliminar juego?
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          <p className="mb-0">¿Estás seguro de que quieres eliminar este juego de tu colección?</p>
+          <p className="text-danger fw-bold mt-2 mb-0">Esta acción no se puede deshacer.</p>
+        </Modal.Body>
+        <Modal.Footer className="border-top-0">
+          <Button variant="secondary" onClick={cancelarEliminar} className="rounded-pill px-4">
+            Cancelar
+          </Button>
+          <Button 
+            variant="danger" 
+            onClick={confirmarEliminar} 
+            className="rounded-pill px-4 fw-bold"
+            style={{ background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)' }}
+          >
+            Sí, eliminar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
+
+  if (standalone) {
+    return content;
+  }
+
+  return (
+    <Modal show={show} onHide={onHide} size="xl" centered>
+      {content}
     </Modal>
   );
 }

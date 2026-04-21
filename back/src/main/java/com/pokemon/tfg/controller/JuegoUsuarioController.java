@@ -82,6 +82,24 @@ public class JuegoUsuarioController {
         }
     }
 
+    @PutMapping("/{id}/comentario")
+    public ResponseEntity<?> actualizarComentario(@PathVariable Long id,
+                                                   @RequestBody String comentario,
+                                                   Authentication authentication) {
+        try {
+            Usuario usuario = obtenerUsuarioActual(authentication);
+            // Eliminar comillas si vienen en el JSON (JSON.stringify envía "texto")
+            String comentarioLimpio = comentario;
+            if (comentarioLimpio != null && comentarioLimpio.startsWith("\"") && comentarioLimpio.endsWith("\"")) {
+                comentarioLimpio = comentarioLimpio.substring(1, comentarioLimpio.length() - 1);
+            }
+            JuegoUsuario juego = juegoUsuarioService.actualizarComentario(id, usuario.getId(), comentarioLimpio);
+            return ResponseEntity.ok(juego);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al actualizar comentario: " + e.getMessage());
+        }
+    }
+
     private Usuario obtenerUsuarioActual(Authentication authentication) {
         String username = authentication.getName();
         return usuarioRepository.findByUsername(username)

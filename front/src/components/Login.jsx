@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Form, Button, Card, Alert, Spinner, InputGroup } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthLayout from './layout/AuthLayout';
 
 function Login() {
   const navigate = useNavigate();
+  
+  // Limpiar localStorage al entrar a login (asegurar que no hay sesión residual)
+  useEffect(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }, []);
+  
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -44,6 +51,8 @@ function Login() {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        // Notificar cambio de autenticación
+        window.dispatchEvent(new Event('auth-change'));
         setError('');
         setSuccess('Inicio de sesion exitoso. Redirigiendo...');
         setTimeout(() => {

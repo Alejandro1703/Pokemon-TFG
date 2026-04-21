@@ -8,7 +8,7 @@
 help:
 
 	@echo "  Los comandos que se pueden utilizar son los siguientes:"
-
+	@echo ""
 	@echo "  make front-start  - Inicia el servidor de desarrollo frontend"
 	@echo "  make back-start   - Inicia el backend Spring Boot"
 	@echo "  make xampp        - Abre el panel de control de XAMPP"

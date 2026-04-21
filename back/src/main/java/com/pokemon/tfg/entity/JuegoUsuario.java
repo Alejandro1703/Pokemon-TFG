@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "juegos_usuario")
@@ -30,28 +30,33 @@ public class JuegoUsuario {
     @Column(nullable = false)
     private String estado;
 
-    @Column(name = "precio_compra", nullable = false)
+    @Column(name = "precio_compra")
     private Double precioCompra;
 
     @Column(name = "precio_mercado", nullable = false)
     private Double precioMercado;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Double beneficio;
 
     @Column(name = "fecha_compra")
     private LocalDate fechaCompra;
 
     @Column(name = "fecha_registro")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime fechaRegistro;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate fechaRegistro;
+
+    @Column(name = "hora_registro")
+    @JsonFormat(pattern = "HH:mm:ss")
+    private LocalTime horaRegistro;
+
+    @Column(name = "comentario")
+    private String comentario;
 
     @PrePersist
     protected void onCreate() {
-        fechaRegistro = LocalDateTime.now();
-        if (fechaCompra == null) {
-            fechaCompra = LocalDate.now();
-        }
+        fechaRegistro = LocalDate.now();
+        horaRegistro = LocalTime.now();
         calcularBeneficio();
     }
 
@@ -63,6 +68,8 @@ public class JuegoUsuario {
     private void calcularBeneficio() {
         if (precioMercado != null && precioCompra != null) {
             this.beneficio = precioMercado - precioCompra;
+        } else {
+            this.beneficio = null;
         }
     }
 }
