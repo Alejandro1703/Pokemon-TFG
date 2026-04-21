@@ -22,13 +22,13 @@ function Header() {
         left: 0,
         right: 0,
         zIndex: 2000,
-        background: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        borderBottom: '3px solid #ffc107'
+        backgroundColor: '#42a5f5',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+        borderBottom: '3px solid #1976d2'
       }}
     >
       {nombre && (
-        <span className="text-dark fw-bold" style={{ fontSize: '1.1rem' }}>
+        <span className="text-white fw-bold" style={{ fontSize: '1.1rem' }}>
           Bienvenido, {nombre}
         </span>
       )}

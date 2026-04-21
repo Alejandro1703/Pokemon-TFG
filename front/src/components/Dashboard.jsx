@@ -81,7 +81,7 @@ function PokemonSliderFixed() {
     <div 
       className="py-5 px-4"
       style={{ 
-        background: 'linear-gradient(135deg, #fff8e1 0%, #ffe082 50%, #ffc107 100%)',
+        backgroundColor: '#42a5f5',
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -113,7 +113,7 @@ function PokemonSliderFixed() {
       <div className="container position-relative">
         <h2 
           className="text-center fw-bold mb-4"
-          style={{ color: '#5d4037', textShadow: '1px 1px 2px rgba(255,255,255,0.5)' }}
+          style={{ color: '#0d47a1' }}
         >
           Crea al mejor equipo
         </h2>
@@ -389,8 +389,8 @@ function Dashboard() {
         <div 
           className="text-center py-5 px-4"
           style={{
-            background: 'linear-gradient(135deg, #fff9e6 0%, #fff3cd 50%, #ffeaa7 100%)',
-            borderBottom: '4px solid #ffc107'
+            background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
+            borderBottom: '4px solid #42a5f5'
           }}
         >
           <div className="container">
@@ -412,7 +412,7 @@ function Dashboard() {
             {/* Pokémon estáticos */}
             <div className="d-flex justify-content-center flex-wrap gap-3 mt-4">
               {loading ? (
-                <Spinner animation="border" variant="warning" />
+                <Spinner animation="border" variant="primary" />
               ) : (
                 pokemonData.slice(0, 3).map((pokemon) => (
                   <div 
@@ -451,7 +451,7 @@ function Dashboard() {
                   <Button 
                     as={Link} 
                     to="/juegos"
-                    variant="warning"
+                    variant="primary"
                     className="rounded-pill px-4 py-2 fw-bold"
                     style={{ fontSize: '1.1rem' }}
                   >
@@ -460,7 +460,7 @@ function Dashboard() {
                   <Button 
                     as={Link} 
                     to="/pokedex"
-                    variant="outline-warning"
+                    variant="outline-primary"
                     className="rounded-pill px-4 py-2 fw-bold"
                     style={{ fontSize: '1.1rem', borderWidth: '2px' }}
                   >
@@ -484,8 +484,8 @@ function Dashboard() {
         <div 
           className="py-4 px-4 text-center"
           style={{
-            background: 'linear-gradient(135deg, #ffecb3 0%, #ffe082 50%, #ffc107 100%)',
-            color: '#5d4037'
+            backgroundColor: '#1976d2',
+            color: '#e3f2fd'
           }}
         >
           <p className="mb-2 fw-bold" style={{ fontSize: '1.2rem' }}>

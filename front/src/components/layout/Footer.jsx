@@ -8,8 +8,8 @@ function Footer() {
         left: 0,
         right: 0,
         zIndex: 1000,
-        background: 'linear-gradient(135deg, #ffe082 0%, #ffecb3 50%, #fff8e1 100%)',
-        borderTop: '3px solid #ffc107'
+        backgroundColor: '#42a5f5',
+        borderTop: '3px solid #1976d2'
       }}
     />
   );

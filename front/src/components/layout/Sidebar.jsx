@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 function Sidebar() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const [isVisible, setIsVisible] = useState(true);
   const currentPath = location.pathname;
 
   // Verificar estado de autenticación cuando cambia la ruta o el localStorage
@@ -24,9 +25,16 @@ function Sidebar() {
     // Verificar cada segundo (para cambios en la misma pestaña)
     const interval = setInterval(checkAuth, 1000);
     
+    // Escuchar evento de toggle del sidebar
+    const handleToggleSidebar = (e) => {
+      setIsVisible(e.detail.visible);
+    };
+    window.addEventListener('toggle-sidebar', handleToggleSidebar);
+
     return () => {
       window.removeEventListener('storage', checkAuth);
       window.removeEventListener('auth-change', checkAuth);
+      window.removeEventListener('toggle-sidebar', handleToggleSidebar);
       clearInterval(interval);
     };
   }, [location.pathname]); // También se ejecuta cuando cambia la ruta
@@ -48,35 +56,44 @@ function Sidebar() {
 
   const isActive = (path) => currentPath === path;
 
+  const toggleSidebar = () => {
+    const newState = !isVisible;
+    setIsVisible(newState);
+    window.dispatchEvent(new CustomEvent('toggle-sidebar', { detail: { visible: newState } }));
+  };
+
   return (
     <div
-      className="d-flex flex-column"
-      style={{
-        width: '250px',
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 500,
-        background: 'linear-gradient(180deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%)',
-        borderRight: '3px solid #ffc107',
-        boxShadow: '4px 0 20px rgba(0,0,0,0.1)'
-      }}
-    >
-      <div
-        className="d-flex align-items-center justify-content-center"
-        style={{ 
-          height: '70px', 
-          backgroundColor: 'rgba(255,193,7,0.3)',
-          borderBottom: '2px solid #ffc107'
+        className="d-flex flex-column"
+        style={{
+          width: isVisible ? '250px' : '32px',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 500,
+          backgroundColor: '#64b5f6',
+          borderRight: isVisible ? '3px solid #42a5f5' : '3px solid #42a5f5',
+          boxShadow: '4px 0 20px rgba(0,0,0,0.2)',
+          transition: 'all 0.4s ease-in-out',
+          overflow: 'visible'
         }}
       >
-        <h6 className="fw-bold m-0" style={{ fontSize: '1.1rem', color: '#5d4037' }}>MENU PRINCIPAL</h6>
-      </div>
+        <div
+          className="d-flex align-items-center justify-content-center"
+          style={{ 
+            height: '70px', 
+            backgroundColor: '#42a5f5',
+            borderBottom: '2px solid #1976d2',
+            minWidth: '250px'
+          }}
+        >
+          <h6 className="fw-bold m-0" style={{ fontSize: '1.1rem', color: '#e3f2fd', opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>MENU PRINCIPAL</h6>
+        </div>
 
       <div className="p-3 text-center">
-        <small style={{ color: '#8d6e63' }}>
-          {isLoggedIn ? 'Herramientas' : 'Acceso de usuarios'}
+        <small style={{ color: '#90caf9' }}>
+          {isLoggedIn ? '' : 'Acceso de usuarios'}
         </small>
       </div>
 
@@ -91,14 +108,18 @@ function Sidebar() {
                 isActive('/dashboard') ? 'fw-bold shadow' : ''
               }`}
               style={{
-                backgroundColor: isActive('/dashboard') ? '#ffc107' : 'rgba(255,255,255,0.5)',
-                color: isActive('/dashboard') ? '#5d4037' : '#5d4037',
-                border: isActive('/dashboard') ? '2px solid #ff8f00' : '1px solid rgba(255,193,7,0.5)',
-                transition: 'all 0.3s ease',
-                fontSize: '1rem'
+                backgroundColor: isActive('/dashboard') ? '#1976d2' : 'rgba(25,118,210,0.3)',
+                color: isActive('/dashboard') ? '#e3f2fd' : '#e3f2fd',
+                border: isActive('/dashboard') ? '2px solid #1565c0' : '1px solid rgba(25,118,210,0.5)',
+                transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+                fontSize: '1rem',
+                overflow: 'hidden',
+                transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? 'auto' : 'none'
               }}
             >
-              <span>Inicio</span>
+              <span style={{ whiteSpace: 'nowrap' }}>Inicio</span>
             </Nav.Link>
 
             {dashboardItems.map((item) => {
@@ -112,14 +133,18 @@ function Sidebar() {
                     active ? 'fw-bold shadow' : ''
                   }`}
                   style={{
-                    backgroundColor: active ? '#ffc107' : 'rgba(255,255,255,0.5)',
-                    color: active ? '#5d4037' : '#5d4037',
-                    border: active ? '2px solid #ff8f00' : '1px solid rgba(255,193,7,0.5)',
-                    transition: 'all 0.3s ease',
-                    fontSize: '1rem'
+                    backgroundColor: active ? '#1976d2' : 'rgba(25,118,210,0.3)',
+                    color: active ? '#e3f2fd' : '#e3f2fd',
+                    border: active ? '2px solid #1565c0' : '1px solid rgba(25,118,210,0.5)',
+                    transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+                    fontSize: '1rem',
+                    overflow: 'hidden',
+                    transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                    opacity: isVisible ? 1 : 0,
+                    pointerEvents: isVisible ? 'auto' : 'none'
                   }}
                 >
-                  <span>{item.label}</span>
+                  <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
                 </Nav.Link>
               );
             })}
@@ -132,17 +157,21 @@ function Sidebar() {
                 window.dispatchEvent(new Event('auth-change'));
                 window.location.href = '/login';
               }}
-              className="d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none"
+              className="d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none fw-bold"
               style={{
-                backgroundColor: 'rgba(255,138,101,0.3)',
-                color: '#5d4037',
-                border: '1px solid rgba(255,138,101,0.6)',
-                transition: 'all 0.3s ease',
+                backgroundColor: '#f44336',
+                color: 'white',
+                border: '2px solid #d32f2f',
+                transition: 'transform 0.35s ease-out, opacity 0.25s ease',
                 fontSize: '1rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                overflow: 'hidden',
+                transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? 'auto' : 'none'
               }}
             >
-              <span>Cerrar Sesión</span>
+              <span style={{ whiteSpace: 'nowrap' }}>Cerrar Sesión</span>
             </Nav.Link>
           </>
         ) : (
@@ -157,19 +186,54 @@ function Sidebar() {
                   active ? 'fw-bold shadow' : ''
                 }`}
                 style={{
-                  backgroundColor: active ? '#ffc107' : 'rgba(255,255,255,0.5)',
-                  color: active ? '#5d4037' : '#5d4037',
-                  border: active ? '2px solid #ff8f00' : '1px solid rgba(255,193,7,0.5)',
-                  transition: 'all 0.3s ease',
-                  fontSize: '1rem'
+                  backgroundColor: active ? '#1976d2' : 'rgba(25,118,210,0.3)',
+                  color: active ? '#e3f2fd' : '#e3f2fd',
+                  border: active ? '2px solid #1565c0' : '1px solid rgba(25,118,210,0.5)',
+                  transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+                  fontSize: '1rem',
+                  overflow: 'hidden',
+                  transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                  opacity: isVisible ? 1 : 0,
+                  pointerEvents: isVisible ? 'auto' : 'none'
                 }}
               >
-                <span>{item.label}</span>
+                <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
               </Nav.Link>
             );
           })
         )}
       </Nav>
+
+      {/* Botón de toggle en esquina superior derecha */}
+      <button
+        onClick={toggleSidebar}
+        className="d-flex align-items-center justify-content-center"
+        style={{
+          position: 'fixed',
+          top: '72px',
+          left: isVisible ? '216px' : '2px',
+          width: isVisible ? '32px' : '28px',
+          height: isVisible ? '32px' : '28px',
+          backgroundColor: '#1976d2',
+          border: '3px solid #1565c0',
+          borderRadius: '6px',
+          color: 'white',
+          fontSize: isVisible ? '14px' : '12px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          transition: 'all 0.4s ease-in-out',
+          zIndex: 501,
+          boxShadow: '2px 2px 8px rgba(0,0,0,0.3)'
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = '#1565c0';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = '#1976d2';
+        }}
+      >
+        {isVisible ? '◀' : '▶'}
+      </button>
     </div>
   );
 }
