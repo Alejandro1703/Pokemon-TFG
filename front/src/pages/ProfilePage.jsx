@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card } from 'react-bootstrap';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import ProfileModal from '../components/ProfileModal';
+import { useTranslation } from '../contexts/SettingsContext';
 
 function ProfilePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
@@ -34,9 +36,9 @@ function ProfilePage() {
               onClick={() => navigate('/dashboard')}
               className="rounded-pill me-3"
             >
-              ← Volver al inicio
+              {t('page.backToDashboard')}
             </Button>
-            <h2 className="fw-bold m-0">Mi Perfil</h2>
+            <h2 className="fw-bold m-0">{t('page.profile')}</h2>
           </Card.Body>
         </Card>
         {user && (

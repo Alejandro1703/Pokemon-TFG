@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card } from 'react-bootstrap';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import ProgresoModal from '../components/ProgresoModal';
+import { useTranslation } from '../contexts/SettingsContext';
 
 const JUEGOS_DISPONIBLES = [
   { id: 1, nombre: 'Rojo Fuego', imagen: '/images/juegos/Rojo Fuego.jpeg', generacion: 'Gen 1' },
@@ -22,6 +23,7 @@ const JUEGOS_DISPONIBLES = [
 ];
 
 function ProgresoPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,9 +43,9 @@ function ProgresoPage() {
               onClick={() => navigate('/dashboard')}
               className="rounded-pill me-3"
             >
-              ← Volver al inicio
+              {t('page.backToDashboard')}
             </Button>
-            <h2 className="fw-bold m-0">Progreso</h2>
+            <h2 className="fw-bold m-0">{t('progress.title')}</h2>
           </Card.Body>
         </Card>
         <ProgresoModal

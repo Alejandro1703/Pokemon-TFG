@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { useTranslation } from '../contexts/SettingsContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
 
@@ -23,6 +24,7 @@ const JUEGOS_IMAGENES = {
 };
 
 function AventurasPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [juegos, setJuegos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +100,7 @@ function AventurasPage() {
   };
 
   const iniciarAventura = (juego) => {
-    alert(`Iniciando aventura en: ${juego.juegoNombre}`);
+    navigate(`/aventura?juegoId=${juego.id}&nombre=${encodeURIComponent(juego.juegoNombre)}`);
   };
 
   if (loading) {
@@ -106,7 +108,7 @@ function AventurasPage() {
       <DashboardLayout>
         <div className="p-4 text-center">
           <Spinner animation="border" variant="warning" />
-          <p className="mt-2">Cargando juegos...</p>
+          <p className="mt-2">{t('adventures.loading')}</p>
         </div>
       </DashboardLayout>
     );
@@ -124,16 +126,16 @@ function AventurasPage() {
             >
               ← Volver al inicio
             </Button>
-            <h2 className="fw-bold m-0">Aventuras</h2>
+            <h2 className="fw-bold m-0">{t('adventures.title')}</h2>
           </Card.Body>
         </Card>
         
         {juegos.length === 0 ? (
           <Card className="border-0 shadow-sm">
             <Card.Body className="text-center p-5">
-              <h4 className="text-muted mb-3">No tienes juegos</h4>
+              <h4 className="text-muted mb-3">{t('adventures.noGames')}</h4>
               <p className="text-secondary">
-                Añade juegos a tu colección para poder jugar.
+                {t('adventures.addGames')}
               </p>
             </Card.Body>
           </Card>
@@ -163,7 +165,7 @@ function AventurasPage() {
                         className="rounded-pill"
                         onClick={() => iniciarAventura(juego)}
                       >
-                        ▶ Iniciar
+                        {t('adventures.start')}
                       </Button>
                       <Button
                         variant="outline-primary"
@@ -171,7 +173,7 @@ function AventurasPage() {
                         className="rounded-pill"
                         onClick={() => abrirEdicion(juego)}
                       >
-                        ✎ Editar
+                        {t('adventures.edit')}
                       </Button>
                     </div>
                   </Card.Body>
@@ -185,35 +187,35 @@ function AventurasPage() {
         <Modal show={showModal} onHide={() => setShowModal(false)} centered>
           <Modal.Header style={{ background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)' }}>
             <Modal.Title className="fw-bold text-white">
-              Editar {juegoEditando?.juegoNombre}
+              {t('adventures.editGame')} {juegoEditando?.juegoNombre}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body className="p-4">
             <Form.Group>
-              <Form.Label className="fw-bold">Comentario (para diferenciar juegos)</Form.Label>
+              <Form.Label className="fw-bold">{t('adventures.commentLabel')}</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
                 value={comentario}
                 onChange={(e) => setComentario(e.target.value)}
-                placeholder="Ej: Mi cartucho de la infancia, Comprado en Japón, etc."
+                placeholder={t('adventures.commentPlaceholder')}
                 style={{ borderRadius: '10px' }}
               />
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setShowModal(false)} className="rounded-pill">
-              Cancelar
+              {t('adventures.cancel')}
             </Button>
             <Button variant="danger" onClick={borrarComentario} className="rounded-pill">
-              Borrar
+              {t('adventures.delete')}
             </Button>
             <Button
               variant="warning"
               onClick={guardarComentario}
               className="rounded-pill fw-bold"
             >
-              Guardar
+              {t('adventures.save')}
             </Button>
           </Modal.Footer>
         </Modal>

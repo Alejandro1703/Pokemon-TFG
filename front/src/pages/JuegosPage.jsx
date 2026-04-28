@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Spinner, Card, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { useTranslation } from '../contexts/SettingsContext';
 
 // Lista de juegos con precios por estado (EUR)
 const JUEGOS_DISPONIBLES = [
@@ -35,9 +36,10 @@ const JUEGOS_DISPONIBLES = [
     precios: { completo: 200, semi: 180, sinManual: 150, soloCartucho: 100, caratulaCartucho: 165 }}
 ];
 
-const GENERACIONES = ['Todas', 'Gen 1', 'Gen 2', 'Gen 3', 'Gen 4', 'Gen 5'];
+const GENERACIONES = ['sidebar.filterAll', 'Gen 1', 'Gen 2', 'Gen 3', 'Gen 4', 'Gen 5'];
 
 function JuegosPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [filtroGeneracion, setFiltroGeneracion] = useState('Todas');
@@ -66,7 +68,7 @@ function JuegosPage() {
       <div className="min-vh-100 d-flex align-items-center justify-content-center">
         <div className="text-center">
           <Spinner animation="border" variant="warning" size="lg" className="mb-3" />
-          <p className="text-secondary fw-semibold">Cargando...</p>
+          <p className="text-secondary fw-semibold">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -84,10 +86,10 @@ function JuegosPage() {
               textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
             }}
           >
-            Juegos Disponibles
+            {t('games.title')}
           </h2>
           <p className="text-secondary fs-5">
-            Selecciona tus juegos adquiridos. Podrás poner el precio por el que los adquiriste o dejar que la aplicación ponga el precio del juego a día de hoy.
+            {t('games.filterBy')}
           </p>
         </div>
 
@@ -123,7 +125,7 @@ function JuegosPage() {
                 }
               }}
             >
-              {gen}
+              {gen === 'sidebar.filterAll' ? t('games.filterAll') : gen}
             </button>
           ))}
         </div>
@@ -175,7 +177,7 @@ function JuegosPage() {
                     className="fw-bold mb-2"
                     style={{ fontSize: '1.05rem', color: '#333' }}
                   >
-                    Pokemon {juego.nombre}
+                    {juego.nombre}
                   </Card.Title>
                   <span 
                     className="badge rounded-pill px-3 py-2 d-inline-block mb-2"
@@ -199,7 +201,7 @@ function JuegosPage() {
                     {juego.precios.completo} €
                   </div>
                   <small className="text-muted" style={{ fontSize: '0.75rem' }}>
-                    Precio completo (CIB + VIP)
+                    {t('myGames.purchasePrice')}
                   </small>
                 </Card.Body>
               </Card>

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Form, Button, Card, Alert, Spinner, Row, Col } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthLayout from './layout/AuthLayout';
+import { useTranslation } from '../contexts/SettingsContext';
 
 function Register() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nombre: '',
@@ -28,23 +30,23 @@ function Register() {
   const validateForm = () => {
     if (!formData.nombre || !formData.apellidos || !formData.fechaNacimiento || 
         !formData.username || !formData.password || !formData.telefono) {
-      setError('Por favor, completa todos los campos');
+      setError(t('register.fillAll'));
       return false;
     }
     
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contrasenas no coinciden');
+      setError(t('register.passwordsMatch'));
       return false;
     }
     
     if (formData.password.length < 6) {
-      setError('La contrasena debe tener al menos 6 caracteres');
+      setError(t('register.passwordMin'));
       return false;
     }
     
     const phoneRegex = /^[0-9]{9}$/;
     if (!phoneRegex.test(formData.telefono)) {
-      setError('El telefono debe tener exactamente 9 digitos numericos');
+      setError('Phone must have exactly 9 numeric digits');
       return false;
     }
     
@@ -73,16 +75,16 @@ function Register() {
       });
       
       if (response.ok) {
-        setSuccess('Registro completado exitosamente. Redirigiendo al login...');
+        setSuccess(t('register.success'));
         setTimeout(() => {
           navigate('/login');
         }, 2000);
       } else {
         const data = await response.json();
-        setError(data.message || 'Hubo un problema con el registro');
+        setError(data.message || t('common.error'));
       }
     } catch {
-      setError('No se puede conectar con el servidor');
+      setError(t('profile.connectionError'));
     } finally {
       setLoading(false);
     }
@@ -105,10 +107,10 @@ function Register() {
             className="fw-bold text-white mb-2"
             style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}
           >
-            Crear Cuenta
+            {t('register.title')}
           </h2>
           <p className="text-white text-opacity-90 mb-0">
-            Unete a la comunidad de entrenadores Pokemon
+            {t('register.subtitle')}
           </p>
         </div>
         

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from '../../contexts/SettingsContext';
 
 function Header() {
+  const { t } = useTranslation();
   const [nombre, setNombre] = useState('');
 
   useEffect(() => {
@@ -8,7 +10,9 @@ function Header() {
     if (user) {
       try {
         setNombre(JSON.parse(user).nombre || '');
-      } catch {}
+      } catch {
+        // ignore parse errors
+      }
     }
   }, []);
 
@@ -29,7 +33,7 @@ function Header() {
     >
       {nombre && (
         <span className="text-white fw-bold" style={{ fontSize: '1.1rem' }}>
-          Bienvenido, {nombre}
+          {t('header.welcome')} {nombre}
         </span>
       )}
     </header>

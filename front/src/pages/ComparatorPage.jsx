@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card } from 'react-bootstrap';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import PokemonComparator from '../components/PokemonComparator';
+import { useTranslation } from '../contexts/SettingsContext';
 
 function ComparatorPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,9 +26,9 @@ function ComparatorPage() {
               onClick={() => navigate('/dashboard')}
               className="rounded-pill me-3"
             >
-              ← Volver al inicio
+              {t('page.backToDashboard')}
             </Button>
-            <h2 className="fw-bold m-0">Comparador de Pokémon</h2>
+            <h2 className="fw-bold m-0">{t('comparator.title')}</h2>
           </Card.Body>
         </Card>
         <PokemonComparator standalone={true} />
