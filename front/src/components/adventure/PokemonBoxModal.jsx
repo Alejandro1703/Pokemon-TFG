@@ -134,7 +134,7 @@ function PokemonBoxModal({ show, onHide, gameName, boxes, onUpdateBoxes }) {
         </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body className="p-3">
+      <Modal.Body className="p-3" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
         {/* Selector de caja */}
         <div className="d-flex align-items-center justify-content-between mb-3">
           <div className="d-flex align-items-center gap-2">
@@ -184,7 +184,10 @@ function PokemonBoxModal({ show, onHide, gameName, boxes, onUpdateBoxes }) {
         {showAddForm && (
           <div
             className="p-3 mb-3 rounded-3"
-            style={{ backgroundColor: '#f3e5f5', border: '1px solid #ce93d8' }}
+            style={{ 
+              backgroundColor: '#f3e5f5', 
+              border: '1px solid #ce93d8'
+            }}
           >
             <Row className="g-2 align-items-end">
               <Col md={4}>
@@ -281,7 +284,7 @@ function PokemonBoxModal({ show, onHide, gameName, boxes, onUpdateBoxes }) {
                 cursor: slot ? 'grab' : 'default',
                 transition: 'all 0.15s ease',
                 overflow: 'hidden',
-                minHeight: '70px',
+                minHeight: '35px',
               }}
               title={slot ? `${slot.name} (#${slot.pokemonId}) - ${t('pokemonBox.dragToMove')}` : t('pokemonBox.emptySlot').replace('{slot}', idx + 1)}
             >
