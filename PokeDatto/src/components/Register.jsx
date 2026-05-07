@@ -46,7 +46,7 @@ function Register() {
     
     const phoneRegex = /^[0-9]{9}$/;
     if (!phoneRegex.test(formData.telefono)) {
-      setError('Phone must have exactly 9 numeric digits');
+      setError('El teléfono debe tener exactamente 9 dígitos numéricos');
       return false;
     }
     

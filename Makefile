@@ -16,17 +16,17 @@ help:
 
 ## front-start: Inicia el servidor de desarrollo del frontend (Vite/React)
 front-start:
-	@echo "🚀 Iniciando frontend..."
-	cd front && npm run dev
+	@echo "Iniciando frontend..."
+	cd PokeDatto && npm run dev
 
 ## back-start: Inicia el backend con Spring Boot Maven
 back-start:
-	@echo "🚀 Iniciando backend..."
+	@echo "Iniciando backend..."
 	cd back && mvn spring-boot:run
 
 ## xampp: Abre el panel de control de XAMPP con sudo
 xampp:
-	@echo "🗄️  Abriendo XAMPP Control Panel..."
+	@echo "Abriendo XAMPP Control Panel..."
 	sudo /opt/lampp/manager-linux-x64.run
 
 ## stop: Detiene todos los servicios (frontend, backend y XAMPP)

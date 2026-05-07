@@ -1,9 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Modal, Row, Col, Card, Badge, Spinner, Alert } from 'react-bootstrap';
+import { useTranslation } from '../contexts/SettingsContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
 
+// Mapeo de nombres de juegos (de la API) a claves de traducción
+const NOMBRE_A_KEY = {
+  'Rojo Fuego': 'games.fireRed',
+  'Verde Hoja': 'games.leafGreen',
+  'Rubi': 'games.ruby',
+  'Zafiro': 'games.sapphire',
+  'Esmeralda': 'games.emerald',
+  'Diamante': 'games.diamond',
+  'Perla': 'games.pearl',
+  'Platino': 'games.platinum',
+  'Oro HeartGold': 'games.heartGold',
+  'Plata SoulSilver': 'games.soulSilver',
+  'Negro': 'games.black',
+  'Blanco': 'games.white',
+  'Negro 2': 'games.black2',
+  'Blanco 2': 'games.white2'
+};
+
 function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) {
+  const { t } = useTranslation();
   const [misJuegos, setMisJuegos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -41,7 +61,9 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
 
   // Obtener información del juego desde la lista de juegos disponibles
   const getJuegoInfo = (nombreJuego) => {
-    return juegosDisponibles.find(j => j.nombre === nombreJuego);
+    const nombreKey = NOMBRE_A_KEY[nombreJuego] || nombreJuego;
+    const juego = juegosDisponibles.find(j => j.nombreKey === nombreKey);
+    return juego ? { ...juego, nombreTraducido: t(juego.nombreKey) } : null;
   };
 
   // Obtener juegos únicos (por nombre) para no mostrar duplicados
@@ -63,7 +85,7 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
       {standalone && (
         <Card className="mb-4 border-0 shadow-sm">
           <Card.Body style={{ background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)' }}>
-            <h4 className="fw-bold text-white mb-0">Tu Progreso - Colección de Juegos</h4>
+            <h4 className="fw-bold text-white mb-0">{t('progress.title')}</h4>
           </Card.Body>
         </Card>
       )}
@@ -77,7 +99,7 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
           }}
         >
           <Modal.Title className="fw-bold text-white">
-            Tu Progreso - Colección de Juegos
+            {t('progress.header')}
           </Modal.Title>
         </Modal.Header>
       )}
@@ -105,7 +127,7 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
           <>
             <div className="text-center mb-4">
               <h5 className="text-success fw-bold">
-                Has coleccionado {juegosUnicos.length} {juegosUnicos.length === 1 ? 'juego' : 'juegos'} de {juegosDisponibles.length} disponibles
+                {t('progress.collected')} {juegosUnicos.length} {juegosUnicos.length === 1 ? t('progress.game') : t('progress.games')} {t('progress.collectedSuffix')} {juegosDisponibles.length} {t('progress.collectedEnd')}
               </h5>
               <div 
                 className="mx-auto mt-2" 
@@ -127,7 +149,7 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
                 />
               </div>
               <small className="text-muted">
-                {Math.round((juegosUnicos.length / juegosDisponibles.length) * 100)}% completado
+                {Math.round((juegosUnicos.length / juegosDisponibles.length) * 100)}% {t('progress.completed')}
               </small>
             </div>
 
@@ -166,7 +188,7 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
                         </div>
                         <div className="ms-2 flex-grow-1">
                           <span className="fw-semibold" style={{ fontSize: '0.85rem' }}>
-                            Pokémon {juego.juegoNombre}
+                            Pokémon {juegoInfo?.nombreTraducido || juego.juegoNombre}
                           </span>
                         </div>
                       </div>
