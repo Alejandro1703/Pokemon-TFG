@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
+import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
 function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone = false }) {
+  const { isDark, toggleTheme, language, setLanguage } = useSettings();
+  const { t } = useTranslation();
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -117,7 +120,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
             border: 'none'
           }}
         >
-          <h4 className="fw-bold text-dark m-0">Mi Perfil</h4>
+          <h4 className="fw-bold text-dark m-0">{t('profile.title')}</h4>
         </div>
       )}
       
@@ -130,7 +133,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
           }}
         >
           <Modal.Title className="fw-bold text-dark m-0">
-            Mi Perfil
+            {t('profile.title')}
           </Modal.Title>
           <Button
             variant="dark"
@@ -151,27 +154,81 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
           </Alert>
         )}
 
+        {/* Preferencias */}
+        <div className="p-3 mb-4 rounded-3" style={{ backgroundColor: isDark ? '#2a2c38' : '#e8f5e9', borderLeft: '4px solid #66bb6a' }}>
+          <h5 className="fw-bold mb-3">{t('profile.preferences')}</h5>
+          <div className="d-flex align-items-center justify-content-between mb-3">
+            <div className="d-flex align-items-center gap-2">
+              <span style={{ fontSize: '1.3rem' }}>{isDark ? '🌙' : '☀️'}</span>
+              <span className="fw-bold">{t('profile.darkMode')}</span>
+            </div>
+            <Form.Check
+              type="switch"
+              id="dark-mode-switch"
+              checked={isDark}
+              onChange={toggleTheme}
+              style={{ transform: 'scale(1.3)' }}
+            />
+          </div>
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center gap-2">
+              <span style={{ fontSize: '1.3rem' }}>🌐</span>
+              <span className="fw-bold">{t('profile.language')}</span>
+            </div>
+            <div className="d-flex gap-1">
+              <Button
+                size="sm"
+                onClick={() => setLanguage('es')}
+                style={{
+                  backgroundColor: language === 'es' ? '#ffc107' : 'transparent',
+                  color: language === 'es' ? '#333' : (isDark ? '#c8ccd4' : '#666'),
+                  border: language === 'es' ? '2px solid #ff9800' : (isDark ? '1px solid #4b5563' : '1px solid #ddd'),
+                  borderRadius: '8px',
+                  fontWeight: language === 'es' ? 'bold' : 'normal',
+                  padding: '4px 12px',
+                }}
+              >
+                ES
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setLanguage('en')}
+                style={{
+                  backgroundColor: language === 'en' ? '#ffc107' : 'transparent',
+                  color: language === 'en' ? '#333' : (isDark ? '#c8ccd4' : '#666'),
+                  border: language === 'en' ? '2px solid #ff9800' : (isDark ? '1px solid #4b5563' : '1px solid #ddd'),
+                  borderRadius: '8px',
+                  fontWeight: language === 'en' ? 'bold' : 'normal',
+                  padding: '4px 12px',
+                }}
+              >
+                EN
+              </Button>
+            </div>
+          </div>
+        </div>
+
         {/* Datos del perfil */}
-        <div className="p-3 mb-4 rounded-3" style={{ backgroundColor: '#f8f9fa', borderLeft: '4px solid #ffc107' }}>
-          <h5 className="fw-bold mb-3">Datos personales</h5>
+        <div className="p-3 mb-4 rounded-3" style={{ backgroundColor: isDark ? '#2a2c38' : '#f8f9fa', borderLeft: '4px solid #ffc107' }}>
+          <h5 className="fw-bold mb-3">{t('profile.personalData')}</h5>
           <Form.Group className="mb-3">
-            <Form.Label className="fw-bold">Nombre</Form.Label>
+            <Form.Label className="fw-bold">{t('profile.name')}</Form.Label>
             <Form.Control
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              placeholder="Tu nombre"
+              placeholder={t('profile.namePlaceholder')}
               style={{ borderRadius: '10px' }}
               disabled={loading}
             />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label className="fw-bold">Correo electronico</Form.Label>
+            <Form.Label className="fw-bold">{t('profile.email')}</Form.Label>
             <Form.Control
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
+              placeholder={t('profile.emailPlaceholder')}
               style={{ borderRadius: '10px' }}
               disabled={loading}
             />
@@ -184,42 +241,42 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
             disabled={loading}
           >
             {loading ? <Spinner size="sm" className="me-2" /> : null}
-            Guardar cambios
+            {t('profile.saveChanges')}
           </Button>
         </div>
 
         {/* Cambiar contrasena */}
-        <div className="p-3 mb-4 rounded-3" style={{ backgroundColor: '#fff8e1', borderLeft: '4px solid #ff9800' }}>
-          <h5 className="fw-bold mb-3">Cambiar contrasena</h5>
+        <div className="p-3 mb-4 rounded-3" style={{ backgroundColor: isDark ? '#2a2520' : '#fff8e1', borderLeft: '4px solid #ff9800' }}>
+          <h5 className="fw-bold mb-3">{t('profile.changePassword')}</h5>
           <Form.Group className="mb-3">
-            <Form.Label className="fw-bold">Contrasena actual</Form.Label>
+            <Form.Label className="fw-bold">{t('profile.currentPassword')}</Form.Label>
             <Form.Control
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Tu contrasena actual"
+              placeholder={t('profile.currentPasswordPlaceholder')}
               style={{ borderRadius: '10px' }}
               disabled={loading}
             />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label className="fw-bold">Nueva contrasena</Form.Label>
+            <Form.Label className="fw-bold">{t('profile.newPassword')}</Form.Label>
             <Form.Control
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Minimo 6 caracteres"
+              placeholder={t('profile.newPasswordPlaceholder')}
               style={{ borderRadius: '10px' }}
               disabled={loading}
             />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label className="fw-bold">Confirmar nueva contrasena</Form.Label>
+            <Form.Label className="fw-bold">{t('profile.confirmPassword')}</Form.Label>
             <Form.Control
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repite la nueva contrasena"
+              placeholder={t('profile.confirmPasswordPlaceholder')}
               style={{ borderRadius: '10px' }}
               disabled={loading}
             />
@@ -232,7 +289,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
             disabled={loading}
           >
             {loading ? <Spinner size="sm" className="me-2" /> : null}
-            Cambiar contrasena
+            {t('profile.changePasswordBtn')}
           </Button>
         </div>
 
@@ -244,7 +301,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
             style={{ borderRadius: '10px' }}
             onClick={onLogout}
           >
-            Cerrar sesion
+            {t('profile.logout')}
           </Button>
           
           {!showDeleteConfirm ? (
@@ -254,11 +311,11 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
               style={{ borderRadius: '10px' }}
               onClick={() => setShowDeleteConfirm(true)}
             >
-              Eliminar mi cuenta
+              {t('profile.deleteAccount')}
             </Button>
           ) : (
             <div className="d-flex align-items-center gap-2">
-              <span className="text-danger fw-bold small">¿Seguro?</span>
+              <span className="text-danger fw-bold small">{t('profile.deleteConfirm')}</span>
               <Button
                 variant="danger"
                 size="sm"
@@ -267,7 +324,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
                 onClick={handleDeleteAccount}
                 disabled={loading}
               >
-                {loading ? <Spinner size="sm" /> : 'Si, eliminar'}
+                {loading ? <Spinner size="sm" /> : t('profile.deleteYes')}
               </Button>
               <Button
                 variant="outline-secondary"
@@ -275,7 +332,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
                 style={{ borderRadius: '10px' }}
                 onClick={() => setShowDeleteConfirm(false)}
               >
-                Cancelar
+                {t('profile.deleteCancel')}
               </Button>
             </div>
           )}

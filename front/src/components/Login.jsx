@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Form, Button, Card, Alert, Spinner, InputGroup } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthLayout from './layout/AuthLayout';
+import { useTranslation } from '../contexts/SettingsContext';
 
 function Login() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   
   // Limpiar localStorage al entrar a login (asegurar que no hay sesión residual)
@@ -31,7 +33,7 @@ function Login() {
     e.preventDefault();
     
     if (!formData.username || !formData.password) {
-      setError('Por favor, completa todos los campos');
+      setError(t('login.fillAll'));
       return;
     }
     
@@ -54,16 +56,16 @@ function Login() {
         // Notificar cambio de autenticación
         window.dispatchEvent(new Event('auth-change'));
         setError('');
-        setSuccess('Inicio de sesion exitoso. Redirigiendo...');
+        setSuccess(t('login.success'));
         setTimeout(() => {
           navigate('/dashboard');
         }, 1200);
       } else {
         const data = await response.json();
-        setError(data.message || 'Usuario o contrasena incorrectos');
+        setError(data.message || t('login.wrongCredentials'));
       }
     } catch {
-      setError('Error de conexion con el servidor');
+      setError(t('profile.connectionError'));
     } finally {
       setLoading(false);
     }
@@ -86,10 +88,10 @@ function Login() {
             className="fw-bold text-white mb-2"
             style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}
           >
-            Bienvenido
+            {t('login.title')}
           </h2>
           <p className="text-white text-opacity-90 mb-0">
-            Inicia sesion para acceder a tu coleccion
+            {t('login.subtitle')}
           </p>
         </div>
         
@@ -116,14 +118,14 @@ function Login() {
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-4">
               <Form.Label className="fw-bold text-dark mb-2">
-                Nombre de Usuario
+                {t('login.username')}
               </Form.Label>
               <Form.Control
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="Introduce tu usuario"
+                placeholder={t('login.usernamePlaceholder')}
                 className="border-2 py-3 px-4"
                 style={{ 
                   borderRadius: '12px',
@@ -136,14 +138,14 @@ function Login() {
 
             <Form.Group className="mb-4">
               <Form.Label className="fw-bold text-dark mb-2">
-                Contrasena
+                {t('login.password')}
               </Form.Label>
               <Form.Control
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Introduce tu contrasena"
+                placeholder={t('login.passwordPlaceholder')}
                 className="border-2 py-3 px-4"
                 style={{ 
                   borderRadius: '12px',
@@ -172,10 +174,10 @@ function Login() {
                 {loading ? (
                   <>
                     <Spinner as="span" animation="border" size="sm" className="me-2" />
-                    Entrando...
+                    {t('login.loading')}
                   </>
                 ) : (
-                  'Iniciar Sesion'
+                  t('login.submit')
                 )}
               </Button>
             </div>
@@ -186,7 +188,7 @@ function Login() {
             style={{ backgroundColor: '#f5f5f5' }}
           >
             <p className="text-secondary mb-3">
-              ¿Aun no tienes una cuenta?
+              {t('login.noAccount')}
             </p>
             <Button 
               variant="outline-dark"
@@ -195,7 +197,7 @@ function Login() {
               className="fw-semibold px-4"
               style={{ borderRadius: '10px' }}
             >
-              Crear cuenta nueva
+              {t('login.createAccount')}
             </Button>
           </div>
         </Card.Body>

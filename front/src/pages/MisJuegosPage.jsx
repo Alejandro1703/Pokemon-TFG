@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card } from 'react-bootstrap';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import MisJuegosModal from '../components/MisJuegosModal';
+import { useTranslation } from '../contexts/SettingsContext';
 
 const JUEGOS_DISPONIBLES = [
   { id: 1, nombre: 'Rojo Fuego', imagen: '/images/juegos/Rojo Fuego.jpeg', generacion: 'Gen 1', precios: { completo: 240, semi: 210, sinManual: 165, soloCartucho: 75, caratulaCartucho: 145 }},
@@ -22,6 +23,7 @@ const JUEGOS_DISPONIBLES = [
 ];
 
 function MisJuegosPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,9 +43,9 @@ function MisJuegosPage() {
               onClick={() => navigate('/dashboard')}
               className="rounded-pill me-3"
             >
-              ← Volver al inicio
+              {t('page.backToDashboard')}
             </Button>
-            <h2 className="fw-bold m-0">Mis Juegos</h2>
+            <h2 className="fw-bold m-0">{t('sidebar.myGames')}</h2>
           </Card.Body>
         </Card>
         <MisJuegosModal standalone={true} juegosDisponibles={JUEGOS_DISPONIBLES} />

@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, Row, Col, Button, Spinner } from 'react-bootstrap';
 import DashboardLayout from './layout/DashboardLayout';
+import { useTranslation } from '../contexts/SettingsContext';
 
 // Datos de características de la app
 const FEATURES = [
@@ -40,6 +41,7 @@ const FEATURED_POKEMON = [6, 25, 94, 150, 248, 445]; // Charizard, Pikachu, Geng
 
 // Componente Slider con 5 Pokémon aleatorios que cambian cada 10 segundos
 function PokemonSliderFixed() {
+  const { t } = useTranslation();
   const [featuredPokemon, setFeaturedPokemon] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +59,7 @@ function PokemonSliderFixed() {
       const results = await Promise.all(promises);
       setFeaturedPokemon(results.filter(p => p !== null));
     } catch {
-      console.error('Error cargando Pokémon aleatorios');
+      console.error(t('common.error') + ' ' + t('pokedex.pokemon'));
     } finally {
       setLoading(false);
     }
@@ -115,7 +117,7 @@ function PokemonSliderFixed() {
           className="text-center fw-bold mb-4"
           style={{ color: '#0d47a1' }}
         >
-          Crea al mejor equipo
+          {t('dashboard.createTeam')}
         </h2>
         
         {loading ? (
@@ -338,10 +340,11 @@ function MewtwoAudioPlayer({ pokemonData }) {
 }
 
 function Dashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [pokemonData, setPokemonData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState('Entrenador');
+  const [userName, setUserName] = useState('Trainer');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -356,9 +359,9 @@ function Dashboard() {
     if (user) {
       try {
         const userData = JSON.parse(user);
-        setUserName(userData.username || 'Entrenador');
+        setUserName(userData.username || t('dashboard.welcome'));
       } catch {
-        setUserName('Entrenador');
+        setUserName(t('dashboard.welcome'));
       }
     }
 
@@ -402,11 +405,10 @@ function Dashboard() {
                 textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
               }}
             >
-              ¡Bienvenido, Entrenador {userName}!
+              {t('dashboard.welcome')} {userName}!
             </h1>
             <p className="text-secondary fs-5 mb-4" style={{ maxWidth: '700px', margin: '0 auto' }}>
-              Tu aplicación definitiva para gestionar tu colección de juegos Pokémon, 
-              explorar la Pokédex completa y comparar estadísticas.
+              {t('dashboard.subtitle')}
             </p>
             
             {/* Pokémon estáticos */}
@@ -441,11 +443,10 @@ function Dashboard() {
             <Row className="align-items-center">
               <Col lg={6} className="mb-4 mb-lg-0">
                 <h2 className="fw-bold mb-3" style={{ color: '#333' }}>
-                  Bienvenido, Entrenador!
+                  {t('dashboard.welcomeSection')}
                 </h2>
                 <p className="text-secondary fs-5 mb-4">
-                  Esta aplicación te permite llevar un control completo de tu colección 
-                  de videojuegos Pokémon, desde los clásicos de Game Boy hasta las últimas entregas.
+                  {t('dashboard.welcomeText')}
                 </p>
                 <div className="d-flex flex-wrap gap-3">
                   <Button 
@@ -455,7 +456,7 @@ function Dashboard() {
                     className="rounded-pill px-4 py-2 fw-bold"
                     style={{ fontSize: '1.1rem' }}
                   >
-                    🎮 Ver Juegos
+                    🎮 {t('dashboard.viewGames')}
                   </Button>
                   <Button 
                     as={Link} 
@@ -464,7 +465,7 @@ function Dashboard() {
                     className="rounded-pill px-4 py-2 fw-bold"
                     style={{ fontSize: '1.1rem', borderWidth: '2px' }}
                   >
-                    📱 Explorar Pokédex
+                    📱 {t('dashboard.explorePokedex')}
                   </Button>
                 </div>
               </Col>
@@ -489,10 +490,10 @@ function Dashboard() {
           }}
         >
           <p className="mb-2 fw-bold" style={{ fontSize: '1.2rem' }}>
-            🌟 ¡Comienza tu aventura ahora! 🌟
+            🌟 {t('dashboard.startAdventure')} 🌟
           </p>
           <p className="mb-0" style={{ opacity: 0.8 }}>
-            Gestiona tu colección, explora la Pokédex y conviértete en el mejor entrenador.
+            {t('dashboard.manageCollection')}
           </p>
         </div>
       </div>

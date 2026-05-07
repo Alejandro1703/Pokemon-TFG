@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card } from 'react-bootstrap';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import PokedexModal from '../components/PokedexModal';
+import { useTranslation } from '../contexts/SettingsContext';
 
 function PokedexPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,9 +26,9 @@ function PokedexPage() {
               onClick={() => navigate('/dashboard')}
               className="rounded-pill me-3"
             >
-              ← Volver al inicio
+              {t('page.backToDashboard')}
             </Button>
-            <h2 className="fw-bold m-0">Pokédex</h2>
+            <h2 className="fw-bold m-0">{t('page.pokedex')}</h2>
           </Card.Body>
         </Card>
         <PokedexModal standalone={true} />

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from '../../contexts/SettingsContext';
 
 function Sidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
   const [isVisible, setIsVisible] = useState(true);
@@ -40,18 +42,18 @@ function Sidebar() {
   }, [location.pathname]); // También se ejecuta cuando cambia la ruta
 
   const authItems = [
-    { path: '/login', label: 'Iniciar Sesion' },
-    { path: '/register', label: 'Registro' },
+    { path: '/login', label: t('sidebar.login') },
+    { path: '/register', label: t('sidebar.register') },
   ];
 
   const dashboardItems = [
-    { path: '/juegos', label: 'Juegos' },
-    { path: '/mis-juegos', label: 'Mis Juegos' },
-    { path: '/pokedex', label: 'Ver Pokedex' },
-    { path: '/comparador', label: 'Comparador' },
-    { path: '/aventuras', label: 'Aventuras' },
-    { path: '/progreso', label: 'Progreso' },
-    { path: '/perfil', label: 'Mi Perfil' },
+    { path: '/juegos', label: t('sidebar.games') },
+    { path: '/mis-juegos', label: t('sidebar.myGames') },
+    { path: '/pokedex', label: t('sidebar.pokedex') },
+    { path: '/comparador', label: t('sidebar.comparator') },
+    { path: '/aventuras', label: t('sidebar.adventures') },
+    { path: '/progreso', label: t('sidebar.progress') },
+    { path: '/perfil', label: t('sidebar.profile') },
   ];
 
   const isActive = (path) => currentPath === path;
@@ -88,12 +90,12 @@ function Sidebar() {
             minWidth: '250px'
           }}
         >
-          <h6 className="fw-bold m-0" style={{ fontSize: '1.1rem', color: '#e3f2fd', opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>MENU PRINCIPAL</h6>
+          <h6 className="fw-bold m-0" style={{ fontSize: '1.1rem', color: '#e3f2fd', opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>{t('sidebar.menu')}</h6>
         </div>
 
       <div className="p-3 text-center">
         <small style={{ color: '#90caf9' }}>
-          {isLoggedIn ? '' : 'Acceso de usuarios'}
+          {isLoggedIn ? '' : t('sidebar.guestAccess')}
         </small>
       </div>
 
@@ -119,7 +121,7 @@ function Sidebar() {
                 pointerEvents: isVisible ? 'auto' : 'none'
               }}
             >
-              <span style={{ whiteSpace: 'nowrap' }}>Inicio</span>
+              <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.home')}</span>
             </Nav.Link>
 
             {dashboardItems.map((item) => {
@@ -171,7 +173,7 @@ function Sidebar() {
                 pointerEvents: isVisible ? 'auto' : 'none'
               }}
             >
-              <span style={{ whiteSpace: 'nowrap' }}>Cerrar Sesión</span>
+              <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.logout')}</span>
             </Nav.Link>
           </>
         ) : (
