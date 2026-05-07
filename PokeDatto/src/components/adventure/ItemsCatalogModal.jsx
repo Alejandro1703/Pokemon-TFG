@@ -180,7 +180,7 @@ function ItemsCatalogModal({ show, onHide }) {
 
                     {/* Efecto */}
                     <small className="text-muted d-block" style={{ fontSize: '0.68rem', lineHeight: 1.2 }}>
-                      {item.effect}
+                      {t(item.effect)}
                     </small>
 
                     {/* Indicadores de generación */}
