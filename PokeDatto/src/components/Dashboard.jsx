@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, Row, Col, Button, Spinner } from 'react-bootstrap';
 import DashboardLayout from './layout/DashboardLayout';
-import { useTranslation } from '../contexts/SettingsContext';
+import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
 // Datos de características de la app
 const FEATURES = [
@@ -40,7 +40,7 @@ const FEATURES = [
 const FEATURED_POKEMON = [6, 25, 94, 150, 248, 445]; // Charizard, Pikachu, Gengar, Mewtwo, Tyranitar, Garchomp
 
 // Componente Slider con 5 Pokémon aleatorios que cambian cada 10 segundos
-function PokemonSliderFixed() {
+function PokemonSliderFixed({ isDark }) {
   const { t } = useTranslation();
   const [featuredPokemon, setFeaturedPokemon] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,7 @@ function PokemonSliderFixed() {
     try {
       // Generar 6 IDs aleatorios entre 1 y 649
       const randomIds = Array.from({ length: 6 }, () => Math.floor(Math.random() * 649) + 1);
-      
+
       const promises = randomIds.map(id =>
         fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
           .then(res => res.ok ? res.json() : null)
@@ -80,16 +80,16 @@ function PokemonSliderFixed() {
   }, []);
 
   return (
-    <div 
+    <div
       className="py-5 px-4"
-      style={{ 
-        backgroundColor: '#42a5f5',
+      style={{
+        backgroundColor: isDark ? '#0d47a1' : '#42a5f5',
         position: 'relative',
         overflow: 'hidden'
       }}
     >
       {/* Fondo decorativo */}
-      <div 
+      <div
         style={{
           position: 'absolute',
           top: '20%',
@@ -100,7 +100,7 @@ function PokemonSliderFixed() {
           borderRadius: '50%'
         }}
       />
-      <div 
+      <div
         style={{
           position: 'absolute',
           bottom: '20%',
@@ -111,15 +111,15 @@ function PokemonSliderFixed() {
           borderRadius: '50%'
         }}
       />
-      
+
       <div className="container position-relative">
-        <h2 
+        <h2
           className="text-center fw-bold mb-4"
-          style={{ color: '#0d47a1' }}
+          style={{ color: isDark ? '#90caf9' : '#0d47a1' }}
         >
           {t('dashboard.createTeam')}
         </h2>
-        
+
         {loading ? (
           <div className="text-center">
             <Spinner animation="border" variant="warning" />
@@ -127,11 +127,11 @@ function PokemonSliderFixed() {
         ) : (
           <div className="d-flex justify-content-center gap-3 flex-wrap">
             {featuredPokemon.map((pokemon, index) => (
-              <div 
+              <div
                 key={`${pokemon.id}-${index}`}
                 className="text-center p-3 rounded-3 pokemon-card"
                 style={{
-                  backgroundColor: 'rgba(255,255,255,0.95)',
+                  backgroundColor: isDark ? 'rgba(30,32,41,0.95)' : 'rgba(255,255,255,0.95)',
                   boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
                   opacity: 0,
                   animation: 'fadeInSubtle 1s ease forwards',
@@ -143,7 +143,7 @@ function PokemonSliderFixed() {
                   alt={pokemon.name}
                   style={{ width: '100px', height: '100px' }}
                 />
-                <p className="fw-bold text-capitalize mb-0" style={{ color: '#333', fontSize: '0.9rem' }}>
+                <p className="fw-bold text-capitalize mb-0" style={{ color: isDark ? '#e8eaed' : '#333', fontSize: '0.9rem' }}>
                   {pokemon.name}
                 </p>
                 <small className="text-muted">#{String(pokemon.id).padStart(3, '0')}</small>
@@ -168,7 +168,7 @@ function PokemonSliderFixed() {
 }
 
 // Componente de audio estilo WhatsApp para Mewtwo
-function MewtwoAudioPlayer({ pokemonData }) {
+function MewtwoAudioPlayer({ pokemonData, isDark }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -179,7 +179,7 @@ function MewtwoAudioPlayer({ pokemonData }) {
   useEffect(() => {
     audioRef.current = new Audio('https://play.pokemonshowdown.com/audio/cries/mewtwo.mp3');
     audioRef.current.volume = 0.3;
-    
+
     audioRef.current.onloadedmetadata = () => {
       setDuration(audioRef.current.duration || 1.5);
     };
@@ -211,7 +211,7 @@ function MewtwoAudioPlayer({ pokemonData }) {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => console.log('Audio no disponible'));
       setIsPlaying(true);
-      
+
       intervalRef.current = setInterval(() => {
         if (audioRef.current) {
           const currentProgress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
@@ -232,13 +232,13 @@ function MewtwoAudioPlayer({ pokemonData }) {
       <img
         src={pokemonData[3].sprites.other['official-artwork'].front_default || pokemonData[3].sprites.front_default}
         alt="Featured"
-        style={{ 
+        style={{
           width: '250px',
           filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))'
         }}
       />
       {/* Reproductor de audio estilo WhatsApp */}
-      <div 
+      <div
         className="position-absolute"
         style={{
           bottom: '10px',
@@ -246,11 +246,11 @@ function MewtwoAudioPlayer({ pokemonData }) {
           zIndex: 10
         }}
       >
-        <div 
+        <div
           className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill shadow"
           style={{
-            backgroundColor: 'white',
-            border: '2px solid #333',
+            backgroundColor: isDark ? '#23252f' : 'white',
+            border: isDark ? '2px solid #c8ccd4' : '2px solid #333',
             minWidth: '140px'
           }}
         >
@@ -258,33 +258,33 @@ function MewtwoAudioPlayer({ pokemonData }) {
           <button
             onClick={togglePlay}
             className="rounded-circle p-0 d-flex align-items-center justify-content-center"
-            style={{ 
-              width: '32px', 
-              height: '32px', 
+            style={{
+              width: '32px',
+              height: '32px',
               minWidth: '32px',
               background: 'none',
               backgroundColor: 'transparent',
-              border: '1px solid #333',
-              color: '#333',
+              border: isDark ? '1px solid #c8ccd4' : '1px solid #333',
+              color: isDark ? '#c8ccd4' : '#333',
               cursor: 'pointer',
               outline: 'none'
             }}
           >
             {isPlaying ? (
-              <span style={{ 
-                fontSize: '0.8rem', 
-                display: 'flex', 
-                alignItems: 'center', 
+              <span style={{
+                fontSize: '0.8rem',
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 width: '100%',
                 height: '100%'
               }}>⏸</span>
             ) : (
-              <span style={{ 
-                fontSize: '0.8rem', 
+              <span style={{
+                fontSize: '0.8rem',
                 lineHeight: '0.7rem',
-                display: 'flex', 
-                alignItems: 'center', 
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 width: '100%',
                 height: '0.8rem',
@@ -295,15 +295,15 @@ function MewtwoAudioPlayer({ pokemonData }) {
 
           {/* Barra de progreso estilo onda */}
           <div className="flex-grow-1" style={{ minWidth: '60px' }}>
-            <div 
+            <div
               className="rounded-pill"
               style={{
                 height: '4px',
-                backgroundColor: 'rgba(0,0,0,0.2)',
+                backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
                 overflow: 'hidden'
               }}
             >
-              <div 
+              <div
                 className="h-100 rounded-pill"
                 style={{
                   width: `${progress}%`,
@@ -315,13 +315,13 @@ function MewtwoAudioPlayer({ pokemonData }) {
             {/* Líneas decorativas estilo onda */}
             <div className="d-flex align-items-end gap-1 mt-1" style={{ height: '12px' }}>
               {[...Array(8)].map((_, i) => (
-                <div 
+                <div
                   key={i}
                   className="rounded-pill"
                   style={{
                     width: '3px',
                     height: isPlaying ? `${[6, 10, 4, 8, 5, 9, 3, 7][i]}px` : '4px',
-                    backgroundColor: isPlaying ? '#667eea' : 'rgba(0,0,0,0.4)',
+                    backgroundColor: isPlaying ? '#667eea' : (isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'),
                     transition: 'all 0.2s ease'
                   }}
                 />
@@ -330,7 +330,7 @@ function MewtwoAudioPlayer({ pokemonData }) {
           </div>
 
           {/* Duración */}
-          <small style={{ color: '#333', fontSize: '0.75rem', minWidth: '28px' }}>
+          <small style={{ color: isDark ? '#c8ccd4' : '#333', fontSize: '0.75rem', minWidth: '28px' }}>
             {isPlaying ? formatDuration(currentTime) : formatDuration(duration)}
           </small>
         </div>
@@ -340,6 +340,7 @@ function MewtwoAudioPlayer({ pokemonData }) {
 }
 
 function Dashboard() {
+  const { isDark } = useSettings();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [pokemonData, setPokemonData] = useState([]);
@@ -389,19 +390,21 @@ function Dashboard() {
     <DashboardLayout>
       <div className="p-0">
         {/* Hero Section */}
-        <div 
+        <div
           className="text-center py-5 px-4"
           style={{
-            background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
-            borderBottom: '4px solid #42a5f5'
+            background: isDark
+              ? 'linear-gradient(135deg, #1e293b 0%, #23252f 50%, #2e3040 100%)'
+              : 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
+            borderBottom: isDark ? '4px solid #536dfe' : '4px solid #42a5f5'
           }}
         >
           <div className="container">
-            <h1 
+            <h1
               className="fw-bold mb-3"
-              style={{ 
+              style={{
                 fontSize: '2.5rem',
-                color: '#333',
+                color: isDark ? '#e8eaed' : '#333',
                 textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
               }}
             >
@@ -410,22 +413,22 @@ function Dashboard() {
             <p className="text-secondary fs-5 mb-4" style={{ maxWidth: '700px', margin: '0 auto' }}>
               {t('dashboard.subtitle')}
             </p>
-            
+
             {/* Pokémon estáticos */}
             <div className="d-flex justify-content-center flex-wrap gap-3 mt-4">
               {loading ? (
                 <Spinner animation="border" variant="primary" />
               ) : (
                 pokemonData.slice(0, 3).map((pokemon) => (
-                  <div 
+                  <div
                     key={pokemon.id}
                     className="position-relative"
                   >
                     <img
                       src={pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default}
                       alt={pokemon.name}
-                      style={{ 
-                        width: '120px', 
+                      style={{
+                        width: '120px',
                         height: '120px',
                         filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
                       }}
@@ -438,19 +441,19 @@ function Dashboard() {
         </div>
 
         {/* Sección de Bienvenida */}
-        <div className="py-5 px-4" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="py-5 px-4" style={{ backgroundColor: isDark ? '#1a1b23' : '#f8f9fa' }}>
           <div className="container">
             <Row className="align-items-center">
               <Col lg={6} className="mb-4 mb-lg-0">
-                <h2 className="fw-bold mb-3" style={{ color: '#333' }}>
+                <h2 className="fw-bold mb-3" style={{ color: isDark ? '#e8eaed' : '#333' }}>
                   {t('dashboard.welcomeSection')}
                 </h2>
                 <p className="text-secondary fs-5 mb-4">
                   {t('dashboard.welcomeText')}
                 </p>
                 <div className="d-flex flex-wrap gap-3">
-                  <Button 
-                    as={Link} 
+                  <Button
+                    as={Link}
                     to="/juegos"
                     variant="primary"
                     className="rounded-pill px-4 py-2 fw-bold"
@@ -458,8 +461,8 @@ function Dashboard() {
                   >
                     🎮 {t('dashboard.viewGames')}
                   </Button>
-                  <Button 
-                    as={Link} 
+                  <Button
+                    as={Link}
                     to="/pokedex"
                     variant="outline-primary"
                     className="rounded-pill px-4 py-2 fw-bold"
@@ -471,7 +474,7 @@ function Dashboard() {
               </Col>
               <Col lg={6} className="text-center">
                 {!loading && pokemonData[3] && (
-                  <MewtwoAudioPlayer pokemonData={pokemonData} />
+                  <MewtwoAudioPlayer pokemonData={pokemonData} isDark={isDark} />
                 )}
               </Col>
             </Row>
@@ -479,14 +482,14 @@ function Dashboard() {
         </div>
 
         {/* Slider de Pokémon Destacados (5 fijos) */}
-        <PokemonSliderFixed />
+        <PokemonSliderFixed isDark={isDark} />
 
         {/* Footer del Dashboard */}
-        <div 
+        <div
           className="py-4 px-4 text-center"
           style={{
-            backgroundColor: '#1976d2',
-            color: '#e3f2fd'
+            backgroundColor: isDark ? '#0d47a1' : '#1976d2',
+            color: isDark ? '#e8eaed' : '#e3f2fd'
           }}
         >
           <p className="mb-2 fw-bold" style={{ fontSize: '1.2rem' }}>

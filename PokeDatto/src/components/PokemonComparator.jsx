@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Card, Badge, Spinner, ListGroup, ToggleButton, ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
+import { useTranslation } from '../contexts/SettingsContext';
 
 const STAT_NAMES = {
-  hp: { name: 'PS', fullName: 'Puntos de Salud', color: '#ff6b6b' },
-  attack: { name: 'Ataque', fullName: 'Ataque Físico', color: '#f4a261' },
-  defense: { name: 'Defensa', fullName: 'Defensa Física', color: '#e9c46a' },
-  specialAttack: { name: 'At. Esp.', fullName: 'Ataque Especial', color: '#2a9d8f' },
-  specialDefense: { name: 'Def. Esp.', fullName: 'Defensa Especial', color: '#264653' },
-  speed: { name: 'Velocidad', fullName: 'Velocidad', color: '#e76f51' }
+  hp: { nameKey: 'comparator.hp', fullNameKey: 'comparator.hpFull', color: '#ff6b6b' },
+  attack: { nameKey: 'comparator.attack', fullNameKey: 'comparator.attackFull', color: '#f4a261' },
+  defense: { nameKey: 'comparator.defense', fullNameKey: 'comparator.defenseFull', color: '#e9c46a' },
+  specialAttack: { nameKey: 'comparator.spa', fullNameKey: 'comparator.spaFull', color: '#2a9d8f' },
+  specialDefense: { nameKey: 'comparator.spd', fullNameKey: 'comparator.spdFull', color: '#264653' },
+  speed: { nameKey: 'comparator.speed', fullNameKey: 'comparator.speedFull', color: '#e76f51' }
 };
 
 const TYPE_COLORS = {
@@ -40,6 +41,7 @@ const TYPE_NAMES_ES = {
 };
 
 function PokemonComparator({ show, onHide, standalone = false }) {
+  const { t } = useTranslation();
   const [pokemonList, setPokemonList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm1, setSearchTerm1] = useState('');
@@ -169,15 +171,16 @@ function PokemonComparator({ show, onHide, standalone = false }) {
     
     if (pokemon1Wins > pokemon2Wins) return pokemon1.name;
     if (pokemon2Wins > pokemon1Wins) return pokemon2.name;
-    return 'Empate';
+    return t('comparator.tie');
   };
 
   const renderStatBar = (stat, value, maxValue, color) => {
     const percentage = (value / maxValue) * 100;
+    const statName = t(STAT_NAMES[stat].nameKey);
     return (
       <div className="mb-3">
         <div className="d-flex justify-content-between mb-1">
-          <small className="fw-bold">{STAT_NAMES[stat].name}</small>
+          <small className="fw-bold">{statName}</small>
           <small>{value}</small>
         </div>
         <div className="progress" style={{ height: '20px', backgroundColor: '#e9ecef' }}>
@@ -201,12 +204,13 @@ function PokemonComparator({ show, onHide, standalone = false }) {
     const value2 = pokemon2.stats[stat];
     const maxValue = Math.max(value1, value2, 150);
     const diff = value1 - value2;
+    const statName = t(STAT_NAMES[stat].nameKey);
     
     return (
       <div className="mb-3">
         <div className="d-flex justify-content-between mb-1">
           <small className="fw-bold text-primary">{pokemon1.name} ({value1})</small>
-          <small className="fw-bold">{STAT_NAMES[stat].name}</small>
+          <small className="fw-bold">{statName}</small>
           <small className="fw-bold text-danger">{pokemon2.name} ({value2})</small>
         </div>
         <div className="position-relative" style={{ height: '30px' }}>
@@ -276,26 +280,26 @@ function PokemonComparator({ show, onHide, standalone = false }) {
     >
       <div className="d-flex align-items-center gap-2">
         <span className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
-          Comparador Competitivo
+          {t('comparator.competitiveTitle')}
         </span>
         <OverlayTrigger
           placement="bottom"
           overlay={
             <Popover style={{ zIndex: 10001 }}>
-              <Popover.Header as="h3">📖 Guía del Comparador</Popover.Header>
+              <Popover.Header as="h3">{t('comparator.guideTitle')}</Popover.Header>
               <Popover.Body>
-                <strong>Como usar:</strong><br/>
-                • Busca y selecciona 2 Pokémon para comparar<br/>
-                • Escribe el nombre y selecciona de la lista<br/><br/>
-                <strong>Filtros de Stats:</strong><br/>
-                • Activa/desactiva las estadísticas que quieres ver<br/>
-                • PS, Ataque, Defensa, At. Esp., Def. Esp., Velocidad<br/><br/>
-                <strong>Filtros de Tipos:</strong><br/>
-                • Selecciona tipos para filtrar la lista de Pokémon<br/>
-                • Facilita encontrar Pokémon específicos<br/><br/>
-                <strong>Visualización:</strong><br/>
-                • Flechas indican qué Pokémon gana en cada stat<br/>
-                • Diferencias numéricas en cada comparación
+                <strong>{t('comparator.howToUse')}:</strong><br/>
+                • {t('comparator.searchSelect')}<br/>
+                • {t('comparator.typeSelect')}<br/><br/>
+                <strong>{t('comparator.statFilters')}:</strong><br/>
+                • {t('comparator.activateStats')}<br/>
+                • {t('comparator.statList')}<br/><br/>
+                <strong>{t('comparator.typeFilters')}:</strong><br/>
+                • {t('comparator.selectTypes')}<br/>
+                • {t('comparator.findPokemon')}<br/><br/>
+                <strong>{t('comparator.visualization')}:</strong><br/>
+                • {t('comparator.arrowsIndicator')}<br/>
+                • {t('comparator.numericDifferences')}
               </Popover.Body>
             </Popover>
           }
@@ -326,14 +330,14 @@ function PokemonComparator({ show, onHide, standalone = false }) {
             <Col md={6}>
               <Card className="border-0 shadow-sm">
                 <Card.Header className="bg-primary text-white fw-bold">
-                  Pokemon 1
+                  {t('comparator.pokemon1')}
                 </Card.Header>
                 <Card.Body className="p-3">
                   <Form.Group className="position-relative">
-                    <Form.Label>Buscar Pokemon</Form.Label>
+                    <Form.Label>{t('comparator.searchPokemon')}</Form.Label>
                     <Form.Control
                       type="text"
-                      placeholder="Escribe nombre del Pokemon..."
+                      placeholder={t('comparator.placeholder')}
                       value={searchTerm1}
                       onChange={(e) => setSearchTerm1(e.target.value)}
                       autoComplete="off"
@@ -374,7 +378,7 @@ function PokemonComparator({ show, onHide, standalone = false }) {
                         ))}
                       </div>
                       <small className="text-muted d-block mt-2">
-                        Total stats: {Object.values(pokemon1.stats).reduce((a, b) => a + b, 0)} (siempre se suman todas)
+                        {t('comparator.totalStats')}: {Object.values(pokemon1.stats).reduce((a, b) => a + b, 0)} ({t('comparator.alwaysSumAll')})
                       </small>
                     </div>
                   )}
@@ -386,14 +390,14 @@ function PokemonComparator({ show, onHide, standalone = false }) {
             <Col md={6}>
               <Card className="border-0 shadow-sm">
                 <Card.Header className="bg-danger text-white fw-bold">
-                  Pokemon 2
+                  {t('comparator.pokemon2')}
                 </Card.Header>
                 <Card.Body className="p-3">
                   <Form.Group className="position-relative">
-                    <Form.Label>Buscar Pokemon</Form.Label>
+                    <Form.Label>{t('comparator.searchPokemon')}</Form.Label>
                     <Form.Control
                       type="text"
-                      placeholder="Escribe nombre del Pokemon..."
+                      placeholder={t('comparator.placeholder')}
                       value={searchTerm2}
                       onChange={(e) => setSearchTerm2(e.target.value)}
                       autoComplete="off"
@@ -434,7 +438,7 @@ function PokemonComparator({ show, onHide, standalone = false }) {
                         ))}
                       </div>
                       <small className="text-muted d-block mt-2">
-                        Total stats: {Object.values(pokemon2.stats).reduce((a, b) => a + b, 0)} (siempre se suman todas)
+                        {t('comparator.totalStats')}: {Object.values(pokemon2.stats).reduce((a, b) => a + b, 0)} ({t('comparator.alwaysSumAll')})
                       </small>
                     </div>
                   )}
@@ -446,7 +450,7 @@ function PokemonComparator({ show, onHide, standalone = false }) {
 
         {/* Filtros de estadísticas */}
         <div className="p-3 border-bottom bg-white">
-          <h6 className="fw-bold mb-2">Filtrar estadísticas a comparar:</h6>
+          <h6 className="fw-bold mb-2">{t('comparator.filterStats')}:</h6>
           <ButtonGroup className="flex-wrap">
             {Object.entries(STAT_NAMES).map(([stat, info]) => (
               <ToggleButton
@@ -464,7 +468,7 @@ function PokemonComparator({ show, onHide, standalone = false }) {
                   borderWidth: '2px'
                 }}
               >
-                {info.name}
+                {t(STAT_NAMES[stat].nameKey)}
               </ToggleButton>
             ))}
           </ButtonGroup>
@@ -478,7 +482,7 @@ function PokemonComparator({ show, onHide, standalone = false }) {
               })}
               className="me-2"
             >
-              Seleccionar todas
+              {t('comparator.selectAll')}
             </Button>
             <Button 
               size="sm" 
@@ -488,7 +492,7 @@ function PokemonComparator({ show, onHide, standalone = false }) {
                 specialAttack: false, specialDefense: false, speed: false
               })}
             >
-              Deseleccionar todas
+              {t('comparator.deselectAll')}
             </Button>
           </div>
         </div>
@@ -498,30 +502,30 @@ function PokemonComparator({ show, onHide, standalone = false }) {
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
-              <p className="mt-2">Cargando Pokemon...</p>
+              <p className="mt-2">{t('comparator.loadingPokemon')}</p>
             </div>
           ) : pokemon1 && pokemon2 ? (
             <>
               {/* Resultado del ganador */}
               <div className="text-center mb-4">
                 <h5 className="fw-bold">
-                  {getWinner() === 'Empate' ? (
-                    <Badge bg="warning" text="dark" className="fs-5">Empate</Badge>
+                  {getWinner() === t('comparator.tie') ? (
+                    <Badge bg="warning" text="dark" className="fs-5">{t('comparator.tie')}</Badge>
                   ) : (
                     <>
-                      Ganador: <Badge bg="success" className="fs-5 text-capitalize">{getWinner()}</Badge>
+                      {t('comparator.winner')}: <Badge bg="success" className="fs-5 text-capitalize">{getWinner()}</Badge>
                     </>
                   )}
                 </h5>
                 <small className="text-muted">
-                  Comparando {Object.values(selectedStats).filter(Boolean).length} estadísticas
+                  {t('comparator.comparing')} {Object.values(selectedStats).filter(Boolean).length} {t('comparator.comparingStats')}
                 </small>
               </div>
 
               {/* Gráfico de comparación */}
               <Card className="border-0 shadow-sm">
                 <Card.Header className="fw-bold bg-light">
-                  Comparacion Visual
+                  {t('comparator.visualComparison')} ({t('comparator.level50')})
                 </Card.Header>
                 <Card.Body>
                   {Object.entries(selectedStats).map(([stat, isSelected]) => 
@@ -539,7 +543,7 @@ function PokemonComparator({ show, onHide, standalone = false }) {
                 <Col md={6}>
                   <Card className="border-primary border-2">
                     <Card.Header className="bg-primary text-white fw-bold text-capitalize">
-                      {pokemon1.name} - Todas las estadísticas
+                      {pokemon1.name} - {t('comparator.allStats')}
                     </Card.Header>
                     <Card.Body>
                       {Object.keys(STAT_NAMES).map((stat) => (
@@ -553,7 +557,7 @@ function PokemonComparator({ show, onHide, standalone = false }) {
                 <Col md={6}>
                   <Card className="border-danger border-2">
                     <Card.Header className="bg-danger text-white fw-bold text-capitalize">
-                      {pokemon2.name} - Todas las estadísticas
+                      {pokemon2.name} - {t('comparator.allStats')}
                     </Card.Header>
                     <Card.Body>
                       {Object.keys(STAT_NAMES).map((stat) => (
@@ -568,8 +572,8 @@ function PokemonComparator({ show, onHide, standalone = false }) {
             </>
           ) : (
             <div className="text-center py-5 text-muted">
-              <h5>Selecciona dos Pokemon para comparar</h5>
-              <p>Busca y selecciona un Pokemon en cada panel para ver la comparacion</p>
+              <h5>{t('comparator.selectTwo')}</h5>
+              <p>{t('comparator.selectEachPanel')}</p>
             </div>
           )}
         </div>

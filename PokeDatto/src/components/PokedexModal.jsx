@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Form, Row, Col, Badge, Spinner, Card, ToggleButtonGroup, ToggleButton, OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
+import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
 const POKEMON_TYPES = [
   'all', 'normal', 'fire', 'water', 'electric', 'grass', 'ice', 
@@ -56,6 +57,8 @@ const GRAPHIC_GENERATIONS = {
 };
 
 function PokedexModal({ show, onHide, standalone = false }) {
+  const { isDark } = useSettings();
+  const { t } = useTranslation();
   const [pokemonList, setPokemonList] = useState([]);
   const [filteredPokemon, setFilteredPokemon] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -229,7 +232,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
-        <div className="text-center p-3" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="text-center p-3" style={{ backgroundColor: isDark ? '#2e3040' : '#f8f9fa' }}>
           {pokemon.sprite ? (
             <img 
               src={(shinyMode || shinyPokemon.has(pokemon.id)) ? pokemon.shinySprite : pokemon.sprite} 
@@ -250,9 +253,9 @@ function PokedexModal({ show, onHide, standalone = false }) {
             <div style={{ width: '80px', height: '80px', margin: '0 auto', backgroundColor: '#ddd', borderRadius: '50%' }} />
           )}
         </div>
-        <Card.Body className="p-3">
+        <Card.Body className="p-3" style={{ backgroundColor: isDark ? '#23252f' : '#ffffff' }}>
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <small className="text-muted">#{String(pokemon.id).padStart(3, '0')}</small>
+            <small className="text-muted" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>#{String(pokemon.id).padStart(3, '0')}</small>
             <Button
               size="sm"
               variant={shinyPokemon.has(pokemon.id) ? 'warning' : 'outline-warning'}
@@ -268,12 +271,12 @@ function PokedexModal({ show, onHide, standalone = false }) {
               }}
               className="p-0 px-1"
               style={{ fontSize: '0.75rem' }}
-              title={shinyPokemon.has(pokemon.id) ? 'Desactivar Shiny' : 'Activar Shiny'}
+              title={shinyPokemon.has(pokemon.id) ? t('pokedex.disableShiny') : t('pokedex.enableShiny')}
             >
               ✨
             </Button>
           </div>
-          <h6 className="text-capitalize fw-bold mb-2" style={{ fontSize: '0.95rem' }}>
+          <h6 className="text-capitalize fw-bold mb-2" style={{ fontSize: '0.95rem', color: isDark ? '#e8eaed' : '#333' }}>
             {pokemon.name}
           </h6>
           <div className="d-flex gap-1 flex-wrap">
@@ -318,27 +321,27 @@ function PokedexModal({ show, onHide, standalone = false }) {
     >
       <div className="d-flex align-items-center gap-2">
         <span className="text-white fw-bold m-0" style={{ fontSize: '1.4rem' }}>
-          Pokédex
+          {t('pokedex.title')}
         </span>
         <OverlayTrigger
           placement="bottom"
           overlay={
             <Popover style={{ zIndex: 10001 }}>
-              <Popover.Header as="h3">📖 Guía de Pokédex</Popover.Header>
+              <Popover.Header as="h3">{t('pokedex.guideTitle')}</Popover.Header>
               <Popover.Body>
-                <strong>Navegación:</strong><br/>
-                • Nacional: Todos los Pokémon (1-649)<br/>
-                • Regional: Por generación (Kanto, Johto, etc.)<br/>
-                • ✨ Shiny: Alterna entre sprites normales y shiny<br/><br/>
-                <strong>Filtros de Tipo:</strong><br/>
-                • Pulsa "Filtros" para mostrar/ocultar<br/>
-                • Selecciona múltiples tipos<br/>
-                • <strong>Duro:</strong> Solo Pokémon con EXACTAMENTE esos tipos<br/>
-                • Sin Duro: Pokémon con al menos un tipo seleccionado<br/><br/>
-                <strong>Filtro Duro + Fuego:</strong> Charizard (NO) (Fuego/Volador)<br/>
-                <strong>Filtro Duro + Fuego:</strong> Magmar ✓ (Fuego puro)<br/>
-                <strong>Filtro Duro + Fuego+Volador:</strong> Charizard ✓<br/><br/>
-                <strong>Click en Pokémon:</strong> Ver detalles y stats.
+                <strong>{t('pokedex.navigation')}:</strong><br/>
+                • {t('pokedex.national')}<br/>
+                • {t('pokedex.regional')}<br/>
+                • {t('pokedex.shiny')}<br/><br/>
+                <strong>{t('pokedex.typeFilters')}:</strong><br/>
+                • {t('pokedex.pressFilters')}<br/>
+                • {t('pokedex.selectMultiple')}<br/>
+                • <strong>{t('pokedex.strict')}:</strong> {t('pokedex.strictDesc')}<br/>
+                • {t('pokedex.withoutStrict')}<br/><br/>
+                {t('pokedex.example1')}<br/>
+                {t('pokedex.example2')}<br/>
+                {t('pokedex.example3')}<br/><br/>
+                <strong>{t('pokedex.clickPokemon')}:</strong> {t('pokedex.viewDetails')}.
               </Popover.Body>
             </Popover>
           }
@@ -363,14 +366,14 @@ function PokedexModal({ show, onHide, standalone = false }) {
   const mainContent = (
     <>
       {/* Controles */}
-      <div className="p-4 border-bottom" style={{ backgroundColor: '#f8f9fa' }}>
+      <div className="p-4 border-bottom" style={{ backgroundColor: isDark ? '#1a1b23' : '#f8f9fa', borderColor: isDark ? '#2e303a' : '#dee2e6' }}>
           {/* Fila 1: Buscador y Filtros */}
           <Row className="g-3 mb-3">
             {/* Buscador */}
             <Col md={8} lg={9}>
               <Form.Control
                 type="text"
-                placeholder="🔍 Buscar por nombre o número..."
+                placeholder={t('pokedex.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="border-2 py-2"
@@ -385,7 +388,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
                 onClick={() => setShowFilters(!showFilters)}
                 className="d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-bold"
               >
-                <span>⚡ Filtros</span>
+                <span>⚡ {t('pokedex.filters')}</span>
                 {selectedTypes.length > 0 && (
                   <Badge bg="light" text="dark" className="rounded-pill">{selectedTypes.length}</Badge>
                 )}
@@ -396,7 +399,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
                 onClick={() => setShinyMode(!shinyMode)}
                 className="rounded-pill px-3 fw-bold"
               >
-                ✨ ShinyDex
+                ✨ {t('pokedex.shinyDex')}
               </Button>
             </Col>
           </Row>
@@ -405,7 +408,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
           <Row className="g-3 mb-3">
             <Col md={12}>
               <div className="d-flex align-items-center gap-3 flex-wrap">
-                <span className="fw-bold text-secondary">Gráficos de Generación:</span>
+                <span className="fw-bold text-secondary">{t('pokedex.graphicsGen')}:</span>
                 <ToggleButtonGroup
                   type="radio"
                   name="graphic-generation"
@@ -429,7 +432,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
                   ))}
                 </ToggleButtonGroup>
                 <small className="text-muted">
-                  (Limita Pokémon y cambia sprites)
+                  ({t('pokedex.graphicsDesc')})
                 </small>
               </div>
             </Col>
@@ -439,7 +442,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
           <Row className="g-3 align-items-center">
             <Col md={12}>
               <div className="d-flex gap-2 align-items-center">
-                <span className="fw-bold text-secondary">Región:</span>
+                <span className="fw-bold text-secondary">{t('pokedex.region')}:</span>
                 <div className="d-flex gap-2">
                   {/* Botón Nacional */}
                   <Button
@@ -448,7 +451,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
                     className="rounded-pill px-3"
                     size="sm"
                   >
-                    🌍 Nacional
+                    🌍 {t('pokedex.national')}
                   </Button>
                   
                   {/* Dropdown de regiones - botón que parece igual que Nacional */}
@@ -459,8 +462,8 @@ function PokedexModal({ show, onHide, standalone = false }) {
                       className="rounded-pill px-3"
                     >
                       {pokedexView !== 'national' 
-                        ? getAvailableRegions().find(r => r.key === pokedexView)?.label.replace('📍 ', '') || '📍 Región'
-                        : '📍 Región'
+                        ? getAvailableRegions().find(r => r.key === pokedexView)?.label.replace('📍 ', '') || `📍 ${t('pokedex.region')}`
+                        : `📍 ${t('pokedex.region')}`
                       }
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
@@ -484,7 +487,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
 
           {/* Filtros de tipo desplegables */}
           {showFilters && (
-            <div className="mt-3 p-3 rounded-3" style={{ backgroundColor: 'white', border: '2px solid #dee2e6' }}>
+            <div className="mt-3 p-3 rounded-3" style={{ backgroundColor: isDark ? '#23252f' : 'white', border: isDark ? '2px solid #2e303a' : '2px solid #dee2e6' }}>
               {/* Iconos de tipos - 3 filas de 6 */}
               <div className="d-flex flex-wrap gap-1 justify-content-center">
                 {POKEMON_TYPES.filter(t => t !== 'all').map(type => (
@@ -522,21 +525,21 @@ function PokedexModal({ show, onHide, standalone = false }) {
                   variant="outline-secondary"
                   onClick={() => setSelectedTypes([])}
                 >
-                  Limpiar filtros
+                  {t('pokedex.clearFilters')}
                 </Button>
                 <Button
                   size="sm"
                   variant={strictMode ? 'danger' : 'outline-danger'}
                   onClick={() => setStrictMode(!strictMode)}
                 >
-                  Filtro exacto {strictMode && '✓'}
+                  {t('pokedex.exactFilter')} {strictMode && '✓'}
                 </Button>
               </div>
 
               {selectedTypes.length > 0 && (
                 <small className="text-muted d-block mt-2 text-center">
-                  {selectedTypes.length} tipo(s) seleccionado(s) |
-                  Modo: {strictMode ? 'Filtro Duro (AND)' : 'Filtro Normal (OR)'}
+                  {selectedTypes.length} {t('pokedex.typesSelected')} |
+                  {t('pokedex.mode')}: {strictMode ? t('pokedex.strictMode') : t('pokedex.normalMode')}
                 </small>
               )}
             </div>
@@ -544,17 +547,17 @@ function PokedexModal({ show, onHide, standalone = false }) {
         </div>
 
         {/* Lista de Pokemon */}
-        <div className="p-4" style={{ minHeight: '400px' }}>
+        <div className="p-4" style={{ minHeight: '400px', backgroundColor: isDark ? '#1a1b23' : '#ffffff' }}>
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="danger" size="lg" />
-              <p className="mt-3 text-secondary">Cargando Pokemon...</p>
+              <p className="mt-3 text-secondary">{t('pokedex.loading')}</p>
             </div>
           ) : (
             <>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <small className="text-secondary">
-                  Mostrando {filteredPokemon.length} Pokemon
+                <small className="text-secondary" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>
+                  {t('pokedex.showing')} {filteredPokemon.length} {t('pokedex.pokemon')}
                 </small>
                 <div className="d-flex gap-2">
                   <Button
@@ -563,7 +566,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage(p => p - 1)}
                   >
-                    Anterior
+                    {t('pokedex.previous')}
                   </Button>
                   <span className="d-flex align-items-center px-2">
                     {currentPage} / {totalPages}
@@ -574,7 +577,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage(p => p + 1)}
                   >
-                    Siguiente
+                    {t('pokedex.next')}
                   </Button>
                 </div>
               </div>
@@ -666,14 +669,18 @@ function PokedexModal({ show, onHide, standalone = false }) {
             ))}
           </div>
 
-          <h6 className="fw-bold mb-3">Estadísticas Base</h6>
+          <h6 className="fw-bold mb-3">{t('pokedex.baseStats')}</h6>
           <div className="row g-2">
             {Object.entries(selectedPokemon.stats).map(([stat, value]) => (
               <div key={stat} className="col-6">
-                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: 'white' }}>
-                  <small className="text-secondary text-capitalize">
-                    {stat === 'specialAttack' ? 'At. Esp.' :
-                     stat === 'specialDefense' ? 'Def. Esp.' : stat}
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: isDark ? '#23252f' : 'white' }}>
+                  <small className="text-secondary" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>
+                    {stat === 'specialAttack' ? t('pokedex.specialAttack') :
+                     stat === 'specialDefense' ? t('pokedex.specialDefense') :
+                     stat === 'hp' ? t('pokedex.hp') :
+                     stat === 'attack' ? t('pokedex.attack') :
+                     stat === 'defense' ? t('pokedex.defense') :
+                     stat === 'speed' ? t('pokedex.speed') : stat}
                   </small>
                   <span className="fw-bold">{value}</span>
                 </div>

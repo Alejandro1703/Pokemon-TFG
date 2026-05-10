@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from '../../contexts/SettingsContext';
+import { useSettings, useTranslation } from '../../contexts/SettingsContext';
 
 function Sidebar() {
+  const { isDark } = useSettings();
   const { t } = useTranslation();
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -74,8 +75,8 @@ function Sidebar() {
           top: 0,
           bottom: 0,
           zIndex: 500,
-          backgroundColor: '#64b5f6',
-          borderRight: isVisible ? '3px solid #42a5f5' : '3px solid #42a5f5',
+          backgroundColor: isDark ? '#1a1b23' : '#64b5f6',
+          borderRight: isDark ? '3px solid #2e303a' : '3px solid #42a5f5',
           boxShadow: '4px 0 20px rgba(0,0,0,0.2)',
           transition: 'all 0.4s ease-in-out',
           overflow: 'visible'
@@ -83,18 +84,18 @@ function Sidebar() {
       >
         <div
           className="d-flex align-items-center justify-content-center"
-          style={{ 
-            height: '70px', 
-            backgroundColor: '#42a5f5',
-            borderBottom: '2px solid #1976d2',
+          style={{
+            height: '70px',
+            backgroundColor: isDark ? '#1a1b23' : '#42a5f5',
+            borderBottom: isDark ? '2px solid #2e303a' : '2px solid #1976d2',
             minWidth: '250px'
           }}
         >
-          <h6 className="fw-bold m-0" style={{ fontSize: '1.1rem', color: '#e3f2fd', opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>{t('sidebar.menu')}</h6>
+          <h6 className="fw-bold m-0" style={{ fontSize: '1.1rem', color: isDark ? '#c8ccd4' : '#e3f2fd', opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>{t('sidebar.menu')}</h6>
         </div>
 
       <div className="p-3 text-center">
-        <small style={{ color: '#90caf9' }}>
+        <small style={{ color: isDark ? '#6b7280' : '#90caf9' }}>
           {isLoggedIn ? '' : t('sidebar.guestAccess')}
         </small>
       </div>
@@ -110,9 +111,13 @@ function Sidebar() {
                 isActive('/dashboard') ? 'fw-bold shadow' : ''
               }`}
               style={{
-                backgroundColor: isActive('/dashboard') ? '#1976d2' : 'rgba(25,118,210,0.3)',
-                color: isActive('/dashboard') ? '#e3f2fd' : '#e3f2fd',
-                border: isActive('/dashboard') ? '2px solid #1565c0' : '1px solid rgba(25,118,210,0.5)',
+                backgroundColor: isActive('/dashboard')
+                  ? (isDark ? '#536dfe' : '#1976d2')
+                  : (isDark ? 'rgba(83,109,254,0.2)' : 'rgba(25,118,210,0.3)'),
+                color: isDark ? '#e8eaed' : '#e3f2fd',
+                border: isActive('/dashboard')
+                  ? (isDark ? '2px solid #3d4fe0' : '2px solid #1565c0')
+                  : (isDark ? '1px solid rgba(83,109,254,0.4)' : '1px solid rgba(25,118,210,0.5)'),
                 transition: 'transform 0.35s ease-out, opacity 0.25s ease',
                 fontSize: '1rem',
                 overflow: 'hidden',
@@ -135,9 +140,13 @@ function Sidebar() {
                     active ? 'fw-bold shadow' : ''
                   }`}
                   style={{
-                    backgroundColor: active ? '#1976d2' : 'rgba(25,118,210,0.3)',
-                    color: active ? '#e3f2fd' : '#e3f2fd',
-                    border: active ? '2px solid #1565c0' : '1px solid rgba(25,118,210,0.5)',
+                    backgroundColor: active
+                      ? (isDark ? '#536dfe' : '#1976d2')
+                      : (isDark ? 'rgba(83,109,254,0.2)' : 'rgba(25,118,210,0.3)'),
+                    color: isDark ? '#e8eaed' : '#e3f2fd',
+                    border: active
+                      ? (isDark ? '2px solid #3d4fe0' : '2px solid #1565c0')
+                      : (isDark ? '1px solid rgba(83,109,254,0.4)' : '1px solid rgba(25,118,210,0.5)'),
                     transition: 'transform 0.35s ease-out, opacity 0.25s ease',
                     fontSize: '1rem',
                     overflow: 'hidden',
@@ -150,7 +159,7 @@ function Sidebar() {
                 </Nav.Link>
               );
             })}
-            
+
             {/* Botón de Logout */}
             <Nav.Link
               onClick={() => {
@@ -188,9 +197,13 @@ function Sidebar() {
                   active ? 'fw-bold shadow' : ''
                 }`}
                 style={{
-                  backgroundColor: active ? '#1976d2' : 'rgba(25,118,210,0.3)',
-                  color: active ? '#e3f2fd' : '#e3f2fd',
-                  border: active ? '2px solid #1565c0' : '1px solid rgba(25,118,210,0.5)',
+                  backgroundColor: active
+                    ? (isDark ? '#536dfe' : '#1976d2')
+                    : (isDark ? 'rgba(83,109,254,0.2)' : 'rgba(25,118,210,0.3)'),
+                  color: isDark ? '#e8eaed' : '#e3f2fd',
+                  border: active
+                    ? (isDark ? '2px solid #3d4fe0' : '2px solid #1565c0')
+                    : (isDark ? '1px solid rgba(83,109,254,0.4)' : '1px solid rgba(25,118,210,0.5)'),
                   transition: 'transform 0.35s ease-out, opacity 0.25s ease',
                   fontSize: '1rem',
                   overflow: 'hidden',
@@ -216,8 +229,8 @@ function Sidebar() {
           left: isVisible ? '216px' : '2px',
           width: isVisible ? '32px' : '28px',
           height: isVisible ? '32px' : '28px',
-          backgroundColor: '#1976d2',
-          border: '3px solid #1565c0',
+          backgroundColor: isDark ? '#536dfe' : '#1976d2',
+          border: isDark ? '3px solid #3d4fe0' : '3px solid #1565c0',
           borderRadius: '6px',
           color: 'white',
           fontSize: isVisible ? '14px' : '12px',
@@ -228,10 +241,10 @@ function Sidebar() {
           boxShadow: '2px 2px 8px rgba(0,0,0,0.3)'
         }}
         onMouseEnter={(e) => {
-          e.target.style.backgroundColor = '#1565c0';
+          e.target.style.backgroundColor = isDark ? '#3d4fe0' : '#1565c0';
         }}
         onMouseLeave={(e) => {
-          e.target.style.backgroundColor = '#1976d2';
+          e.target.style.backgroundColor = isDark ? '#536dfe' : '#1976d2';
         }}
       >
         {isVisible ? '◀' : '▶'}

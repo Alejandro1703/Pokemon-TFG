@@ -23,6 +23,23 @@ const JUEGOS_IMAGENES = {
   'Blanco 2': '/images/juegos/Blanco 2.jpeg'
 };
 
+const JUEGOS_TRADUCCIONES = {
+  'Rojo Fuego': 'games.fireRed',
+  'Verde Hoja': 'games.leafGreen',
+  'Rubi': 'games.ruby',
+  'Zafiro': 'games.sapphire',
+  'Esmeralda': 'games.emerald',
+  'Diamante': 'games.diamond',
+  'Perla': 'games.pearl',
+  'Platino': 'games.platinum',
+  'Oro HeartGold': 'games.heartGold',
+  'Plata SoulSilver': 'games.soulSilver',
+  'Negro': 'games.black',
+  'Blanco': 'games.white',
+  'Negro 2': 'games.black2',
+  'Blanco 2': 'games.white2'
+};
+
 function AventurasPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -124,7 +141,7 @@ function AventurasPage() {
               onClick={() => navigate('/dashboard')}
               className="rounded-pill me-3"
             >
-              ← Volver al inicio
+              {t('adventures.backToStart')}
             </Button>
             <h2 className="fw-bold m-0">{t('adventures.title')}</h2>
           </Card.Body>
@@ -147,11 +164,11 @@ function AventurasPage() {
                   <Card.Body className="d-flex align-items-center gap-3">
                     <img
                       src={JUEGOS_IMAGENES[juego.juegoNombre] || '/images/juegos/default.jpeg'}
-                      alt={juego.juegoNombre}
+                      alt={t(JUEGOS_TRADUCCIONES[juego.juegoNombre] || juego.juegoNombre)}
                       style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
                     />
                     <div className="flex-grow-1">
-                      <h6 className="fw-bold mb-1">{juego.juegoNombre}</h6>
+                      <h6 className="fw-bold mb-1">Pokemon {t(JUEGOS_TRADUCCIONES[juego.juegoNombre] || juego.juegoNombre)}</h6>
                       {juego.comentario && (
                         <small className="text-muted d-block text-truncate" style={{ maxWidth: '150px' }}>
                           {juego.comentario}

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Card, Badge, Button, Row, Col, Form } from 'react-bootstrap';
 import { getPocketsForGame, getItemSpriteUrl, ITEMS_CATALOG } from './gameData';
-import { useTranslation } from '../../contexts/SettingsContext';
+import { useSettings, useTranslation } from '../../contexts/SettingsContext';
 
 function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
+  const { isDark } = useSettings();
   const { t, tItem, tPocket } = useTranslation();
   const pockets = getPocketsForGame(gameName);
   const [activePocket, setActivePocket] = useState(pockets[0]?.key || '');
@@ -113,7 +114,7 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
       {/* Pestañas de bolsillos */}
       <div
         className="d-flex flex-wrap gap-1 p-2"
-        style={{ borderBottom: '2px solid #e0e0e0', backgroundColor: '#f5f5f5' }}
+        style={{ borderBottom: isDark ? '2px solid #2e303a' : '2px solid #e0e0e0', backgroundColor: isDark ? '#1a1b23' : '#f5f5f5' }}
       >
         {pockets.map((pocket) => {
           const pocketCount = (backpack[pocket.key] || []).reduce((s, i) => s + i.quantity, 0);
@@ -123,9 +124,9 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
               size="sm"
               onClick={() => { setActivePocket(pocket.key); setShowAddItem(false); }}
               style={{
-                backgroundColor: activePocket === pocket.key ? pocket.color : 'transparent',
-                color: activePocket === pocket.key ? 'white' : '#555',
-                border: activePocket === pocket.key ? 'none' : '1px solid #ddd',
+                backgroundColor: activePocket === pocket.key ? pocket.color : (isDark ? '#23252f' : 'transparent'),
+                color: activePocket === pocket.key ? 'white' : (isDark ? '#c8ccd4' : '#555'),
+                border: activePocket === pocket.key ? 'none' : (isDark ? '1px solid #3d3f4e' : '1px solid #ddd'),
                 borderRadius: '20px',
                 fontSize: '0.78rem',
                 fontWeight: activePocket === pocket.key ? 'bold' : 'normal',
@@ -156,7 +157,7 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
             <div style={{ fontSize: '3rem', opacity: 0.3 }}>
               {pockets.find(p => p.key === activePocket)?.icon || '🎒'}
             </div>
-            <p className="text-muted mt-2">{t('backpack.empty')}</p>
+            <p className="text-muted mt-2" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('backpack.empty')}</p>
             <Button
               variant="outline-primary"
               size="sm"
@@ -173,8 +174,8 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
                 key={item.itemId}
                 className="d-flex align-items-center p-2 mb-1 rounded-3"
                 style={{
-                  backgroundColor: '#f8f9fa',
-                  border: '1px solid #e9ecef',
+                  backgroundColor: isDark ? '#23252f' : '#f8f9fa',
+                  border: isDark ? '1px solid #2e303a' : '1px solid #e9ecef',
                   transition: 'all 0.2s ease',
                 }}
               >
@@ -185,8 +186,8 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
                   onError={(e) => { e.target.style.display = 'none'; }}
                 />
                 <div className="flex-grow-1 ms-2">
-                  <div className="fw-semibold" style={{ fontSize: '0.85rem' }}>{tItem(item.itemId)}</div>
-                  <small className="text-muted" style={{ fontSize: '0.7rem' }}>{item.effect}</small>
+                  <div className="fw-semibold" style={{ fontSize: '0.85rem', color: isDark ? '#e8eaed' : '#333' }}>{tItem(item.itemId)}</div>
+                  <small className="text-muted" style={{ fontSize: '0.7rem', color: isDark ? '#9ca3af' : '#6c757d' }}>{item.effect}</small>
                 </div>
                 <div className="d-flex align-items-center gap-1">
                   <Button
@@ -256,15 +257,15 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
                     <div
                       className="d-flex align-items-center p-2 rounded-2"
                       style={{
-                        backgroundColor: '#e3f2fd',
-                        border: '1px solid #bbdefb',
+                        backgroundColor: isDark ? '#1e293b' : '#e3f2fd',
+                        border: isDark ? '1px solid #3d3f4e' : '1px solid #bbdefb',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                         fontSize: '0.78rem',
                       }}
                       onClick={() => addItemToBackpack(item)}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#bbdefb'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#e3f2fd'; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = isDark ? '#2e3040' : '#bbdefb'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = isDark ? '#1e293b' : '#e3f2fd'; }}
                     >
                       <img
                         src={getItemSpriteUrl(item.sprite)}
@@ -272,7 +273,7 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
                         style={{ width: '24px', height: '24px', imageRendering: 'pixelated' }}
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
-                      <span className="ms-1 fw-semibold text-truncate">{tItem(item.id)}</span>
+                      <span className="ms-1 fw-semibold text-truncate" style={{ color: isDark ? '#e8eaed' : '#333' }}>{tItem(item.id)}</span>
                     </div>
                   </Col>
                 ))}

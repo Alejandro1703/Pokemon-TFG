@@ -28,6 +28,23 @@ const JUEGOS_IMAGENES = {
   'Blanco 2': '/images/juegos/Blanco 2.jpeg',
 };
 
+const JUEGOS_TRADUCCIONES = {
+  'Rojo Fuego': 'games.fireRed',
+  'Verde Hoja': 'games.leafGreen',
+  'Rubi': 'games.ruby',
+  'Zafiro': 'games.sapphire',
+  'Esmeralda': 'games.emerald',
+  'Diamante': 'games.diamond',
+  'Perla': 'games.pearl',
+  'Platino': 'games.platinum',
+  'Oro HeartGold': 'games.heartGold',
+  'Plata SoulSilver': 'games.soulSilver',
+  'Negro': 'games.black',
+  'Blanco': 'games.white',
+  'Negro 2': 'games.black2',
+  'Blanco 2': 'games.white2'
+};
+
 function GameAdventurePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -164,6 +181,7 @@ function GameAdventurePage() {
   }
 
   const gameName = juego.juegoNombre;
+  const translatedGameName = t(JUEGOS_TRADUCCIONES[gameName] || gameName);
   const region = getRegionForGame(gameName);
 
   return (
@@ -182,11 +200,11 @@ function GameAdventurePage() {
             </Button>
             <img
               src={JUEGOS_IMAGENES[gameName] || '/images/juegos/default.jpeg'}
-              alt={gameName}
+              alt={translatedGameName}
               style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '10px' }}
             />
             <div className="flex-grow-1">
-              <h4 className="fw-bold mb-0">Pokémon {gameName}</h4>
+              <h4 className="fw-bold mb-0">Pokémon {translatedGameName}</h4>
               <small className="text-muted">{t('adventure.region')} {region.name}</small>
             </div>
           </Card.Body>

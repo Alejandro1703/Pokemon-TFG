@@ -1,22 +1,43 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Table, Badge, Row, Col, Alert, Card, Spinner } from 'react-bootstrap';
+import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
 
 const ESTADOS_BASE = {
-  completo: 'Completo (CIB + VIP)',
-  semi: 'Semi completo (Sin VIP)',
-  sinManual: 'Sin manual',
-  soloCartucho: 'Solo cartucho',
-  caratulaCartucho: 'Caratula y cartucho'
+  completo: 'gameStates.complete',
+  semi: 'gameStates.semi',
+  sinManual: 'gameStates.withoutManual',
+  soloCartucho: 'gameStates.cartridgeOnly',
+  caratulaCartucho: 'gameStates.coverCartridge'
 };
 
-const ESTADO_POKEWALKER = { conPokewalker: 'Con Pokewalker' };
+const ESTADO_POKEWALKER = { conPokewalker: 'gameStates.withPokewalker' };
 
 // Juegos que tienen la opcion Con Pokewalker
 const JUEGOS_CON_POKEWALKER = ['Oro HeartGold', 'Plata SoulSilver'];
 
+// Mapeo de nombres de juegos a claves de traducción
+const JUEGOS_TRADUCCIONES = {
+  'Rojo Fuego': 'games.fireRed',
+  'Verde Hoja': 'games.leafGreen',
+  'Rubi': 'games.ruby',
+  'Zafiro': 'games.sapphire',
+  'Esmeralda': 'games.emerald',
+  'Diamante': 'games.diamond',
+  'Perla': 'games.pearl',
+  'Platino': 'games.platinum',
+  'Oro HeartGold': 'games.heartGold',
+  'Plata SoulSilver': 'games.soulSilver',
+  'Negro': 'games.black',
+  'Blanco': 'games.white',
+  'Negro 2': 'games.black2',
+  'Blanco 2': 'games.white2'
+};
+
 function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false }) {
+  const { isDark } = useSettings();
+  const { t } = useTranslation();
   const [misJuegos, setMisJuegos] = useState([]);
   const [juegoSeleccionado, setJuegoSeleccionado] = useState('');
   const [estado, setEstado] = useState('');
@@ -56,10 +77,10 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         const data = await response.json();
         setMisJuegos(data);
       } else {
-        setError('Error al cargar los juegos');
+        setError(t('myGames.errorLoading'));
       }
     } catch {
-      setError('Error de conexion');
+      setError(t('myGames.connectionError'));
     } finally {
       setLoading(false);
     }
@@ -79,7 +100,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
     if (!juegoSeleccionado) return ESTADOS_BASE;
     const juegoInfo = juegosDisponibles.find(j => j.id === parseInt(juegoSeleccionado));
     if (!juegoInfo) return ESTADOS_BASE;
-    
+
     if (JUEGOS_CON_POKEWALKER.includes(juegoInfo.nombre)) {
       return { ...ESTADOS_BASE, ...ESTADO_POKEWALKER };
     }
@@ -89,14 +110,15 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
   // Funcion para mostrar label de estado en la tabla
   const getEstadoLabel = (estadoKey) => {
     const todosLosEstados = { ...ESTADOS_BASE, ...ESTADO_POKEWALKER };
-    return todosLosEstados[estadoKey] || estadoKey;
+    const labelKey = todosLosEstados[estadoKey] || estadoKey;
+    return t(labelKey);
   };
 
   const precioMercadoPreview = getPrecioMercado();
 
   const agregarJuego = async () => {
     if (!juegoSeleccionado || !estado) {
-      setError('Debes seleccionar un juego y un estado obligatoriamente');
+      setError(t('myGames.selectGameAndState'));
       return;
     }
 
@@ -134,10 +156,10 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         setPrecioCompra('');
         setFechaCompra('');
       } else {
-        setError('Error al agregar el juego');
+        setError(t('myGames.errorAdding'));
       }
     } catch {
-      setError('Error de conexion al agregar');
+      setError(t('myGames.errorAddingConnection'));
     }
   };
 
@@ -151,7 +173,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
 
   const guardarEdicion = async () => {
     if (!editando || !juegoSeleccionado || !estado) {
-      setError('Debes seleccionar un juego y un estado obligatoriamente');
+      setError(t('myGames.selectGameAndState'));
       return;
     }
 
@@ -190,10 +212,10 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         setPrecioCompra('');
         setFechaCompra('');
       } else {
-        setError('Error al editar el juego');
+        setError(t('myGames.errorEditing'));
       }
     } catch {
-      setError('Error de conexion al editar');
+      setError(t('myGames.errorEditingConnection'));
     }
   };
 
@@ -227,10 +249,10 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         setShowConfirmModal(false);
         setJuegoAEliminar(null);
       } else {
-        setError('Error al eliminar el juego');
+        setError(t('myGames.errorDeleting'));
       }
     } catch {
-      setError('Error de conexion al eliminar');
+      setError(t('myGames.errorDeletingConnection'));
     }
   };
 
@@ -248,9 +270,9 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
   const content = (
     <>
       {standalone && (
-        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: '#f8f9fa' }}>
+        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: isDark ? '#23252f' : '#f8f9fa' }}>
           <Card.Body>
-            <h4 className="fw-bold mb-0">Mis Juegos</h4>
+            <h4 className="fw-bold mb-0" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.title')}</h4>
           </Card.Body>
         </Card>
       )}
@@ -264,7 +286,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
           }}
         >
           <Modal.Title className="fw-bold text-white">
-            Mis Juegos
+            {t('myGames.title')}
           </Modal.Title>
         </Modal.Header>
       )}
@@ -279,35 +301,35 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         {loading ? (
           <div className="text-center py-4">
             <Spinner animation="border" variant="warning" />
-            <p className="mt-2 text-muted">Cargando juegos...</p>
+            <p className="mt-2 text-muted">{t('myGames.loading')}</p>
           </div>
         ) : (
           <>
         {/* Resumen */}
         <Row className="mb-4">
           <Col md={4}>
-            <Card className="text-center border-0 shadow-sm" style={{ backgroundColor: '#e3f2fd' }}>
+            <Card className="text-center border-0 shadow-sm" style={{ backgroundColor: isDark ? '#1e293b' : '#e3f2fd' }}>
               <Card.Body>
-                <h6 className="text-muted mb-2">Total Invertido</h6>
+                <h6 className="text-muted mb-2" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('myGames.totalInvested')}</h6>
                 <h4 className="fw-bold text-primary mb-0">{totalInvertido.toFixed(2)} €</h4>
               </Card.Body>
             </Card>
           </Col>
           <Col md={4}>
-            <Card className="text-center border-0 shadow-sm" style={{ backgroundColor: '#e8f5e9' }}>
+            <Card className="text-center border-0 shadow-sm" style={{ backgroundColor: isDark ? '#1e293b' : '#e8f5e9' }}>
               <Card.Body>
-                <h6 className="text-muted mb-2">Valor en Mercado</h6>
+                <h6 className="text-muted mb-2" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('myGames.marketValue')}</h6>
                 <h4 className="fw-bold text-success mb-0">{totalMercado.toFixed(2)} €</h4>
               </Card.Body>
             </Card>
           </Col>
           <Col md={4}>
-            <Card className="text-center border-0 shadow-sm" style={{ 
-              backgroundColor: beneficio >= 0 ? '#fff3e0' : '#ffebee'
+            <Card className="text-center border-0 shadow-sm" style={{
+              backgroundColor: isDark ? (beneficio >= 0 ? '#2a2520' : '#2a2020') : (beneficio >= 0 ? '#fff3e0' : '#ffebee')
             }}>
               <Card.Body>
-                <h6 className="text-muted mb-2">Beneficio</h6>
-                <h4 className="fw-bold mb-0" style={{ color: beneficio >= 0 ? '#e65100' : '#c62828' }}>
+                <h6 className="text-muted mb-2" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('myGames.profit')}</h6>
+                <h4 className="fw-bold mb-0" style={{ color: beneficio >= 0 ? (isDark ? '#ffb74d' : '#e65100') : (isDark ? '#f5a3a3' : '#c62828') }}>
                   {beneficio >= 0 ? '+' : ''}{beneficio.toFixed(2)} €
                 </h4>
               </Card.Body>
@@ -316,13 +338,13 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         </Row>
 
         {/* Formulario para agregar */}
-        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: '#f8f9fa' }}>
+        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: isDark ? '#23252f' : '#f8f9fa' }}>
           <Card.Body>
-            <h5 className="fw-bold mb-3">{editando ? 'Editar Juego' : 'Añadir Juego'}</h5>
+            <h5 className="fw-bold mb-3" style={{ color: isDark ? '#e8eaed' : '#333' }}>{editando ? t('myGames.editGame') : t('myGames.addGame')}</h5>
             <Row className="g-3">
               <Col md={3}>
                 <Form.Label className="fw-semibold small">
-                  Juego <span className="text-danger">*</span>
+                  {t('myGames.game')} <span className="text-danger">*</span>
                 </Form.Label>
                 <Form.Select
                   value={juegoSeleccionado}
@@ -330,15 +352,15 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
                   className="border-2"
                   style={{ borderRadius: '10px' }}
                 >
-                  <option value="">Selecciona un juego...</option>
+                  <option value="">{t('myGames.selectGameDropdown')}</option>
                   {juegosDisponibles.map(j => (
-                    <option key={j.id} value={j.id}>Pokemon {j.nombre}</option>
+                    <option key={j.id} value={j.id}>Pokemon {j.nombreKey ? t(j.nombreKey) : j.nombre}</option>
                   ))}
                 </Form.Select>
               </Col>
               <Col md={3}>
                 <Form.Label className="fw-semibold small">
-                  Estado <span className="text-danger">*</span>
+                  {t('myGames.state')} <span className="text-danger">*</span>
                 </Form.Label>
                 <Form.Select
                   value={estado}
@@ -346,14 +368,14 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
                   className="border-2"
                   style={{ borderRadius: '10px' }}
                 >
-                  <option value="">Selecciona un estado...</option>
-                  {Object.entries(getEstadosDisponibles()).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
+                  <option value="">{t('myGames.selectState')}</option>
+                  {Object.entries(getEstadosDisponibles()).map(([key, labelKey]) => (
+                    <option key={key} value={key}>{t(labelKey)}</option>
                   ))}
                 </Form.Select>
               </Col>
               <Col md={2}>
-                <Form.Label className="fw-semibold small">Fecha de compra</Form.Label>
+                <Form.Label className="fw-semibold small">{t('myGames.purchaseDateFull')}</Form.Label>
                 <Form.Control
                   type="date"
                   value={fechaCompra}
@@ -363,7 +385,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
                 />
               </Col>
               <Col md={2}>
-                <Form.Label className="fw-semibold small">Precio de compra (€)</Form.Label>
+                <Form.Label className="fw-semibold small">{t('myGames.purchasePriceFull')}</Form.Label>
                 <Form.Control
                   type="number"
                   value={precioCompra}
@@ -374,7 +396,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
                 />
               </Col>
               <Col md={2}>
-                <Form.Label className="fw-semibold small text-success">Precio mercado (auto)</Form.Label>
+                <Form.Label className="fw-semibold small text-success">{t('myGames.marketPrice')}</Form.Label>
                 <Form.Control
                   type="text"
                   value={precioMercadoPreview !== null ? `${precioMercadoPreview} €` : '-'}
@@ -395,7 +417,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
                         background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)'
                       }}
                     >
-                      Guardar
+                      {t('myGames.save')}
                     </Button>
                     <Button 
                       variant="secondary"
@@ -403,7 +425,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
                       className="fw-bold"
                       style={{ borderRadius: '10px' }}
                     >
-                      X
+                      {t('myGames.cancelButtonX')}
                     </Button>
                   </div>
                 ) : (
@@ -416,7 +438,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
                       background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)'
                     }}
                   >
-                    Añadir
+                    {t('myGames.addButton')}
                   </Button>
                 )}
               </Col>
@@ -427,46 +449,48 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         {/* Tabla de juegos */}
         {misJuegos.length === 0 ? (
           <Alert variant="info" className="text-center border-0 rounded-3">
-            No tienes juegos en tu inventario. Añade tu primera adquisicion arriba.
+            {t('myGames.noGamesModal')}
           </Alert>
         ) : (
           <div className="table-responsive">
             <Table hover className="align-middle">
-              <thead style={{ backgroundColor: '#f8f9fa' }}>
+              <thead style={{ backgroundColor: isDark ? '#1a1b23' : '#f8f9fa' }}>
                 <tr>
-                  <th className="fw-bold">Juego</th>
-                  <th className="fw-bold">Estado</th>
-                  <th className="fw-bold">Hora Registro</th>
-                  <th className="fw-bold text-end">Precio Compra</th>
-                  <th className="fw-bold text-end">Precio Mercado</th>
-                  <th className="fw-bold text-end">Diferencia</th>
-                  <th className="fw-bold text-center">Accion</th>
+                  <th className="fw-bold" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.gameColumn')}</th>
+                  <th className="fw-bold" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.stateColumn')}</th>
+                  <th className="fw-bold" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.registrationTime')}</th>
+                  <th className="fw-bold text-end" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.purchasePriceColumn')}</th>
+                  <th className="fw-bold text-end" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.marketPriceColumn')}</th>
+                  <th className="fw-bold text-end" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.difference')}</th>
+                  <th className="fw-bold text-center" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.action')}</th>
                 </tr>
               </thead>
               <tbody>
                 {misJuegos.map((juego) => {
                   const diferencia = juego.precioCompra ? juego.precioMercado - juego.precioCompra : null;
                   return (
-                    <tr key={juego.id}>
+                    <tr key={juego.id} style={{ color: isDark ? '#c8ccd4' : '#333' }}>
                       <td>
-                        <div className="fw-semibold">Pokemon {juego.juegoNombre}</div>
+                        <div className="fw-semibold" style={{ color: isDark ? '#e8eaed' : '#333' }}>Pokemon {t(JUEGOS_TRADUCCIONES[juego.juegoNombre] || juego.juegoNombre)}</div>
                         <Badge bg="secondary" className="rounded-pill">{juego.generacion}</Badge>
                       </td>
                       <td>
-                        <small className="text-muted">{getEstadoLabel(juego.estado)}</small>
+                        <small className="text-muted" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{getEstadoLabel(juego.estado)}</small>
                       </td>
                       <td>
-                        <small className="text-muted">{juego.horaRegistro ? juego.horaRegistro : '-'}</small>
+                        <small className="text-muted" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{juego.horaRegistro ? juego.horaRegistro : '-'}</small>
                       </td>
-                      <td className="text-end fw-semibold">{juego.precioCompra ? `${juego.precioCompra.toFixed(2)} €` : '-'}</td>
-                      <td className="text-end">{juego.precioMercado.toFixed(2)} €</td>
+                      <td className="text-end fw-semibold" style={{ color: isDark ? '#e8eaed' : '#333' }}>
+                        {juego.precioCompra ? `${juego.precioCompra.toFixed(2)} €` : '-'}
+                      </td>
+                      <td className="text-end" style={{ color: isDark ? '#e8eaed' : '#333' }}>{juego.precioMercado.toFixed(2)} €</td>
                       <td className="text-end">
                         {diferencia !== null ? (
                           <span className={diferencia >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}>
                             {diferencia >= 0 ? '+' : ''}{diferencia.toFixed(2)} €
                           </span>
                         ) : (
-                          <span className="text-muted">No calculado</span>
+                          <span className="text-muted" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('myGames.notCalculated')}</span>
                         )}
                       </td>
                       <td className="text-center">
@@ -476,7 +500,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
                           onClick={() => iniciarEdicion(juego)}
                           className="rounded-pill me-2"
                         >
-                          Editar
+                          {t('myGames.edit')}
                         </Button>
                         <Button 
                           variant="danger" 
@@ -484,7 +508,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
                           onClick={() => mostrarConfirmacionEliminar(juego.id)}
                           className="rounded-pill"
                         >
-                          Eliminar
+                          {t('myGames.delete')}
                         </Button>
                       </td>
                     </tr>
@@ -501,7 +525,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
       {!standalone && (
         <Modal.Footer className="border-top-0">
           <Button variant="secondary" onClick={onHide} className="rounded-pill px-4">
-            Cerrar
+            {t('myGames.closeModal')}
           </Button>
         </Modal.Footer>
       )}
@@ -515,16 +539,16 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
           }}
         >
           <Modal.Title className="fw-bold text-white">
-            ¿Eliminar juego?
+            {t('myGames.deleteGame')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-4">
-          <p className="mb-0">¿Estás seguro de que quieres eliminar este juego de tu colección?</p>
-          <p className="text-danger fw-bold mt-2 mb-0">Esta acción no se puede deshacer.</p>
+          <p className="mb-0">{t('myGames.deleteConfirmation')}</p>
+          <p className="text-danger fw-bold mt-2 mb-0">{t('myGames.deleteWarning')}</p>
         </Modal.Body>
         <Modal.Footer className="border-top-0">
           <Button variant="secondary" onClick={cancelarEliminar} className="rounded-pill px-4">
-            Cancelar
+            {t('myGames.cancel')}
           </Button>
           <Button 
             variant="danger" 
@@ -532,7 +556,7 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
             className="rounded-pill px-4 fw-bold"
             style={{ background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)' }}
           >
-            Sí, eliminar
+            {t('myGames.confirmDelete')}
           </Button>
         </Modal.Footer>
       </Modal>

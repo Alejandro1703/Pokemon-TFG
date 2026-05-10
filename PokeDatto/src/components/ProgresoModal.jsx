@@ -1,9 +1,30 @@
 import { useState, useEffect } from 'react';
 import { Modal, Row, Col, Card, Badge, Spinner, Alert } from 'react-bootstrap';
+import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
 
+// Mapeo de nombres de juegos (de la API) a claves de traducción
+const NOMBRE_A_KEY = {
+  'Rojo Fuego': 'games.fireRed',
+  'Verde Hoja': 'games.leafGreen',
+  'Rubi': 'games.ruby',
+  'Zafiro': 'games.sapphire',
+  'Esmeralda': 'games.emerald',
+  'Diamante': 'games.diamond',
+  'Perla': 'games.pearl',
+  'Platino': 'games.platinum',
+  'Oro HeartGold': 'games.heartGold',
+  'Plata SoulSilver': 'games.soulSilver',
+  'Negro': 'games.black',
+  'Blanco': 'games.white',
+  'Negro 2': 'games.black2',
+  'Blanco 2': 'games.white2'
+};
+
 function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) {
+  const { isDark } = useSettings();
+  const { t } = useTranslation();
   const [misJuegos, setMisJuegos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -41,7 +62,9 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
 
   // Obtener información del juego desde la lista de juegos disponibles
   const getJuegoInfo = (nombreJuego) => {
-    return juegosDisponibles.find(j => j.nombre === nombreJuego);
+    const nombreKey = NOMBRE_A_KEY[nombreJuego] || nombreJuego;
+    const juego = juegosDisponibles.find(j => j.nombreKey === nombreKey);
+    return juego ? { ...juego, nombreTraducido: t(juego.nombreKey) } : null;
   };
 
   // Obtener juegos únicos (por nombre) para no mostrar duplicados
@@ -59,11 +82,11 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
   const juegosUnicos = getJuegosUnicos();
 
   const content = (
-    <div style={{ backgroundColor: '#f8f9fa' }} className={standalone ? '' : 'p-4'}>
+    <div style={{ backgroundColor: isDark ? '#1a1b23' : '#f8f9fa' }} className={standalone ? '' : 'p-4'}>
       {standalone && (
         <Card className="mb-4 border-0 shadow-sm">
-          <Card.Body style={{ background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)' }}>
-            <h4 className="fw-bold text-white mb-0">Tu Progreso - Colección de Juegos</h4>
+          <Card.Body style={{ background: isDark ? 'linear-gradient(135deg, #23252f 0%, #1a1b23 100%)' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)' }}>
+            <h4 className="fw-bold text-white mb-0">{t('progress.title')}</h4>
           </Card.Body>
         </Card>
       )}
@@ -72,12 +95,12 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
         <Modal.Header
           closeButton
           style={{
-            background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
-            borderBottom: '3px solid #1b5e20'
+            background: isDark ? 'linear-gradient(135deg, #23252f 0%, #1a1b23 100%)' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+            borderBottom: isDark ? '3px solid #2e303a' : '3px solid #1b5e20'
           }}
         >
           <Modal.Title className="fw-bold text-white">
-            Tu Progreso - Colección de Juegos
+            {t('progress.header')}
           </Modal.Title>
         </Modal.Header>
       )}
@@ -105,7 +128,7 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
           <>
             <div className="text-center mb-4">
               <h5 className="text-success fw-bold">
-                Has coleccionado {juegosUnicos.length} {juegosUnicos.length === 1 ? 'juego' : 'juegos'} de {juegosDisponibles.length} disponibles
+                {t('progress.collected')} {juegosUnicos.length} {juegosUnicos.length === 1 ? t('progress.game') : t('progress.games')} {t('progress.collectedSuffix')} {juegosDisponibles.length} {t('progress.collectedEnd')}
               </h5>
               <div 
                 className="mx-auto mt-2" 
@@ -127,7 +150,7 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
                 />
               </div>
               <small className="text-muted">
-                {Math.round((juegosUnicos.length / juegosDisponibles.length) * 100)}% completado
+                {Math.round((juegosUnicos.length / juegosDisponibles.length) * 100)}% {t('progress.completed')}
               </small>
             </div>
 
@@ -136,14 +159,14 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
                 const juegoInfo = getJuegoInfo(juego.juegoNombre);
                 return (
                   <Col key={juego.id} xs={12} md={6} lg={4}>
-                    <Card className="border-0 shadow-sm overflow-hidden" style={{ borderRadius: '10px' }}>
+                    <Card className="border-0 shadow-sm overflow-hidden" style={{ borderRadius: '10px', backgroundColor: isDark ? '#23252f' : '#ffffff' }}>
                       <div className="d-flex align-items-center p-2">
                         <div
                           className="position-relative flex-shrink-0"
                           style={{
                             width: '40px',
                             height: '40px',
-                            backgroundColor: '#f5f5f5',
+                            backgroundColor: isDark ? '#2e3040' : '#f5f5f5',
                             borderRadius: '6px',
                             overflow: 'hidden'
                           }}
@@ -165,8 +188,8 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
                           )}
                         </div>
                         <div className="ms-2 flex-grow-1">
-                          <span className="fw-semibold" style={{ fontSize: '0.85rem' }}>
-                            Pokémon {juego.juegoNombre}
+                          <span className="fw-semibold" style={{ fontSize: '0.85rem', color: isDark ? '#e8eaed' : '#333' }}>
+                            Pokémon {juegoInfo?.nombreTraducido || juego.juegoNombre}
                           </span>
                         </div>
                       </div>
