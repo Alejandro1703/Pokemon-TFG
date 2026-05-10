@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Form, Row, Col, Badge, Spinner, Card, ToggleButtonGroup, ToggleButton, OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
-import { useTranslation } from '../contexts/SettingsContext';
+import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
 const POKEMON_TYPES = [
   'all', 'normal', 'fire', 'water', 'electric', 'grass', 'ice', 
@@ -57,6 +57,7 @@ const GRAPHIC_GENERATIONS = {
 };
 
 function PokedexModal({ show, onHide, standalone = false }) {
+  const { isDark } = useSettings();
   const { t } = useTranslation();
   const [pokemonList, setPokemonList] = useState([]);
   const [filteredPokemon, setFilteredPokemon] = useState([]);
@@ -231,7 +232,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
-        <div className="text-center p-3" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="text-center p-3" style={{ backgroundColor: isDark ? '#2e3040' : '#f8f9fa' }}>
           {pokemon.sprite ? (
             <img 
               src={(shinyMode || shinyPokemon.has(pokemon.id)) ? pokemon.shinySprite : pokemon.sprite} 
@@ -252,9 +253,9 @@ function PokedexModal({ show, onHide, standalone = false }) {
             <div style={{ width: '80px', height: '80px', margin: '0 auto', backgroundColor: '#ddd', borderRadius: '50%' }} />
           )}
         </div>
-        <Card.Body className="p-3">
+        <Card.Body className="p-3" style={{ backgroundColor: isDark ? '#23252f' : '#ffffff' }}>
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <small className="text-muted">#{String(pokemon.id).padStart(3, '0')}</small>
+            <small className="text-muted" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>#{String(pokemon.id).padStart(3, '0')}</small>
             <Button
               size="sm"
               variant={shinyPokemon.has(pokemon.id) ? 'warning' : 'outline-warning'}
@@ -275,7 +276,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
               ✨
             </Button>
           </div>
-          <h6 className="text-capitalize fw-bold mb-2" style={{ fontSize: '0.95rem' }}>
+          <h6 className="text-capitalize fw-bold mb-2" style={{ fontSize: '0.95rem', color: isDark ? '#e8eaed' : '#333' }}>
             {pokemon.name}
           </h6>
           <div className="d-flex gap-1 flex-wrap">
@@ -365,7 +366,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
   const mainContent = (
     <>
       {/* Controles */}
-      <div className="p-4 border-bottom" style={{ backgroundColor: '#f8f9fa' }}>
+      <div className="p-4 border-bottom" style={{ backgroundColor: isDark ? '#1a1b23' : '#f8f9fa', borderColor: isDark ? '#2e303a' : '#dee2e6' }}>
           {/* Fila 1: Buscador y Filtros */}
           <Row className="g-3 mb-3">
             {/* Buscador */}
@@ -486,7 +487,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
 
           {/* Filtros de tipo desplegables */}
           {showFilters && (
-            <div className="mt-3 p-3 rounded-3" style={{ backgroundColor: 'white', border: '2px solid #dee2e6' }}>
+            <div className="mt-3 p-3 rounded-3" style={{ backgroundColor: isDark ? '#23252f' : 'white', border: isDark ? '2px solid #2e303a' : '2px solid #dee2e6' }}>
               {/* Iconos de tipos - 3 filas de 6 */}
               <div className="d-flex flex-wrap gap-1 justify-content-center">
                 {POKEMON_TYPES.filter(t => t !== 'all').map(type => (
@@ -546,7 +547,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
         </div>
 
         {/* Lista de Pokemon */}
-        <div className="p-4" style={{ minHeight: '400px' }}>
+        <div className="p-4" style={{ minHeight: '400px', backgroundColor: isDark ? '#1a1b23' : '#ffffff' }}>
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="danger" size="lg" />
@@ -555,7 +556,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
           ) : (
             <>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <small className="text-secondary">
+                <small className="text-secondary" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>
                   {t('pokedex.showing')} {filteredPokemon.length} {t('pokedex.pokemon')}
                 </small>
                 <div className="d-flex gap-2">
@@ -672,8 +673,8 @@ function PokedexModal({ show, onHide, standalone = false }) {
           <div className="row g-2">
             {Object.entries(selectedPokemon.stats).map(([stat, value]) => (
               <div key={stat} className="col-6">
-                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: 'white' }}>
-                  <small className="text-secondary">
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: isDark ? '#23252f' : 'white' }}>
+                  <small className="text-secondary" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>
                     {stat === 'specialAttack' ? t('pokedex.specialAttack') :
                      stat === 'specialDefense' ? t('pokedex.specialDefense') :
                      stat === 'hp' ? t('pokedex.hp') :

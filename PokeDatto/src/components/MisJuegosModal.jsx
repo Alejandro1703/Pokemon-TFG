@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Table, Badge, Row, Col, Alert, Card, Spinner } from 'react-bootstrap';
-import { useTranslation } from '../contexts/SettingsContext';
+import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
 
@@ -36,6 +36,7 @@ const JUEGOS_TRADUCCIONES = {
 };
 
 function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false }) {
+  const { isDark } = useSettings();
   const { t } = useTranslation();
   const [misJuegos, setMisJuegos] = useState([]);
   const [juegoSeleccionado, setJuegoSeleccionado] = useState('');
@@ -269,9 +270,9 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
   const content = (
     <>
       {standalone && (
-        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: '#f8f9fa' }}>
+        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: isDark ? '#23252f' : '#f8f9fa' }}>
           <Card.Body>
-            <h4 className="fw-bold mb-0">{t('myGames.title')}</h4>
+            <h4 className="fw-bold mb-0" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.title')}</h4>
           </Card.Body>
         </Card>
       )}
@@ -307,28 +308,28 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         {/* Resumen */}
         <Row className="mb-4">
           <Col md={4}>
-            <Card className="text-center border-0 shadow-sm" style={{ backgroundColor: '#e3f2fd' }}>
+            <Card className="text-center border-0 shadow-sm" style={{ backgroundColor: isDark ? '#1e293b' : '#e3f2fd' }}>
               <Card.Body>
-                <h6 className="text-muted mb-2">{t('myGames.totalInvested')}</h6>
+                <h6 className="text-muted mb-2" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('myGames.totalInvested')}</h6>
                 <h4 className="fw-bold text-primary mb-0">{totalInvertido.toFixed(2)} €</h4>
               </Card.Body>
             </Card>
           </Col>
           <Col md={4}>
-            <Card className="text-center border-0 shadow-sm" style={{ backgroundColor: '#e8f5e9' }}>
+            <Card className="text-center border-0 shadow-sm" style={{ backgroundColor: isDark ? '#1e293b' : '#e8f5e9' }}>
               <Card.Body>
-                <h6 className="text-muted mb-2">{t('myGames.marketValue')}</h6>
+                <h6 className="text-muted mb-2" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('myGames.marketValue')}</h6>
                 <h4 className="fw-bold text-success mb-0">{totalMercado.toFixed(2)} €</h4>
               </Card.Body>
             </Card>
           </Col>
           <Col md={4}>
-            <Card className="text-center border-0 shadow-sm" style={{ 
-              backgroundColor: beneficio >= 0 ? '#fff3e0' : '#ffebee'
+            <Card className="text-center border-0 shadow-sm" style={{
+              backgroundColor: isDark ? (beneficio >= 0 ? '#2a2520' : '#2a2020') : (beneficio >= 0 ? '#fff3e0' : '#ffebee')
             }}>
               <Card.Body>
-                <h6 className="text-muted mb-2">{t('myGames.profit')}</h6>
-                <h4 className="fw-bold mb-0" style={{ color: beneficio >= 0 ? '#e65100' : '#c62828' }}>
+                <h6 className="text-muted mb-2" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('myGames.profit')}</h6>
+                <h4 className="fw-bold mb-0" style={{ color: beneficio >= 0 ? (isDark ? '#ffb74d' : '#e65100') : (isDark ? '#f5a3a3' : '#c62828') }}>
                   {beneficio >= 0 ? '+' : ''}{beneficio.toFixed(2)} €
                 </h4>
               </Card.Body>
@@ -337,9 +338,9 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         </Row>
 
         {/* Formulario para agregar */}
-        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: '#f8f9fa' }}>
+        <Card className="mb-4 border-0 shadow-sm" style={{ backgroundColor: isDark ? '#23252f' : '#f8f9fa' }}>
           <Card.Body>
-            <h5 className="fw-bold mb-3">{editando ? t('myGames.editGame') : t('myGames.addGame')}</h5>
+            <h5 className="fw-bold mb-3" style={{ color: isDark ? '#e8eaed' : '#333' }}>{editando ? t('myGames.editGame') : t('myGames.addGame')}</h5>
             <Row className="g-3">
               <Col md={3}>
                 <Form.Label className="fw-semibold small">
@@ -453,43 +454,43 @@ function MisJuegosModal({ show, onHide, juegosDisponibles, standalone = false })
         ) : (
           <div className="table-responsive">
             <Table hover className="align-middle">
-              <thead style={{ backgroundColor: '#f8f9fa' }}>
+              <thead style={{ backgroundColor: isDark ? '#1a1b23' : '#f8f9fa' }}>
                 <tr>
-                  <th className="fw-bold">{t('myGames.gameColumn')}</th>
-                  <th className="fw-bold">{t('myGames.stateColumn')}</th>
-                  <th className="fw-bold">{t('myGames.registrationTime')}</th>
-                  <th className="fw-bold text-end">{t('myGames.purchasePriceColumn')} <span className="text-muted" style={{ fontSize: '0.8rem' }}>{t('games.complete')}</span></th>
-                  <th className="fw-bold text-end">{t('myGames.marketPriceColumn')}</th>
-                  <th className="fw-bold text-end">{t('myGames.difference')}</th>
-                  <th className="fw-bold text-center">{t('myGames.action')}</th>
+                  <th className="fw-bold" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.gameColumn')}</th>
+                  <th className="fw-bold" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.stateColumn')}</th>
+                  <th className="fw-bold" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.registrationTime')}</th>
+                  <th className="fw-bold text-end" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.purchasePriceColumn')}</th>
+                  <th className="fw-bold text-end" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.marketPriceColumn')}</th>
+                  <th className="fw-bold text-end" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.difference')}</th>
+                  <th className="fw-bold text-center" style={{ color: isDark ? '#e8eaed' : '#333' }}>{t('myGames.action')}</th>
                 </tr>
               </thead>
               <tbody>
                 {misJuegos.map((juego) => {
                   const diferencia = juego.precioCompra ? juego.precioMercado - juego.precioCompra : null;
                   return (
-                    <tr key={juego.id}>
+                    <tr key={juego.id} style={{ color: isDark ? '#c8ccd4' : '#333' }}>
                       <td>
-                        <div className="fw-semibold">Pokemon {t(JUEGOS_TRADUCCIONES[juego.juegoNombre] || juego.juegoNombre)}</div>
+                        <div className="fw-semibold" style={{ color: isDark ? '#e8eaed' : '#333' }}>Pokemon {t(JUEGOS_TRADUCCIONES[juego.juegoNombre] || juego.juegoNombre)}</div>
                         <Badge bg="secondary" className="rounded-pill">{juego.generacion}</Badge>
                       </td>
                       <td>
-                        <small className="text-muted">{getEstadoLabel(juego.estado)}</small>
+                        <small className="text-muted" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{getEstadoLabel(juego.estado)}</small>
                       </td>
                       <td>
-                        <small className="text-muted">{juego.horaRegistro ? juego.horaRegistro : '-'}</small>
+                        <small className="text-muted" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{juego.horaRegistro ? juego.horaRegistro : '-'}</small>
                       </td>
-                      <td className="text-end fw-semibold">
+                      <td className="text-end fw-semibold" style={{ color: isDark ? '#e8eaed' : '#333' }}>
                         {juego.precioCompra ? `${juego.precioCompra.toFixed(2)} €` : '-'}
                       </td>
-                      <td className="text-end">{juego.precioMercado.toFixed(2)} €</td>
+                      <td className="text-end" style={{ color: isDark ? '#e8eaed' : '#333' }}>{juego.precioMercado.toFixed(2)} €</td>
                       <td className="text-end">
                         {diferencia !== null ? (
                           <span className={diferencia >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}>
                             {diferencia >= 0 ? '+' : ''}{diferencia.toFixed(2)} €
                           </span>
                         ) : (
-                          <span className="text-muted">{t('myGames.notCalculated')}</span>
+                          <span className="text-muted" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('myGames.notCalculated')}</span>
                         )}
                       </td>
                       <td className="text-center">

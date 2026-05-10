@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Spinner, Card, Row, Col } from 'react-bootstrap';
+import { Spinner, Card, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { useTranslation } from '../contexts/SettingsContext';
+import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
 // Lista de juegos con precios por estado (EUR)
 const JUEGOS_DISPONIBLES = [
@@ -39,6 +39,7 @@ const JUEGOS_DISPONIBLES = [
 const GENERACIONES = ['sidebar.filterAll', 'games.gen1', 'games.gen2', 'games.gen3', 'games.gen4', 'games.gen5'];
 
 function JuegosPage() {
+  const { isDark } = useSettings();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -79,10 +80,10 @@ function JuegosPage() {
       <div className="p-4">
         {/* Header */}
         <div className="text-center mb-4">
-          <h2 
+          <h2
             className="fw-bold mb-3"
-            style={{ 
-              color: '#333',
+            style={{
+              color: isDark ? '#e8eaed' : '#333',
               textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
             }}
           >
@@ -106,22 +107,22 @@ function JuegosPage() {
                 fontSize: '0.9rem',
                 background: filtroGeneracion === gen
                   ? 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)'
-                  : '#f5f5f5',
-                color: filtroGeneracion === gen ? '#333' : '#666',
-                boxShadow: filtroGeneracion === gen 
-                  ? '0 4px 15px rgba(255, 152, 0, 0.4)' 
+                  : (isDark ? '#2e3040' : '#f5f5f5'),
+                color: filtroGeneracion === gen ? '#333' : (isDark ? '#c8ccd4' : '#666'),
+                boxShadow: filtroGeneracion === gen
+                  ? '0 4px 15px rgba(255, 152, 0, 0.4)'
                   : '0 2px 4px rgba(0,0,0,0.1)',
                 transition: 'all 0.3s ease',
                 cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
                 if (filtroGeneracion !== gen) {
-                  e.currentTarget.style.background = '#e0e0e0';
+                  e.currentTarget.style.background = isDark ? '#3d3f4e' : '#e0e0e0';
                 }
               }}
               onMouseLeave={(e) => {
                 if (filtroGeneracion !== gen) {
-                  e.currentTarget.style.background = '#f5f5f5';
+                  e.currentTarget.style.background = isDark ? '#2e3040' : '#f5f5f5';
                 }
               }}
             >
@@ -153,7 +154,7 @@ function JuegosPage() {
                 <div
                   className="d-flex align-items-center justify-content-center p-3"
                   style={{
-                    backgroundColor: '#f8f9fa',
+                    backgroundColor: isDark ? '#2e3040' : '#f8f9fa',
                     height: '260px'
                   }}
                 >
@@ -172,10 +173,10 @@ function JuegosPage() {
                     }}
                   />
                 </div>
-                <Card.Body className="text-center p-3">
+                <Card.Body className="text-center p-3" style={{ backgroundColor: isDark ? '#23252f' : '#ffffff' }}>
                   <Card.Title
                     className="fw-bold mb-2"
-                    style={{ fontSize: '1.05rem', color: '#333' }}
+                    style={{ fontSize: '1.05rem', color: isDark ? '#e8eaed' : '#333' }}
                   >
                     {t(juego.nombreKey)}
                   </Card.Title>
@@ -194,14 +195,14 @@ function JuegosPage() {
                   <div
                     className="fw-bold"
                     style={{
-                      color: '#2e7d32',
+                      color: isDark ? '#a3f5b7' : '#2e7d32',
                       fontSize: '1.1rem'
                     }}
                   >
                     {juego.precios.completo} €
                   </div>
-                  <small className="text-muted" style={{ fontSize: '0.75rem' }}>
-                    {t('myGames.purchasePrice')} <span style={{ fontSize: '0.8rem' }}>{t('games.complete')}</span>
+                  <small className="text-muted" style={{ fontSize: '0.75rem', color: isDark ? '#9ca3af' : '#6c757d' }}>
+                    {t('myGames.purchasePrice')}
                   </small>
                 </Card.Body>
               </Card>

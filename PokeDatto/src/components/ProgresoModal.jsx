@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal, Row, Col, Card, Badge, Spinner, Alert } from 'react-bootstrap';
-import { useTranslation } from '../contexts/SettingsContext';
+import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
 
@@ -23,6 +23,7 @@ const NOMBRE_A_KEY = {
 };
 
 function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) {
+  const { isDark } = useSettings();
   const { t } = useTranslation();
   const [misJuegos, setMisJuegos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -81,10 +82,10 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
   const juegosUnicos = getJuegosUnicos();
 
   const content = (
-    <div style={{ backgroundColor: '#f8f9fa' }} className={standalone ? '' : 'p-4'}>
+    <div style={{ backgroundColor: isDark ? '#1a1b23' : '#f8f9fa' }} className={standalone ? '' : 'p-4'}>
       {standalone && (
         <Card className="mb-4 border-0 shadow-sm">
-          <Card.Body style={{ background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)' }}>
+          <Card.Body style={{ background: isDark ? 'linear-gradient(135deg, #23252f 0%, #1a1b23 100%)' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)' }}>
             <h4 className="fw-bold text-white mb-0">{t('progress.title')}</h4>
           </Card.Body>
         </Card>
@@ -94,8 +95,8 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
         <Modal.Header
           closeButton
           style={{
-            background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
-            borderBottom: '3px solid #1b5e20'
+            background: isDark ? 'linear-gradient(135deg, #23252f 0%, #1a1b23 100%)' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+            borderBottom: isDark ? '3px solid #2e303a' : '3px solid #1b5e20'
           }}
         >
           <Modal.Title className="fw-bold text-white">
@@ -158,14 +159,14 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
                 const juegoInfo = getJuegoInfo(juego.juegoNombre);
                 return (
                   <Col key={juego.id} xs={12} md={6} lg={4}>
-                    <Card className="border-0 shadow-sm overflow-hidden" style={{ borderRadius: '10px' }}>
+                    <Card className="border-0 shadow-sm overflow-hidden" style={{ borderRadius: '10px', backgroundColor: isDark ? '#23252f' : '#ffffff' }}>
                       <div className="d-flex align-items-center p-2">
                         <div
                           className="position-relative flex-shrink-0"
                           style={{
                             width: '40px',
                             height: '40px',
-                            backgroundColor: '#f5f5f5',
+                            backgroundColor: isDark ? '#2e3040' : '#f5f5f5',
                             borderRadius: '6px',
                             overflow: 'hidden'
                           }}
@@ -187,7 +188,7 @@ function ProgresoModal({ show, onHide, juegosDisponibles, standalone = false }) 
                           )}
                         </div>
                         <div className="ms-2 flex-grow-1">
-                          <span className="fw-semibold" style={{ fontSize: '0.85rem' }}>
+                          <span className="fw-semibold" style={{ fontSize: '0.85rem', color: isDark ? '#e8eaed' : '#333' }}>
                             Pokémon {juegoInfo?.nombreTraducido || juego.juegoNombre}
                           </span>
                         </div>

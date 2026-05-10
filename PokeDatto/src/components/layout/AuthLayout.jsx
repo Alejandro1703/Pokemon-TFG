@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import Sidebar from './Sidebar';
+import { useSettings } from '../../contexts/SettingsContext';
 
 function AuthLayout({ children }) {
+  const { isDark } = useSettings();
   const [sidebarVisible, setSidebarVisible] = useState(true);
 
   useEffect(() => {
@@ -21,7 +23,9 @@ function AuthLayout({ children }) {
     <div 
       className="min-vh-100"
       style={{
-        background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%)'
+        background: isDark
+          ? 'linear-gradient(135deg, #1a1b23 0%, #1e2029 50%, #23252f 100%)'
+          : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%)'
       }}
     >
       <Header />

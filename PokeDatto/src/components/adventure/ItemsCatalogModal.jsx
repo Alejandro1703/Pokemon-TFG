@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Modal, Button, Row, Col, Form } from 'react-bootstrap';
 import { ITEMS_CATALOG, getItemSpriteUrl } from './gameData';
-import { useTranslation } from '../../contexts/SettingsContext';
+import { useSettings, useTranslation } from '../../contexts/SettingsContext';
 
 const GEN_LABELS = ['1ª', '2ª', '3ª', '4ª', '5ª'];
 const GEN_COLORS = {
@@ -20,6 +20,7 @@ const getCategories = (t) => [
 ];
 
 function ItemsCatalogModal({ show, onHide }) {
+  const { isDark } = useSettings();
   const { t, tItem } = useTranslation();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,7 +65,7 @@ function ItemsCatalogModal({ show, onHide }) {
 
       <Modal.Body className="p-0">
         {/* Barra de filtros */}
-        <div className="p-3" style={{ borderBottom: '2px solid #e0e0e0', backgroundColor: '#fafafa' }}>
+        <div className="p-3" style={{ borderBottom: isDark ? '2px solid #2e303a' : '2px solid #e0e0e0', backgroundColor: isDark ? '#1a1b23' : '#fafafa' }}>
           <Row className="g-2 align-items-center">
             <Col md={5}>
               <Form.Control
@@ -83,9 +84,9 @@ function ItemsCatalogModal({ show, onHide }) {
                     size="sm"
                     onClick={() => setActiveCategory(cat.key)}
                     style={{
-                      backgroundColor: activeCategory === cat.key ? '#536dfe' : 'white',
-                      color: activeCategory === cat.key ? 'white' : '#555',
-                      border: activeCategory === cat.key ? 'none' : '1px solid #ddd',
+                      backgroundColor: activeCategory === cat.key ? '#536dfe' : (isDark ? '#23252f' : 'white'),
+                      color: activeCategory === cat.key ? 'white' : (isDark ? '#c8ccd4' : '#555'),
+                      border: activeCategory === cat.key ? 'none' : (isDark ? '1px solid #3d3f4e' : '1px solid #ddd'),
                       borderRadius: '16px',
                       fontSize: '0.75rem',
                       fontWeight: activeCategory === cat.key ? 'bold' : 'normal',
@@ -108,9 +109,9 @@ function ItemsCatalogModal({ show, onHide }) {
                 size="sm"
                 onClick={() => setFilterGen(filterGen === gen ? null : gen)}
                 style={{
-                  backgroundColor: filterGen === gen ? GEN_COLORS.active[gen - 1] : 'white',
-                  color: filterGen === gen ? 'white' : '#555',
-                  border: filterGen === gen ? 'none' : '1px solid #ddd',
+                  backgroundColor: filterGen === gen ? GEN_COLORS.active[gen - 1] : (isDark ? '#23252f' : 'white'),
+                  color: filterGen === gen ? 'white' : (isDark ? '#c8ccd4' : '#555'),
+                  border: filterGen === gen ? 'none' : (isDark ? '1px solid #3d3f4e' : '1px solid #ddd'),
                   borderRadius: '12px',
                   fontSize: '0.7rem',
                   fontWeight: 'bold',
@@ -136,7 +137,7 @@ function ItemsCatalogModal({ show, onHide }) {
 
         {/* Grid de items */}
         <div className="p-3" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-          <small className="text-muted mb-2 d-block">
+          <small className="text-muted mb-2 d-block" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>
             {filteredItems.length} {filteredItems.length !== 1 ? t('items.foundPlural') : t('items.foundSingular')}
           </small>
           <Row className="g-2">
@@ -145,8 +146,8 @@ function ItemsCatalogModal({ show, onHide }) {
                 <div
                   className="d-flex align-items-start p-2 rounded-3 h-100"
                   style={{
-                    backgroundColor: '#f8f9fa',
-                    border: '1px solid #e9ecef',
+                    backgroundColor: isDark ? '#23252f' : '#f8f9fa',
+                    border: isDark ? '1px solid #2e303a' : '1px solid #e9ecef',
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -156,7 +157,7 @@ function ItemsCatalogModal({ show, onHide }) {
                     style={{
                       width: '40px',
                       height: '40px',
-                      backgroundColor: '#e3f2fd',
+                      backgroundColor: isDark ? '#1e293b' : '#e3f2fd',
                       borderRadius: '8px',
                     }}
                   >
@@ -174,12 +175,12 @@ function ItemsCatalogModal({ show, onHide }) {
 
                   <div className="ms-2 flex-grow-1 overflow-hidden">
                     {/* Nombre */}
-                    <div className="fw-bold text-truncate" style={{ fontSize: '0.82rem' }}>
+                    <div className="fw-bold text-truncate" style={{ fontSize: '0.82rem', color: isDark ? '#e8eaed' : '#333' }}>
                       {tItem(item.id)}
                     </div>
 
                     {/* Efecto */}
-                    <small className="text-muted d-block" style={{ fontSize: '0.68rem', lineHeight: 1.2 }}>
+                    <small className="text-muted d-block" style={{ fontSize: '0.68rem', lineHeight: 1.2, color: isDark ? '#9ca3af' : '#6c757d' }}>
                       {t(item.effect)}
                     </small>
 
@@ -200,8 +201,8 @@ function ItemsCatalogModal({ show, onHide }) {
                               borderRadius: '4px',
                               fontSize: '0.55rem',
                               fontWeight: 'bold',
-                              color: isAvailable ? 'white' : '#bbb',
-                              backgroundColor: isAvailable ? GEN_COLORS.active[idx] : GEN_COLORS.inactive,
+                              color: isAvailable ? 'white' : (isDark ? '#6b7280' : '#bbb'),
+                              backgroundColor: isAvailable ? GEN_COLORS.active[idx] : (isDark ? '#2e303a' : GEN_COLORS.inactive),
                               transition: 'all 0.2s ease',
                             }}
                           >
@@ -219,7 +220,7 @@ function ItemsCatalogModal({ show, onHide }) {
           {filteredItems.length === 0 && (
             <div className="text-center py-5">
               <div style={{ fontSize: '3rem', opacity: 0.3 }}>🔍</div>
-              <p className="text-muted mt-2">{t('items.notFound')}</p>
+              <p className="text-muted mt-2" style={{ color: isDark ? '#9ca3af' : '#6c757d' }}>{t('items.notFound')}</p>
             </div>
           )}
         </div>

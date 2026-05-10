@@ -145,7 +145,7 @@ const translations = {
     'pokedex.title': 'Pokédex',
     'pokedex.guideTitle': '📖 Guía de Pokédex',
     'pokedex.navigation': 'Navegación',
-    'pokedex.national': '🌍 Nacional',
+    'pokedex.national': 'Nacional',
     'pokedex.regional': 'Regional: Por generación (Kanto, Johto, etc.)',
     'pokedex.shiny': '✨ Shiny: Alterna entre sprites normales y shiny',
     'pokedex.typeFilters': 'Filtros de Tipo',
