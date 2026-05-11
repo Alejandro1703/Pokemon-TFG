@@ -36,7 +36,7 @@ const POKEMON_IDS = {
   'Skuntank': 435, 'Toxicroak': 454, 'Swalot': 317, 'Venomoth': 49, 'Crobat': 169,
   'Steelix': 208, 'Lucario': 448,
   'Umbreon': 197, 'Houndoom': 229, 'Murkrow': 198, 'Honchkrow': 430, 'Weavile': 461,
-  'Piloswine': 221, 'Glalie': 362, 'Froslass': 478, 'Mamoswine': 473,
+  'Piloswine': 221, 'Glalie': 362, 'Sealeo': 364, 'Froslass': 478, 'Mamoswine': 473,
   'Altaria': 334, 'Flygon': 330, 'Kingdra': 230, 'Shelgon': 372, 'Salamence': 373,
   'Drapion': 452, 'Vespiquen': 416, 'Heracross': 214, 'Spiritomb': 442,
   'Whiscash': 340, 'Gliscor': 472, 'Hippowdon': 450, 'Rhyperior': 464,
@@ -67,8 +67,13 @@ export function getLeaguePokemonSprite(name) {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 }
 
-// Helper para tips
-function t(es, en) { return { es, en }; }
+// Helper para tips: retorna una función que reemplaza {{name}} según idioma
+function t(es, en) {
+  return (nameEs, nameEn) => ({
+    es: es.map(s => s.replace(/\{\{name\}\}/g, nameEs)),
+    en: en.map(s => s.replace(/\{\{name\}\}/g, nameEn)),
+  });
+}
 
 // === KANTO (FRLG - Gen 3) ===
 const KANTO_E4 = [
@@ -136,8 +141,8 @@ const KANTO_E4 = [
       { name: 'Dragonite', level: 60, moves: ['Hyper Beam', 'Outrage', 'Wing Attack', 'Flamethrower'], item: 'Sitrus Berry' },
     ],
     tips: t(
-      ['Estrategia: Los Dragon son débiles a Hielo y Dragon. Todos sus Pokémon tienen debilidad al Hielo excepto Aerodactyl (Roca).', 'Captura Clave: un Lapras con Ice Beam o un Cloyster con Ice Beam/Ice Shard. Destruye a Dragonite.', 'Aerodactyl es rápido y frágil. Un ataque de Agua o Eléctrico lo derrota fácilmente.', 'Dragonite tiene alta defensa. Gólpéalo fuerte de una vez.'],
-      ['Strategy: Dragons are weak to Ice and Dragon. All his Pokémon have Ice weakness except Aerodactyl (Rock).', 'Key Catch: a Lapras with Ice Beam or a Cloyster with Ice Beam/Ice Shard. Destroys Dragonite.', 'Aerodactyl is fast and fragile. A Water or Electric attack defeats it easily.', 'Dragonite has high defense. Hit it hard in one go.']
+      ['Estrategia: Los Dragon son débiles a Hielo y Dragon. Los Pokémon de {{name}} tienen debilidad al Hielo excepto Aerodactyl (Roca).', 'Captura Clave: un Lapras con Ice Beam o un Cloyster con Ice Beam/Ice Shard. Destruye al Dragonite de {{name}}.', 'Aerodactyl es rápido y frágil. Un ataque de Agua o Eléctrico lo derrota fácilmente.', 'El Dragonite de {{name}} tiene alta defensa. Gólpéalo fuerte de una vez.'],
+      ['Strategy: Dragons are weak to Ice and Dragon. All of {{name}}\'s Pokémon have Ice weakness except Aerodactyl (Rock).', 'Key Catch: a Lapras with Ice Beam or a Cloyster with Ice Beam/Ice Shard. Destroys {{name}}\'s Dragonite.', 'Aerodactyl is fast and fragile. A Water or Electric attack defeats it easily.', '{{name}}\'s Dragonite has high defense. Hit it hard in one go.']
     ),
   },
 ];
@@ -256,10 +261,10 @@ const JOHTO_CHAMPION = {
 // === HOENN (Emerald - Gen 3) ===
 const HOENN_E4 = [
   {
-    id: 'sidney', name: 'Sidney', name_es: 'Fosco',
+    id: 'sidney', name: 'Sidney', name_es: 'Sixto',
     role: { es: 'Alto Mando', en: 'Elite Four' },
     type: 'dark', gen: 3, gameVersion: 'emerald',
-    image: '/images/leaders/Fosco.png',
+    image: '/images/leaders/Sixto.png',
     team: [
       { name: 'Mightyena', level: 46, moves: ['Crunch', 'Take Down', 'Howl', 'Roar'], item: null },
       { name: 'Shiftry', level: 48, moves: ['Extrasensory', 'Double Team', 'Swagger', 'Fake Out'], item: null },
@@ -419,7 +424,7 @@ const SINNOH_E4 = [
 const SINNOH_CHAMPION = {
   id: 'cynthia', name: 'Cynthia', name_es: 'Cintia',
   role: { es: 'Campeón', en: 'Champion' },
-  type: 'normal', gen: 4, gameVersion: 'platinum',
+  type: 'dragon', gen: 4, gameVersion: 'platinum',
   image: '/images/leaders/Cintia.png',
   team: [
     { name: 'Spiritomb', level: 58, moves: ['Dark Pulse', 'Psychic', 'Silver Wind', 'Hypnosis'], item: null },
@@ -430,8 +435,8 @@ const SINNOH_CHAMPION = {
     { name: 'Garchomp', level: 62, moves: ['Dragon Rush', 'Earthquake', 'Brick Break', 'Giga Impact'], item: 'Sitrus Berry' },
   ],
   tips: t(
-    ['Estrategia: Su equipo es muy variado. Necesitas cobertura de Fuego, Hielo, Lucha, Bicho y Agua.', 'Captura Clave: un Weavile con Ice Shard (prioridad) para Garchomp y Togekiss.', 'Spiritomb no tiene debilidades (Siniestro/Fantasma). Usa ataques fuertes neutrales o tóxicos.', 'Garchomp es Tierra/Dragón: Hielo x4. Un Ice Beam o Ice Shard lo derrota. Cuidado con Earthquake.', 'Milotic usa Mirror Coat (devuelve daño especial). Usa ataques físicos contra ella.'],
-    ['Strategy: Her team is very varied. You need coverage of Fire, Ice, Fighting, Bug and Water.', 'Key Catch: a Weavile with Ice Shard (priority) for Garchomp and Togekiss.', 'Spiritomb has no weaknesses (Dark/Ghost). Use strong neutral attacks or Toxic.', 'Garchomp is Ground/Dragon: Ice x4. An Ice Beam or Ice Shard defeats it. Watch out for Earthquake.', 'Milotic uses Mirror Coat (returns special damage). Use physical attacks against it.']
+    ['Estrategia: El equipo de {{name}} es muy variado. Necesitas cobertura de Fuego, Hielo, Lucha, Bicho y Agua.', 'Captura Clave: un Weavile con Ice Shard (prioridad) para derrotar a Garchomp y Togekiss de {{name}}.', 'El Spiritomb de {{name}} no tiene debilidades (Siniestro/Fantasma). Usa ataques fuertes neutrales o tóxicos.', 'Garchomp es Tierra/Dragón: Hielo x4. Un Ice Beam o Ice Shard lo derrota. Cuidado con Earthquake de {{name}}.', 'Milotic usa Mirror Coat (devuelve daño especial). Usa ataques físicos contra el Milotic de {{name}}.'],
+    ['Strategy: {{name}}\'s team is very varied. You need coverage of Fire, Ice, Fighting, Bug and Water.', 'Key Catch: a Weavile with Ice Shard (priority) to defeat {{name}}\'s Garchomp and Togekiss.', '{{name}}\'s Spiritomb has no weaknesses (Dark/Ghost). Use strong neutral attacks or Toxic.', 'Garchomp is Ground/Dragon: Ice x4. An Ice Beam or Ice Shard defeats it. Watch out for {{name}}\'s Earthquake.', 'Milotic uses Mirror Coat (returns special damage). Use physical attacks against {{name}}\'s Milotic.']
   ),
 };
 
@@ -486,7 +491,7 @@ const UNOVA_E4 = [
     ),
   },
   {
-    id: 'caitlin', name: 'Caitlin', name_es: 'Caitlin',
+    id: 'caitlin', name: 'Caitlin', name_es: 'Catleya',
     role: { es: 'Alto Mando', en: 'Elite Four' },
     type: 'psychic', gen: 5, gameVersion: 'black-white',
     image: '/images/leaders/Catleya.png',
@@ -504,7 +509,7 @@ const UNOVA_E4 = [
 ];
 
 const UNOVA_CHAMPION = {
-  id: 'alder', name: 'Alder', name_es: 'Adepto',
+  id: 'alder', name: 'Alder', name_es: 'Mirto',
   role: { es: 'Campeón', en: 'Champion' },
   type: 'bug', gen: 5, gameVersion: 'black-white',
   image: '/images/leaders/Mirto.png',
@@ -517,8 +522,8 @@ const UNOVA_CHAMPION = {
     { name: 'Escavalier', level: 63, moves: ['X-Scissor', 'Iron Head', 'Giga Impact', 'Reversal'], item: 'Sitrus Berry' },
   ],
   tips: t(
-    ['Estrategia: Bicho es débil a Volador, Fuego y Roca. Su equipo es muy ofensivo.', 'Captura Clave: un Chandelure con Fire Blast o un Archeops con Rock Slide/Acrobatics.', 'Bouffalant tiene Sap Sipper (inmune a Planta y sube ataque). No uses Planta.', 'Volcarona es Bicho/Fuego: Roca x4 o Volador x4. Un Stone Edge lo derrota fácilmente.', 'Braviary es Normal/Volador: Eléctrico, Hielo o Roca. No uses Lucha o Planta.'],
-    ['Strategy: Bug is weak to Flying, Fire and Rock. His team is very offensive.', 'Key Catch: a Chandelure with Fire Blast or an Archeops with Rock Slide/Acrobatics.', 'Bouffalant has Sap Sipper (immune to Grass and boosts attack). Do not use Grass.', 'Volcarona is Bug/Fire: Rock x4 or Flying x4. A Stone Edge defeats it easily.', 'Braviary is Normal/Flying: Electric, Ice or Rock. Do not use Fighting or Grass.']
+    ['Estrategia: Bicho es débil a Volador, Fuego y Roca. El equipo de {{name}} es muy ofensivo.', 'Captura Clave: un Chandelure con Fire Blast o un Archeops con Rock Slide/Acrobatics contra {{name}}.', 'Bouffalant tiene Sap Sipper (inmune a Planta y sube ataque). No uses Planta contra {{name}}.', 'Volcarona es Bicho/Fuego: Roca x4 o Volador x4. Un Stone Edge derrota al Volcarona de {{name}} fácilmente.', 'Braviary es Normal/Volador: Eléctrico, Hielo o Roca. No uses Lucha o Planta contra {{name}}.'],
+    ['Strategy: Bug is weak to Flying, Fire and Rock. {{name}}\'s team is very offensive.', 'Key Catch: a Chandelure with Fire Blast or an Archeops with Rock Slide/Acrobatics against {{name}}.', 'Bouffalant has Sap Sipper (immune to Grass and boosts attack). Do not use Grass against {{name}}.', 'Volcarona is Bug/Fire: Rock x4 or Flying x4. A Stone Edge defeats {{name}}\'s Volcarona easily.', 'Braviary is Normal/Flying: Electric, Ice or Rock. Do not use Fighting or Grass against {{name}}.']
   ),
 };
 
@@ -533,7 +538,7 @@ export const ALL_LEAGUES = [
     members: KANTO_E4,
     champion: KANTO_CHAMPION,
     recommendedTeam: {
-      es: ['Jolteon (Eléctrico) - Derrota a Lorelei y Ayuda contra Lance', 'Alakazam (Psíquico) - Destruye a Bruno y Agatha', 'Lapras (Agua/Hielo) - Hielo para Lance, Agua para todo', 'Gyarados (Agua/Volador) - Intimidate + Surf fuerte', 'Machamp (Lucha) - Para Lorelei (con Rock Slide) y Bruno', 'Gengar (Fantasma/Veneno) - Inmune a Normal/Fantasma de Agatha'],
+      es: ['Jolteon (Eléctrico) - Derrota a Lorelei y ayuda contra Lance', 'Alakazam (Psíquico) - Destruye a Bruno y Agatha', 'Lapras (Agua/Hielo) - Hielo para Lance, Agua para todo', 'Gyarados (Agua/Volador) - Intimidate + Surf fuerte', 'Machamp (Lucha) - Para Lorelei (con Rock Slide) y Bruno', 'Gengar (Fantasma/Veneno) - Inmune a Normal/Fantasma de Agatha'],
       en: ['Jolteon (Electric) - Defeats Lorelei and helps against Lance', 'Alakazam (Psychic) - Destroys Bruno and Agatha', 'Lapras (Water/Ice) - Ice for Lance, Water for everything', 'Gyarados (Water/Flying) - Intimidate + strong Surf', 'Machamp (Fighting) - For Lorelei (with Rock Slide) and Bruno', 'Gengar (Ghost/Poison) - Immune to Normal/Ghost from Agatha']
     },
   },
@@ -546,7 +551,7 @@ export const ALL_LEAGUES = [
     members: JOHTO_E4,
     champion: JOHTO_CHAMPION,
     recommendedTeam: {
-      es: ['Tyranitar (Roca/Siniestro) - Destruye a Will y Koga', 'Heracross (Bicho/Lucha) - Karen y Bruno caen fácilmente', 'Mamoswine (Hielo/Tierra) - Hielo para Lance, Tierra para Koga', 'Houndoom (Fuego/Siniestro) - Will y Karen', 'Gyarados (Agua/Volador) - Bruno y Ayuda general', 'Ampharos (Eléctrico) - Lorelei y Agua en general'],
+      es: ['Tyranitar (Roca/Siniestro) - Destruye a Mento y Koga', 'Heracross (Bicho/Lucha) - Karen y Bruno caen fácilmente', 'Mamoswine (Hielo/Tierra) - Hielo para Lance, Tierra para Koga', 'Houndoom (Fuego/Siniestro) - Mento y Karen', 'Gyarados (Agua/Volador) - Bruno y ayuda general', 'Ampharos (Eléctrico) - Lorelei y Agua en general'],
       en: ['Tyranitar (Rock/Dark) - Destroys Will and Koga', 'Heracross (Bug/Fighting) - Karen and Bruno fall easily', 'Mamoswine (Ice/Ground) - Ice for Lance, Ground for Koga', 'Houndoom (Fire/Dark) - Will and Karen', 'Gyarados (Water/Flying) - Bruno and general help', 'Ampharos (Electric) - Lorelei and Water in general']
     },
   },
@@ -559,7 +564,7 @@ export const ALL_LEAGUES = [
     members: HOENN_E4,
     champion: HOENN_CHAMPION,
     recommendedTeam: {
-      es: ['Blaziken (Fuego/Lucha) - Sidney, Glacia, Steven (Metagross)', 'Walrein/Piloswine (Hielo) - Drake y Glacia completos', 'Breloom (Planta/Lucha) - Sidney, Glacia, Steven', 'Swampert (Agua/Tierra) - Flannery, Steven (Aggron/Armaldo)', 'Absol (Siniestro) - Phoebe completa', 'Gardevoir (Psíquico/Hada) - Phoebe y Sidney'],
+      es: ['Blaziken (Fuego/Lucha) - Sixto, Nívea, Máximo (Metagross)', 'Walrein/Piloswine (Hielo) - Dracón y Nívea completos', 'Breloom (Planta/Lucha) - Sixto, Nívea, Máximo', 'Swampert (Agua/Tierra) - Flannery, Máximo (Aggron/Armaldo)', 'Absol (Siniestro) - Fátima completa', 'Gardevoir (Psíquico/Hada) - Fátima y Sixto'],
       en: ['Blaziken (Fire/Fighting) - Sidney, Glacia, Steven (Metagross)', 'Walrein/Piloswine (Ice) - Drake and Glacia completely', 'Breloom (Grass/Fighting) - Sidney, Glacia, Steven', 'Swampert (Water/Ground) - Flannery, Steven (Aggron/Armaldo)', 'Absol (Dark) - Phoebe completely', 'Gardevoir (Psychic/Fairy) - Phoebe and Sidney']
     },
   },
@@ -572,7 +577,7 @@ export const ALL_LEAGUES = [
     members: SINNOH_E4,
     champion: SINNOH_CHAMPION,
     recommendedTeam: {
-      es: ['Infernape (Fuego/Lucha) - Aaron, Bertha, Flint, Lucian', 'Weavile (Siniestro/Hielo) - Cynthia (Garchomp/Togekiss), Lucian', 'Gastrodon (Agua/Tierra) - Flint, Bertha, Cynthia (Spiritomb)', 'Togekiss (Hada/Volador) - Aaron, Bertha, Lucian', 'Garchomp (Tierra/Dragón) - Flint, Cynthia (Lucario)', 'Lucario (Lucha/Acero) - Lucian, Bertha, Cynthia'],
+      es: ['Infernape (Fuego/Lucha) - Alejandro, Gaia, Fausto, Delos', 'Weavile (Siniestro/Hielo) - Cintia (Garchomp/Togekiss), Delos', 'Gastrodon (Agua/Tierra) - Fausto, Gaia, Cintia (Spiritomb)', 'Togekiss (Hada/Volador) - Alejandro, Gaia, Delos', 'Garchomp (Tierra/Dragón) - Fausto, Cintia (Lucario)', 'Lucario (Lucha/Acero) - Delos, Gaia, Cintia'],
       en: ['Infernape (Fire/Fighting) - Aaron, Bertha, Flint, Lucian', 'Weavile (Dark/Ice) - Cynthia (Garchomp/Togekiss), Lucian', 'Gastrodon (Water/Ground) - Flint, Bertha, Cynthia (Spiritomb)', 'Togekiss (Fairy/Flying) - Aaron, Bertha, Lucian', 'Garchomp (Ground/Dragon) - Flint, Cynthia (Lucario)', 'Lucario (Fighting/Steel) - Lucian, Bertha, Cynthia']
     },
   },
@@ -585,7 +590,7 @@ export const ALL_LEAGUES = [
     members: UNOVA_E4,
     champion: UNOVA_CHAMPION,
     recommendedTeam: {
-      es: ['Chandelure (Fuego/Fantasma) - Shauntal, Marshal, Alder', 'Krookodile (Tierra/Siniestro) - Shauntal, Caitlin, Grimsley', 'Conkeldurr (Lucha) - Grimsley, Marshal, Alder (Volcarona/Braviary)', 'Sigilyph (Psíquico/Volador) - Marshal, Caitlin, Alder (Volcarona)', 'Archeops (Roca/Volador) - Alder (Volcarona/Braviary), Shauntal', 'Haxorus (Dragón) - Caitlin, Marshal, Grimsley'],
+      es: ['Chandelure (Fuego/Fantasma) - Anís, Lotto, Mirto', 'Krookodile (Tierra/Siniestro) - Anís, Catleya, Aza', 'Conkeldurr (Lucha) - Aza, Lotto, Mirto (Volcarona/Braviary)', 'Sigilyph (Psíquico/Volador) - Lotto, Catleya, Mirto (Volcarona)', 'Archeops (Roca/Volador) - Mirto (Volcarona/Braviary), Anís', 'Haxorus (Dragón) - Catleya, Lotto, Aza'],
       en: ['Chandelure (Fire/Ghost) - Shauntal, Marshal, Alder', 'Krookodile (Ground/Dark) - Shauntal, Caitlin, Grimsley', 'Conkeldurr (Fighting) - Grimsley, Marshal, Alder (Volcarona/Braviary)', 'Sigilyph (Psychic/Flying) - Marshal, Caitlin, Alder (Volcarona)', 'Archeops (Rock/Flying) - Alder (Volcarona/Braviary), Shauntal', 'Haxorus (Dragon) - Caitlin, Marshal, Grimsley']
     },
   },

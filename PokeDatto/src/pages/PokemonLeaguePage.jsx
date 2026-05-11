@@ -258,45 +258,50 @@ function PokemonLeaguePage() {
                   })}
                 </Accordion.Body>
               </Accordion.Item>
-              {member.tips && member.tips[language] && member.tips[language].length > 0 && (
-                <Accordion.Item eventKey="tips">
-                  <Accordion.Header className="py-1">
-                    <small className="fw-semibold" style={{ color: '#f59e0b' }}>
-                      {language === 'es' ? 'Consejos' : 'Tips'}
-                    </small>
-                  </Accordion.Header>
-                  <Accordion.Body className="px-0 pt-2 pb-1">
-                    {member.tips[language].map((tip, tIdx) => (
-                      <div
-                        key={tIdx}
-                        className="d-flex align-items-start gap-2 mb-2 p-2 rounded-2"
-                        style={{ backgroundColor: isDark ? '#2a2d3a' : '#f8f9fa' }}
-                      >
-                        <span
-                          style={{
-                            color: '#f59e0b',
-                            fontSize: '0.9rem',
-                            lineHeight: 1.4,
-                            flexShrink: 0,
-                            marginTop: '2px',
-                          }}
+              {(() => {
+                const resolvedTips = member.tips ? member.tips(language === 'es' ? member.name_es : member.name, language === 'es' ? member.name_es : member.name) : null;
+                const tipsList = resolvedTips ? resolvedTips[language] : [];
+                if (!tipsList || tipsList.length === 0) return null;
+                return (
+                  <Accordion.Item eventKey="tips">
+                    <Accordion.Header className="py-1">
+                      <small className="fw-semibold" style={{ color: '#f59e0b' }}>
+                        {language === 'es' ? 'Consejos' : 'Tips'}
+                      </small>
+                    </Accordion.Header>
+                    <Accordion.Body className="px-0 pt-2 pb-1">
+                      {tipsList.map((tip, tIdx) => (
+                        <div
+                          key={tIdx}
+                          className="d-flex align-items-start gap-2 mb-2 p-2 rounded-2"
+                          style={{ backgroundColor: isDark ? '#2a2d3a' : '#f8f9fa' }}
                         >
-                          💡
-                        </span>
-                        <span
-                          style={{
-                            color: isDark ? '#e8eaed' : '#333',
-                            fontSize: '0.75rem',
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          {tip}
-                        </span>
-                      </div>
-                    ))}
-                  </Accordion.Body>
-                </Accordion.Item>
-              )}
+                          <span
+                            style={{
+                              color: '#f59e0b',
+                              fontSize: '0.9rem',
+                              lineHeight: 1.4,
+                              flexShrink: 0,
+                              marginTop: '2px',
+                            }}
+                          >
+                            💡
+                          </span>
+                          <span
+                            style={{
+                              color: isDark ? '#e8eaed' : '#333',
+                              fontSize: '0.75rem',
+                              lineHeight: 1.5,
+                            }}
+                          >
+                            {tip}
+                          </span>
+                        </div>
+                      ))}
+                    </Accordion.Body>
+                  </Accordion.Item>
+                );
+              })()}
             </Accordion>
           </Card.Body>
         </Card>
