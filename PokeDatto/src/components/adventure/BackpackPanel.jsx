@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Row, Col, Form } from 'react-bootstrap';
 import { getPocketsForGame, getItemSpriteUrl, ITEMS_CATALOG } from './gameData';
 import { useSettings, useTranslation } from '../../contexts/SettingsContext';
@@ -10,8 +10,46 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
   const [activePocket, setActivePocket] = useState(pockets[0]?.key || '');
   const [showAddItem, setShowAddItem] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const searchRef = useRef(null);
+  const searchSuggRef = useRef(null);
 
   const currentPocketData = backpack[activePocket] || [];
+
+  // Cerrar sugerencias al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchSuggRef.current && !searchSuggRef.current.contains(e.target) &&
+          searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSearchSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Autocompletado de items
+  const handleSearchInput = (value) => {
+    setSearchTerm(value);
+    if (value.length >= 2) {
+      const available = getAvailableItems();
+      const filtered = available
+        .filter(i => tItem(i.id).toLowerCase().includes(value.toLowerCase()))
+        .slice(0, 8);
+      setSearchSuggestions(filtered);
+      setShowSearchSuggestions(true);
+    } else {
+      setSearchSuggestions([]);
+      setShowSearchSuggestions(false);
+    }
+  };
+
+  const selectSuggestion = (item) => {
+    addItemToBackpack(item);
+    setSearchTerm('');
+    setShowSearchSuggestions(false);
+  };
 
   const addItemToBackpack = (item) => {
     const newBackpack = { ...backpack };
@@ -187,7 +225,7 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
                 />
                 <div className="flex-grow-1 ms-2">
                   <div className="fw-semibold" style={{ fontSize: '0.85rem', color: isDark ? '#e8eaed' : '#333' }}>{tItem(item.itemId)}</div>
-                  <small className="text-muted" style={{ fontSize: '0.7rem', color: isDark ? '#9ca3af' : '#6c757d' }}>{item.effect}</small>
+                  <small className="text-muted" style={{ fontSize: '0.7rem', color: isDark ? '#9ca3af' : '#6c757d' }}>{t(item.effect)}</small>
                 </div>
                 <div className="d-flex align-items-center gap-1">
                   <Button
@@ -232,53 +270,69 @@ function BackpackPanel({ gameName, backpack, onUpdateBackpack }) {
         {/* Panel para añadir items */}
         {showAddItem && (
           <div className="mt-3">
-            <div className="d-flex align-items-center gap-2 mb-2">
-              <Form.Control
-                type="text"
-                placeholder={t('items.searchPlaceholder')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                size="sm"
-                style={{ borderRadius: '20px' }}
-              />
+            <div className="d-flex align-items-center gap-2 mb-2 position-relative">
+              <div className="flex-grow-1 position-relative">
+                <Form.Control
+                  ref={searchRef}
+                  type="text"
+                  placeholder={t('items.searchPlaceholder')}
+                  value={searchTerm}
+                  onChange={(e) => handleSearchInput(e.target.value)}
+                  onFocus={() => { if (searchTerm.length >= 2) setShowSearchSuggestions(true); }}
+                  size="sm"
+                  style={{ borderRadius: '20px', backgroundColor: isDark ? '#1a1b23' : '#fff', color: isDark ? '#e8eaed' : '#333' }}
+                />
+                {showSearchSuggestions && searchSuggestions.length > 0 && (
+                  <div
+                    ref={searchSuggRef}
+                    className="position-absolute w-100 mt-1 rounded-3 shadow"
+                    style={{
+                      zIndex: 1000,
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                      backgroundColor: isDark ? '#1a1b23' : '#fff',
+                      border: isDark ? '1px solid #2e303a' : '1px solid #dee2e6',
+                    }}
+                  >
+                    {searchSuggestions.map((item) => (
+                      <div
+                        key={item.id}
+                        className="d-flex align-items-center gap-2 px-3 py-2"
+                        style={{
+                          cursor: 'pointer',
+                          borderBottom: isDark ? '1px solid #2e303a' : '1px solid #f0f0f0',
+                          color: isDark ? '#e8eaed' : '#333',
+                          fontSize: '0.85rem',
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = isDark ? '#2e3040' : '#f8f9fa'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                        onClick={() => selectSuggestion(item)}
+                      >
+                        <img
+                          src={getItemSpriteUrl(item.sprite)}
+                          alt={item.name}
+                          style={{ width: '24px', height: '24px', imageRendering: 'pixelated' }}
+                        />
+                        <span>{tItem(item.id)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <Button
                 variant="outline-secondary"
                 size="sm"
                 className="rounded-pill"
-                onClick={() => { setShowAddItem(false); setSearchTerm(''); }}
+                onClick={() => { setShowAddItem(false); setSearchTerm(''); setShowSearchSuggestions(false); }}
               >
                 {t('common.close')}
               </Button>
             </div>
-            <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
-              <Row className="g-1">
-                {getAvailableItems().map((item) => (
-                  <Col xs={6} key={item.id}>
-                    <div
-                      className="d-flex align-items-center p-2 rounded-2"
-                      style={{
-                        backgroundColor: isDark ? '#1e293b' : '#e3f2fd',
-                        border: isDark ? '1px solid #3d3f4e' : '1px solid #bbdefb',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        fontSize: '0.78rem',
-                      }}
-                      onClick={() => addItemToBackpack(item)}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = isDark ? '#2e3040' : '#bbdefb'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = isDark ? '#1e293b' : '#e3f2fd'; }}
-                    >
-                      <img
-                        src={getItemSpriteUrl(item.sprite)}
-                        alt={item.name}
-                        style={{ width: '24px', height: '24px', imageRendering: 'pixelated' }}
-                        onError={(e) => { e.target.style.display = 'none'; }}
-                      />
-                      <span className="ms-1 fw-semibold text-truncate" style={{ color: isDark ? '#e8eaed' : '#333' }}>{tItem(item.id)}</span>
-                    </div>
-                  </Col>
-                ))}
-              </Row>
-            </div>
+            {searchTerm.length >= 2 && !showSearchSuggestions && (
+              <div className="text-center py-3" style={{ color: isDark ? '#9ca3af' : '#6c757d', fontSize: '0.8rem' }}>
+                {getAvailableItems().length === 0 ? t('items.notFound') : t('backpack.typeToSearch')}
+              </div>
+            )}
           </div>
         )}
       </Card.Body>

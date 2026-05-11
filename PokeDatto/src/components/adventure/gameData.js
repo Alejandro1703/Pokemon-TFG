@@ -4,7 +4,7 @@
 
 import { MEDICINA_ITEMS, POKEBALL_ITEMS } from './itemsCatalogData';
 import { OBJETOS_ITEMS } from './itemsCatalogData2';
-import { COMBATE_ITEMS, BAYA_ITEMS, GEMA_ITEMS, CLAVE_ITEMS } from './itemsCatalogData3';
+import { COMBATE_ITEMS, BAYA_ITEMS, GEMA_ITEMS, CLAVE_ITEMS, TM_HM_ITEMS } from './itemsCatalogData3';
 
 const ITEM_SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items';
 
@@ -198,6 +198,7 @@ export const ITEMS_CATALOG = [
   ...BAYA_ITEMS,
   ...GEMA_ITEMS,
   ...CLAVE_ITEMS,
+  ...TM_HM_ITEMS,
 ];
 
 // Helper: Obtener URL del sprite de un item

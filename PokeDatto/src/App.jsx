@@ -10,6 +10,10 @@ import ProgresoPage from './pages/ProgresoPage';
 import AventurasPage from './pages/AventurasPage';
 import GameAdventurePage from './pages/GameAdventurePage';
 import JuegosPage from './pages/JuegosPage';
+import ShinyHuntingPage from './pages/ShinyHuntingPage';
+import EncountersPage from './pages/EncountersPage';
+import GymLeadersPage from './pages/GymLeadersPage';
+import PokemonLeaguePage from './pages/PokemonLeaguePage';
 import { SettingsProvider } from './contexts/SettingsContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -32,6 +36,10 @@ function App() {
           <Route path="/juegos" element={<JuegosPage />} />
           <Route path="/perfil" element={<ProfilePage />} />
           <Route path="/progreso" element={<ProgresoPage />} />
+          <Route path="/shiny-hunting" element={<ShinyHuntingPage />} />
+          <Route path="/encuentros" element={<EncountersPage />} />
+          <Route path="/lideres-gimnasio" element={<GymLeadersPage />} />
+          <Route path="/liga-pokemon" element={<PokemonLeaguePage />} />
         </Routes>
       </div>
     </Router>

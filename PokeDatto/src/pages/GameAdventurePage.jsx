@@ -7,7 +7,7 @@ import ItemsCatalogModal from '../components/adventure/ItemsCatalogModal';
 import GymBadgesModal from '../components/adventure/GymBadgesModal';
 import PokemonBoxModal from '../components/adventure/PokemonBoxModal';
 import { getRegionForGame } from '../components/adventure/gameData';
-import { useTranslation } from '../contexts/SettingsContext';
+import { useTranslation, useSettings } from '../contexts/SettingsContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
 
@@ -47,6 +47,7 @@ const JUEGOS_TRADUCCIONES = {
 
 function GameAdventurePage() {
   const { t } = useTranslation();
+  const { isDark } = useSettings();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const juegoId = searchParams.get('juegoId');
@@ -302,7 +303,7 @@ function GameAdventurePage() {
                 <div
                   className="rounded-3 d-flex align-items-center justify-content-center"
                   style={{
-                    backgroundColor: '#f5f5f5',
+                    backgroundColor: isDark ? '#1a1b23' : '#f5f5f5',
                     border: '2px dashed #e0e0e0',
                     minHeight: '300px',
                     overflow: 'hidden',

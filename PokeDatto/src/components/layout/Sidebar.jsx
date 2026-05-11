@@ -54,6 +54,10 @@ function Sidebar() {
     { path: '/comparador', label: t('sidebar.comparator') },
     { path: '/aventuras', label: t('sidebar.adventures') },
     { path: '/progreso', label: t('sidebar.progress') },
+    { path: '/shiny-hunting', label: t('sidebar.shinyHunting') },
+    { path: '/encuentros', label: t('sidebar.encounters') },
+    { path: '/lideres-gimnasio', label: t('sidebar.gymLeaders') },
+    { path: '/liga-pokemon', label: t('sidebar.pokemonLeague') },
     { path: '/perfil', label: t('sidebar.profile') },
   ];
 
