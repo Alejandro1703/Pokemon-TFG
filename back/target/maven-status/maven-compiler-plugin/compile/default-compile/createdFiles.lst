@@ -1,6 +1,7 @@
 com/pokemon/tfg/dto/RegisterRequest.class
 com/pokemon/tfg/entity/JuegoUsuario.class
 com/pokemon/tfg/config/JwtAuthFilter.class
+com/pokemon/tfg/entity/Role.class
 com/pokemon/tfg/entity/Usuario.class
 com/pokemon/tfg/repository/UsuarioRepository.class
 com/pokemon/tfg/repository/ShinyHuntingRepository.class
@@ -10,12 +11,14 @@ com/pokemon/tfg/dto/AuthResponse.class
 com/pokemon/tfg/service/JuegoUsuarioService.class
 com/pokemon/tfg/service/ShinyHuntingService.class
 com/pokemon/tfg/dto/ShinyHuntingRequest.class
+com/pokemon/tfg/controller/AdminController.class
 com/pokemon/tfg/config/SecurityConfig.class
 com/pokemon/tfg/controller/AuthController.class
 com/pokemon/tfg/controller/UserController.class
 com/pokemon/tfg/entity/ShinyHunting.class
 com/pokemon/tfg/repository/JuegoUsuarioRepository.class
 com/pokemon/tfg/config/JwtUtils.class
+com/pokemon/tfg/dto/AdminStatsResponse.class
 com/pokemon/tfg/dto/UpdateProfileRequest.class
 com/pokemon/tfg/controller/ShinyHuntingController.class
 com/pokemon/tfg/dto/LoginRequest.class

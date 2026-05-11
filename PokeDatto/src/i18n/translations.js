@@ -21,6 +21,19 @@ const translations = {
     'sidebar.register': 'Registro',
     'sidebar.logout': 'Cerrar Sesión',
     'sidebar.guestAccess': 'Acceso de usuarios',
+    'sidebar.guestLogin': 'Entrar como invitado',
+    'sidebar.stats': 'Estadísticas',
+
+    // Admin
+    'admin.title': 'Panel de Administración',
+    'admin.totalUsers': 'Usuarios totales',
+    'admin.totalGames': 'Juegos en colecciones',
+    'admin.totalShinyHunts': 'Shiny Hunts',
+    'admin.totalAttempts': 'Intentos totales',
+    'admin.topGames': 'Juegos más añadidos',
+    'admin.recentUsers': 'Usuarios recientes',
+    'admin.noData': 'No hay datos disponibles',
+    'admin.back': 'Volver al inicio',
 
     // Profile
     'profile.title': 'Mi Perfil',
@@ -1072,6 +1085,19 @@ const translations = {
     'sidebar.register': 'Sign Up',
     'sidebar.logout': 'Log Out',
     'sidebar.guestAccess': 'User access',
+    'sidebar.guestLogin': 'Enter as guest',
+    'sidebar.stats': 'Statistics',
+
+    // Admin
+    'admin.title': 'Admin Dashboard',
+    'admin.totalUsers': 'Total users',
+    'admin.totalGames': 'Games in collections',
+    'admin.totalShinyHunts': 'Shiny Hunts',
+    'admin.totalAttempts': 'Total attempts',
+    'admin.topGames': 'Most added games',
+    'admin.recentUsers': 'Recent users',
+    'admin.noData': 'No data available',
+    'admin.back': 'Back to home',
 
     // Profile
     'profile.title': 'My Profile',

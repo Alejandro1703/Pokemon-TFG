@@ -14,6 +14,8 @@ import ShinyHuntingPage from './pages/ShinyHuntingPage';
 import EncountersPage from './pages/EncountersPage';
 import GymLeadersPage from './pages/GymLeadersPage';
 import PokemonLeaguePage from './pages/PokemonLeaguePage';
+import AdminStatsPage from './pages/AdminStatsPage';
+import ProtectedRoute from './components/ProtectedRoute';
 import { SettingsProvider } from './contexts/SettingsContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -28,18 +30,19 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/mis-juegos" element={<MisJuegosPage />} />
+          <Route path="/mis-juegos" element={<ProtectedRoute><MisJuegosPage /></ProtectedRoute>} />
           <Route path="/pokedex" element={<PokedexPage />} />
           <Route path="/comparador" element={<ComparatorPage />} />
-          <Route path="/aventuras" element={<AventurasPage />} />
-          <Route path="/aventura" element={<GameAdventurePage />} />
+          <Route path="/aventuras" element={<ProtectedRoute><AventurasPage /></ProtectedRoute>} />
+          <Route path="/aventura" element={<ProtectedRoute><GameAdventurePage /></ProtectedRoute>} />
           <Route path="/juegos" element={<JuegosPage />} />
-          <Route path="/perfil" element={<ProfilePage />} />
-          <Route path="/progreso" element={<ProgresoPage />} />
-          <Route path="/shiny-hunting" element={<ShinyHuntingPage />} />
-          <Route path="/encuentros" element={<EncountersPage />} />
+          <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/progreso" element={<ProtectedRoute><ProgresoPage /></ProtectedRoute>} />
+          <Route path="/shiny-hunting" element={<ProtectedRoute><ShinyHuntingPage /></ProtectedRoute>} />
+          <Route path="/encuentros" element={<ProtectedRoute><EncountersPage /></ProtectedRoute>} />
           <Route path="/lideres-gimnasio" element={<GymLeadersPage />} />
           <Route path="/liga-pokemon" element={<PokemonLeaguePage />} />
+          <Route path="/admin" element={<AdminStatsPage />} />
         </Routes>
       </div>
     </Router>
