@@ -2,66 +2,87 @@ import { useState, useEffect } from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 import { useSettings, useTranslation } from '../../contexts/SettingsContext';
+import { useAuth } from '../../hooks/useAuth';
 
 function Sidebar() {
   const { isDark } = useSettings();
   const { t } = useTranslation();
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const { isLoggedIn, isGuest, isAdmin, logout, enterGuest } = useAuth();
   const [isVisible, setIsVisible] = useState(true);
   const currentPath = location.pathname;
 
-  // Verificar estado de autenticación cuando cambia la ruta o el localStorage
   useEffect(() => {
-    const checkAuth = () => {
-      setIsLoggedIn(!!localStorage.getItem('token'));
-    };
-    
-    checkAuth();
-    
-    // Escuchar cambios en localStorage (de otras pestañas)
-    window.addEventListener('storage', checkAuth);
-    
-    // Escuchar evento personalizado de cambio de auth (misma pestaña)
-    window.addEventListener('auth-change', checkAuth);
-    
-    // Verificar cada segundo (para cambios en la misma pestaña)
-    const interval = setInterval(checkAuth, 1000);
-    
-    // Escuchar evento de toggle del sidebar
     const handleToggleSidebar = (e) => {
       setIsVisible(e.detail.visible);
     };
     window.addEventListener('toggle-sidebar', handleToggleSidebar);
-
     return () => {
-      window.removeEventListener('storage', checkAuth);
-      window.removeEventListener('auth-change', checkAuth);
       window.removeEventListener('toggle-sidebar', handleToggleSidebar);
-      clearInterval(interval);
     };
-  }, [location.pathname]); // También se ejecuta cuando cambia la ruta
+  }, []);
+
+  // Items públicos (disponibles para invitados y usuarios)
+  const publicItems = [
+    { path: '/pokedex', label: t('sidebar.pokedex') },
+    { path: '/comparador', label: t('sidebar.comparator') },
+    { path: '/calculadora-dano', label: t('sidebar.damageCalc') },
+    { path: '/lideres-gimnasio', label: t('sidebar.gymLeaders') },
+    { path: '/liga-pokemon', label: t('sidebar.pokemonLeague') },
+    { path: '/juegos', label: t('sidebar.games') },
+  ];
+
+  // Items solo para usuarios logueados (no invitados)
+  const privateItems = [
+    { path: '/mis-juegos', label: t('sidebar.myGames') },
+    { path: '/aventuras', label: t('sidebar.adventures') },
+    { path: '/team-builder', label: t('sidebar.teamBuilder') },
+    { path: '/progreso', label: t('sidebar.progress') },
+    { path: '/shiny-hunting', label: t('sidebar.shinyHunting') },
+    { path: '/encuentros', label: t('sidebar.encounters') },
+    { path: '/perfil', label: t('sidebar.profile') },
+  ];
 
   const authItems = [
     { path: '/login', label: t('sidebar.login') },
     { path: '/register', label: t('sidebar.register') },
   ];
 
-  const dashboardItems = [
-    { path: '/juegos', label: t('sidebar.games') },
-    { path: '/mis-juegos', label: t('sidebar.myGames') },
-    { path: '/pokedex', label: t('sidebar.pokedex') },
-    { path: '/comparador', label: t('sidebar.comparator') },
-    { path: '/aventuras', label: t('sidebar.adventures') },
-    { path: '/progreso', label: t('sidebar.progress') },
-    { path: '/shiny-hunting', label: t('sidebar.shinyHunting') },
-    { path: '/encuentros', label: t('sidebar.encounters') },
-    { path: '/lideres-gimnasio', label: t('sidebar.gymLeaders') },
-    { path: '/liga-pokemon', label: t('sidebar.pokemonLeague') },
-    { path: '/perfil', label: t('sidebar.profile') },
-  ];
-
   const isActive = (path) => currentPath === path;
+
+  const itemPadding = 'py-2';
+  const itemFont = '0.95rem';
+
+  const navLinkStyle = (active, dark, visible) => ({
+    backgroundColor: active
+      ? (dark ? '#536dfe' : '#1976d2')
+      : (dark ? 'rgba(83,109,254,0.2)' : 'rgba(25,118,210,0.3)'),
+    color: dark ? '#e8eaed' : '#e3f2fd',
+    border: active
+      ? (dark ? '2px solid #3d4fe0' : '2px solid #1565c0')
+      : (dark ? '1px solid rgba(83,109,254,0.4)' : '1px solid rgba(25,118,210,0.5)'),
+    transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+    fontSize: itemFont,
+    overflow: 'hidden',
+    transform: visible ? 'translateX(0)' : 'translateX(-120%)',
+    opacity: visible ? 1 : 0,
+    pointerEvents: visible ? 'auto' : 'none',
+    cursor: 'pointer'
+  });
+
+  const renderNavLink = (item, active) => (
+    <Nav.Link
+      key={item.path}
+      as={Link}
+      to={item.path}
+      className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
+        active ? 'fw-bold shadow' : ''
+      }`}
+      style={navLinkStyle(active, isDark, isVisible)}
+    >
+      <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
+    </Nav.Link>
+  );
 
   const toggleSidebar = () => {
     const newState = !isVisible;
@@ -100,79 +121,120 @@ function Sidebar() {
 
       <div className="p-3 text-center">
         <small style={{ color: isDark ? '#6b7280' : '#90caf9' }}>
-          {isLoggedIn ? '' : t('sidebar.guestAccess')}
+          {isGuest ? t('sidebar.guestAccess') : ''}
         </small>
       </div>
 
-      <Nav className="flex-column p-3">
-        {isLoggedIn ? (
+      <Nav className="flex-column py-2 px-2 flex-grow-1" style={{ overflowY: 'auto', overflowX: 'hidden', gap: '6px' }}>
+        {!isLoggedIn && !isGuest ? (
           <>
-            {/* Dashboard - Inicio */}
+            {authItems.map((item) => {
+              const active = isActive(item.path);
+              return renderNavLink(item, active);
+            })}
+            {/* Botón Entrar como Invitado */}
             <Nav.Link
-              as={Link}
-              to="/dashboard"
-              className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
-                isActive('/dashboard') ? 'fw-bold shadow' : ''
-              }`}
+              onClick={enterGuest}
+              className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none fw-bold w-100`}
               style={{
-                backgroundColor: isActive('/dashboard')
-                  ? (isDark ? '#536dfe' : '#1976d2')
-                  : (isDark ? 'rgba(83,109,254,0.2)' : 'rgba(25,118,210,0.3)'),
+                backgroundColor: isDark ? 'rgba(102,187,106,0.2)' : 'rgba(102,187,106,0.3)',
                 color: isDark ? '#e8eaed' : '#e3f2fd',
-                border: isActive('/dashboard')
-                  ? (isDark ? '2px solid #3d4fe0' : '2px solid #1565c0')
-                  : (isDark ? '1px solid rgba(83,109,254,0.4)' : '1px solid rgba(25,118,210,0.5)'),
+                border: isDark ? '1px solid rgba(102,187,106,0.5)' : '1px solid rgba(102,187,106,0.6)',
                 transition: 'transform 0.35s ease-out, opacity 0.25s ease',
                 fontSize: '1rem',
+                cursor: 'pointer',
                 overflow: 'hidden',
                 transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
                 opacity: isVisible ? 1 : 0,
                 pointerEvents: isVisible ? 'auto' : 'none'
               }}
             >
+              <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.guestLogin')}</span>
+            </Nav.Link>
+          </>
+        ) : (
+          <>
+            {/* Dashboard - Inicio */}
+            <Nav.Link
+              as={Link}
+              to="/dashboard"
+              className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
+                isActive('/dashboard') ? 'fw-bold shadow' : ''
+              }`}
+              style={navLinkStyle(isActive('/dashboard'), isDark, isVisible)}
+            >
               <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.home')}</span>
             </Nav.Link>
 
-            {dashboardItems.map((item) => {
+            {/* Items públicos */}
+            {publicItems.map((item) => {
               const active = isActive(item.path);
               return (
                 <Nav.Link
                   key={item.path}
                   as={Link}
                   to={item.path}
-                  className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
+                  className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
                     active ? 'fw-bold shadow' : ''
                   }`}
-                  style={{
-                    backgroundColor: active
-                      ? (isDark ? '#536dfe' : '#1976d2')
-                      : (isDark ? 'rgba(83,109,254,0.2)' : 'rgba(25,118,210,0.3)'),
-                    color: isDark ? '#e8eaed' : '#e3f2fd',
-                    border: active
-                      ? (isDark ? '2px solid #3d4fe0' : '2px solid #1565c0')
-                      : (isDark ? '1px solid rgba(83,109,254,0.4)' : '1px solid rgba(25,118,210,0.5)'),
-                    transition: 'transform 0.35s ease-out, opacity 0.25s ease',
-                    fontSize: '1rem',
-                    overflow: 'hidden',
-                    transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
-                    opacity: isVisible ? 1 : 0,
-                    pointerEvents: isVisible ? 'auto' : 'none'
-                  }}
+                  style={navLinkStyle(active, isDark, isVisible)}
                 >
                   <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
                 </Nav.Link>
               );
             })}
 
+            {/* Items privados (solo usuarios logueados, no invitados) */}
+            {!isGuest && privateItems.map((item) => {
+              const active = isActive(item.path);
+              return (
+                <Nav.Link
+                  key={item.path}
+                  as={Link}
+                  to={item.path}
+                  className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
+                    active ? 'fw-bold shadow' : ''
+                  }`}
+                  style={navLinkStyle(active, isDark, isVisible)}
+                >
+                  <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
+                </Nav.Link>
+              );
+            })}
+
+            {/* Botón Estadísticas (solo ADMIN) */}
+            {isAdmin && (
+              <Nav.Link
+                as={Link}
+                to="/admin"
+                className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
+                  isActive('/admin') ? 'fw-bold shadow' : ''
+                }`}
+                style={{
+                  backgroundColor: isActive('/admin')
+                    ? (isDark ? '#ab47bc' : '#8e24aa')
+                    : (isDark ? 'rgba(171,71,188,0.2)' : 'rgba(142,36,170,0.3)'),
+                  color: isDark ? '#e8eaed' : '#e3f2fd',
+                  border: isActive('/admin')
+                    ? (isDark ? '2px solid #8e24aa' : '2px solid #7b1fa2')
+                    : (isDark ? '1px solid rgba(171,71,188,0.5)' : '1px solid rgba(142,36,170,0.6)'),
+                  transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+                  fontSize: itemFont,
+                  overflow: 'hidden',
+                  transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                  opacity: isVisible ? 1 : 0,
+                  pointerEvents: isVisible ? 'auto' : 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.stats')}</span>
+              </Nav.Link>
+            )}
+
             {/* Botón de Logout */}
             <Nav.Link
-              onClick={() => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.dispatchEvent(new Event('auth-change'));
-                window.location.href = '/login';
-              }}
-              className="d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none fw-bold"
+              onClick={logout}
+              className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none fw-bold w-100 mt-auto`}
               style={{
                 backgroundColor: '#f44336',
                 color: 'white',
@@ -189,37 +251,6 @@ function Sidebar() {
               <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.logout')}</span>
             </Nav.Link>
           </>
-        ) : (
-          authItems.map((item) => {
-            const active = isActive(item.path);
-            return (
-              <Nav.Link
-                key={item.path}
-                as={Link}
-                to={item.path}
-                className={`d-flex align-items-center py-3 px-4 rounded-3 mb-2 text-decoration-none ${
-                  active ? 'fw-bold shadow' : ''
-                }`}
-                style={{
-                  backgroundColor: active
-                    ? (isDark ? '#536dfe' : '#1976d2')
-                    : (isDark ? 'rgba(83,109,254,0.2)' : 'rgba(25,118,210,0.3)'),
-                  color: isDark ? '#e8eaed' : '#e3f2fd',
-                  border: active
-                    ? (isDark ? '2px solid #3d4fe0' : '2px solid #1565c0')
-                    : (isDark ? '1px solid rgba(83,109,254,0.4)' : '1px solid rgba(25,118,210,0.5)'),
-                  transition: 'transform 0.35s ease-out, opacity 0.25s ease',
-                  fontSize: '1rem',
-                  overflow: 'hidden',
-                  transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
-                  opacity: isVisible ? 1 : 0,
-                  pointerEvents: isVisible ? 'auto' : 'none'
-                }}
-              >
-                <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
-              </Nav.Link>
-            );
-          })
         )}
       </Nav>
 

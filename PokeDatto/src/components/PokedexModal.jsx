@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Form, Row, Col, Badge, Spinner, Card, ToggleButtonGroup, ToggleButton, OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
 import { useSettings, useTranslation } from '../contexts/SettingsContext';
+import ALL_POKEMON_DATA from '../data/pokemonData.json';
 
 const POKEMON_TYPES = [
   'all', 'normal', 'fire', 'water', 'electric', 'grass', 'ice', 
@@ -71,6 +72,36 @@ function PokedexModal({ show, onHide, standalone = false }) {
   const [shinyMode, setShinyMode] = useState(false);
   const [shinyPokemon, setShinyPokemon] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [favorites, setFavorites] = useState(new Set());
+
+  const token = localStorage.getItem('token');
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
+
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_URL}/api/favoritos`, { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setFavorites(new Set(data.map(f => f.pokemonId))))
+      .catch(() => {});
+  }, []);
+
+  const toggleFavorite = async (pokemon) => {
+    if (!token) return;
+    const isFav = favorites.has(pokemon.id);
+    try {
+      if (isFav) {
+        await fetch(`${API_URL}/api/favoritos/${pokemon.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+        setFavorites(prev => { const n = new Set(prev); n.delete(pokemon.id); return n; });
+      } else {
+        await fetch(`${API_URL}/api/favoritos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ pokemonId: pokemon.id, pokemonNombre: pokemon.name })
+        });
+        setFavorites(prev => new Set(prev).add(pokemon.id));
+      }
+    } catch (err) { console.error('Error toggling favorite:', err); }
+  };
   const [selectedGraphicGen, setSelectedGraphicGen] = useState('gen5'); // Por defecto B/N/B2/N2 (máxima generación)
   const itemsPerPage = 20;
 
@@ -141,72 +172,35 @@ function PokedexModal({ show, onHide, standalone = false }) {
     setCurrentPage(1);
   }, [selectedGraphicGen]);
 
-  const loadPokemon = async () => {
+  const loadPokemon = () => {
     setLoading(true);
     try {
-      // Obtener configuración de la generación de gráficos seleccionada
       const graphicConfig = GRAPHIC_GENERATIONS[selectedGraphicGen];
       const range = POKEDEX_RANGES[pokedexView];
-      
-      // Si es Nacional, usar el límite de la generación de gráficos seleccionada
-      // Si es una región específica, usar el menor entre la región y la generación
       const effectiveEnd = pokedexView === 'national' 
         ? graphicConfig.end 
         : Math.min(range.end, graphicConfig.end);
-      const pokemonData = [];
-      
-      // Cargar TODOS los Pokémon en el rango especificado (sin límite de 50)
-      const batchSize = 20; // Procesar en lotes para no sobrecargar
-      
-      for (let batchStart = range.start; batchStart <= effectiveEnd; batchStart += batchSize) {
-        const batchEnd = Math.min(batchStart + batchSize - 1, effectiveEnd);
-        const batchPromises = [];
-        
-        for (let i = batchStart; i <= batchEnd; i++) {
-          batchPromises.push(
-            fetch(`https://pokeapi.co/api/v2/pokemon/${i}`)
-              .then(res => res.ok ? res.json() : null)
-              .catch(() => null)
-          );
-        }
-        
-        const batchResults = await Promise.all(batchPromises);
-        
-        batchResults.forEach(data => {
-          if (data) {
-            // Construir URL del sprite según la generación seleccionada
-            // Para Gen 5 (B/N) usamos sprites animados
-            const basePath = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions';
-            const spritePath = graphicConfig.animated 
-              ? `${basePath}/${graphicConfig.spritePath}/animated/${data.id}.gif`
-              : `${basePath}/${graphicConfig.spritePath}/${data.id}.png`;
-            const shinyPath = graphicConfig.animated
-              ? `${basePath}/${graphicConfig.spritePath}/animated/shiny/${data.id}.gif`
-              : `${basePath}/${graphicConfig.spritePath}/shiny/${data.id}.png`;
-            
-            pokemonData.push({
-              id: data.id,
-              name: data.name,
-              sprite: spritePath,
-              shinySprite: shinyPath,
-              animated: graphicConfig.animated,
-              types: data.types.map(t => t.type.name),
-              stats: {
-                hp: data.stats[0].base_stat,
-                attack: data.stats[1].base_stat,
-                defense: data.stats[2].base_stat,
-                specialAttack: data.stats[3].base_stat,
-                specialDefense: data.stats[4].base_stat,
-                speed: data.stats[5].base_stat
-              }
-            });
-          }
+
+      const basePath = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions';
+
+      const pokemonData = ALL_POKEMON_DATA
+        .filter(p => p.id >= range.start && p.id <= effectiveEnd)
+        .map(p => {
+          const spritePath = graphicConfig.animated 
+            ? `${basePath}/${graphicConfig.spritePath}/animated/${p.id}.gif`
+            : `${basePath}/${graphicConfig.spritePath}/${p.id}.png`;
+          const shinyPath = graphicConfig.animated
+            ? `${basePath}/${graphicConfig.spritePath}/animated/shiny/${p.id}.gif`
+            : `${basePath}/${graphicConfig.spritePath}/shiny/${p.id}.png`;
+
+          return {
+            ...p,
+            sprite: spritePath,
+            shinySprite: shinyPath,
+            animated: graphicConfig.animated
+          };
         });
-        
-        // Actualizar progreso parcial para que el usuario vea que está cargando
-        setPokemonList([...pokemonData]);
-      }
-      
+
       setPokemonList(pokemonData);
       setCurrentPage(1);
     } catch {
@@ -611,15 +605,29 @@ function PokedexModal({ show, onHide, standalone = false }) {
         <Modal.Title className="text-white text-capitalize fw-bold m-0" style={{ fontSize: '1.3rem' }}>
           #{String(selectedPokemon.id).padStart(3, '0')} {selectedPokemon.name}
         </Modal.Title>
-        <Button
-          variant="light"
-          size="sm"
-          onClick={() => setSelectedPokemon(null)}
-          className="rounded-circle d-flex align-items-center justify-content-center p-0 ms-3"
-          style={{ width: '36px', height: '36px', fontWeight: 'bold', fontSize: '1.2rem' }}
-        >
-          ✕
-        </Button>
+        <div className="d-flex gap-2 ms-3">
+          {token && (
+            <Button
+              variant={favorites.has(selectedPokemon.id) ? 'danger' : 'light'}
+              size="sm"
+              onClick={() => toggleFavorite(selectedPokemon)}
+              className="rounded-circle d-flex align-items-center justify-content-center p-0"
+              style={{ width: '36px', height: '36px', fontSize: '1.1rem' }}
+              title={favorites.has(selectedPokemon.id) ? t('pokedex.removeFavorite') : t('pokedex.addFavorite')}
+            >
+              {favorites.has(selectedPokemon.id) ? '❤️' : '🤍'}
+            </Button>
+          )}
+          <Button
+            variant="light"
+            size="sm"
+            onClick={() => setSelectedPokemon(null)}
+            className="rounded-circle d-flex align-items-center justify-content-center p-0"
+            style={{ width: '36px', height: '36px', fontWeight: 'bold', fontSize: '1.2rem' }}
+          >
+            ✕
+          </Button>
+        </div>
       </Modal.Header>
       <Modal.Body className="p-4">
         <div className="text-center mb-4">

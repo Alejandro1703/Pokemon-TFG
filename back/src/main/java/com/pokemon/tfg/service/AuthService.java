@@ -45,7 +45,7 @@ public class AuthService {
 
         usuarioRepository.save(usuario);
 
-        String token = jwtUtils.generateToken(usuario.getUsername());
+        String token = jwtUtils.generateToken(usuario.getUsername(), usuario.getRole().name());
         return new AuthResponse(token, "Registro exitoso", usuario);
     }
 
@@ -61,7 +61,7 @@ public class AuthService {
             return new AuthResponse(null, "Usuario o contraseña incorrectos", null);
         }
 
-        String token = jwtUtils.generateToken(usuario.getUsername());
+        String token = jwtUtils.generateToken(usuario.getUsername(), usuario.getRole().name());
         return new AuthResponse(token, "Inicio de sesión exitoso", usuario);
     }
 }

@@ -360,7 +360,7 @@ function Dashboard() {
     if (user) {
       try {
         const userData = JSON.parse(user);
-        setUserName(userData.username || t('dashboard.welcome'));
+        setUserName(userData.nombre || userData.username || t('dashboard.welcome'));
       } catch {
         setUserName(t('dashboard.welcome'));
       }

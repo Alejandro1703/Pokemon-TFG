@@ -57,6 +57,10 @@ public class Usuario {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechaCreacion;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
+
     @PrePersist
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();
