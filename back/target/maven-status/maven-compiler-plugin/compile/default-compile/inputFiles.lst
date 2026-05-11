@@ -3,10 +3,14 @@
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/dto/UpdateProfileRequest.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/entity/JuegoUsuario.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/service/JuegoUsuarioService.java
+/home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/entity/ShinyHunting.java
+/home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/repository/ShinyHuntingRepository.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/dto/AuthResponse.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/dto/UpdatePasswordRequest.java
+/home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/dto/ShinyHuntingRequest.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/PokemonTfgApplication.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/config/SecurityConfig.java
+/home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/service/ShinyHuntingService.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/controller/AuthController.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/service/AuthService.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/dto/RegisterRequest.java
@@ -14,6 +18,7 @@
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/entity/Usuario.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/config/JwtUtils.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/repository/UsuarioRepository.java
+/home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/controller/ShinyHuntingController.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/config/JwtAuthFilter.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/repository/JuegoUsuarioRepository.java
 /home/alejandro/Escritorio/Pokemon-TFG/back/src/main/java/com/pokemon/tfg/controller/JuegoUsuarioController.java
