@@ -156,22 +156,31 @@ function PokemonComparator({ show, onHide, standalone = false }) {
     }));
   };
 
-  const getWinner = () => {
+  const getWinnerData = () => {
     if (!pokemon1 || !pokemon2) return null;
     
     let pokemon1Wins = 0;
     let pokemon2Wins = 0;
+    let bst1 = 0;
+    let bst2 = 0;
     
     Object.entries(selectedStats).forEach(([stat, isSelected]) => {
       if (isSelected) {
+        bst1 += pokemon1.stats[stat];
+        bst2 += pokemon2.stats[stat];
         if (pokemon1.stats[stat] > pokemon2.stats[stat]) pokemon1Wins++;
         else if (pokemon2.stats[stat] > pokemon1.stats[stat]) pokemon2Wins++;
       }
     });
     
-    if (pokemon1Wins > pokemon2Wins) return pokemon1.name;
-    if (pokemon2Wins > pokemon1Wins) return pokemon2.name;
-    return t('comparator.tie');
+    let winner;
+    if (pokemon1Wins > pokemon2Wins) winner = pokemon1.name;
+    else if (pokemon2Wins > pokemon1Wins) winner = pokemon2.name;
+    else if (bst1 > bst2) winner = pokemon1.name;
+    else if (bst2 > bst1) winner = pokemon2.name;
+    else winner = t('comparator.tie');
+    
+    return { winner, pokemon1Wins, pokemon2Wins, bst1, bst2 };
   };
 
   const renderStatBar = (stat, value, maxValue, color) => {
@@ -507,20 +516,33 @@ function PokemonComparator({ show, onHide, standalone = false }) {
           ) : pokemon1 && pokemon2 ? (
             <>
               {/* Resultado del ganador */}
-              <div className="text-center mb-4">
-                <h5 className="fw-bold">
-                  {getWinner() === t('comparator.tie') ? (
-                    <Badge bg="warning" text="dark" className="fs-5">{t('comparator.tie')}</Badge>
-                  ) : (
-                    <>
-                      {t('comparator.winner')}: <Badge bg="success" className="fs-5 text-capitalize">{getWinner()}</Badge>
-                    </>
-                  )}
-                </h5>
-                <small className="text-muted">
-                  {t('comparator.comparing')} {Object.values(selectedStats).filter(Boolean).length} {t('comparator.comparingStats')}
-                </small>
-              </div>
+              {(() => {
+                const wd = getWinnerData();
+                return wd && (
+                  <div className="text-center mb-4">
+                    <h5 className="fw-bold">
+                      {wd.winner === t('comparator.tie') ? (
+                        <Badge bg="warning" text="dark" className="fs-5">{t('comparator.tie')}</Badge>
+                      ) : (
+                        <>
+                          {t('comparator.winner')}: <Badge bg="success" className="fs-5 text-capitalize">{wd.winner}</Badge>
+                        </>
+                      )}
+                    </h5>
+                    <div className="d-flex justify-content-center gap-3 mt-2 flex-wrap">
+                      <small className="text-muted">
+                        {t('comparator.comparing')} {Object.values(selectedStats).filter(Boolean).length} {t('comparator.comparingStats')}
+                      </small>
+                      <small className="fw-bold">
+                        <span className="text-primary text-capitalize">{pokemon1.name}</span>: {wd.pokemon1Wins} stats | BST {wd.bst1}
+                      </small>
+                      <small className="fw-bold">
+                        <span className="text-danger text-capitalize">{pokemon2.name}</span>: {wd.pokemon2Wins} stats | BST {wd.bst2}
+                      </small>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Gráfico de comparación */}
               <Card className="border-0 shadow-sm">

@@ -26,6 +26,7 @@ function Sidebar() {
   const publicItems = [
     { path: '/pokedex', label: t('sidebar.pokedex') },
     { path: '/comparador', label: t('sidebar.comparator') },
+    { path: '/calculadora-dano', label: t('sidebar.damageCalc') },
     { path: '/lideres-gimnasio', label: t('sidebar.gymLeaders') },
     { path: '/liga-pokemon', label: t('sidebar.pokemonLeague') },
     { path: '/juegos', label: t('sidebar.games') },
@@ -35,6 +36,7 @@ function Sidebar() {
   const privateItems = [
     { path: '/mis-juegos', label: t('sidebar.myGames') },
     { path: '/aventuras', label: t('sidebar.adventures') },
+    { path: '/team-builder', label: t('sidebar.teamBuilder') },
     { path: '/progreso', label: t('sidebar.progress') },
     { path: '/shiny-hunting', label: t('sidebar.shinyHunting') },
     { path: '/encuentros', label: t('sidebar.encounters') },
@@ -48,10 +50,8 @@ function Sidebar() {
 
   const isActive = (path) => currentPath === path;
 
-  const compact = isAdmin;
-  const itemPadding = compact ? 'py-2' : 'py-3';
-  const itemMargin = compact ? 'mb-1' : 'mb-2';
-  const itemFont = compact ? '0.9rem' : '1rem';
+  const itemPadding = 'py-2';
+  const itemFont = '0.95rem';
 
   const navLinkStyle = (active, dark, visible) => ({
     backgroundColor: active
@@ -75,7 +75,7 @@ function Sidebar() {
       key={item.path}
       as={Link}
       to={item.path}
-      className={`d-flex align-items-center ${itemPadding} px-4 rounded-3 ${itemMargin} text-decoration-none ${
+      className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
         active ? 'fw-bold shadow' : ''
       }`}
       style={navLinkStyle(active, isDark, isVisible)}
@@ -125,7 +125,7 @@ function Sidebar() {
         </small>
       </div>
 
-      <Nav className="flex-column p-3">
+      <Nav className="flex-column py-2 px-2 flex-grow-1" style={{ overflowY: 'auto', overflowX: 'hidden', gap: '6px' }}>
         {!isLoggedIn && !isGuest ? (
           <>
             {authItems.map((item) => {
@@ -135,7 +135,7 @@ function Sidebar() {
             {/* Botón Entrar como Invitado */}
             <Nav.Link
               onClick={enterGuest}
-              className={`d-flex align-items-center ${itemPadding} px-4 rounded-3 ${itemMargin} text-decoration-none fw-bold`}
+              className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none fw-bold w-100`}
               style={{
                 backgroundColor: isDark ? 'rgba(102,187,106,0.2)' : 'rgba(102,187,106,0.3)',
                 color: isDark ? '#e8eaed' : '#e3f2fd',
@@ -158,7 +158,7 @@ function Sidebar() {
             <Nav.Link
               as={Link}
               to="/dashboard"
-              className={`d-flex align-items-center ${itemPadding} px-4 rounded-3 ${itemMargin} text-decoration-none ${
+              className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
                 isActive('/dashboard') ? 'fw-bold shadow' : ''
               }`}
               style={navLinkStyle(isActive('/dashboard'), isDark, isVisible)}
@@ -174,7 +174,7 @@ function Sidebar() {
                   key={item.path}
                   as={Link}
                   to={item.path}
-                  className={`d-flex align-items-center ${itemPadding} px-4 rounded-3 ${itemMargin} text-decoration-none ${
+                  className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
                     active ? 'fw-bold shadow' : ''
                   }`}
                   style={navLinkStyle(active, isDark, isVisible)}
@@ -192,7 +192,7 @@ function Sidebar() {
                   key={item.path}
                   as={Link}
                   to={item.path}
-                  className={`d-flex align-items-center ${itemPadding} px-4 rounded-3 ${itemMargin} text-decoration-none ${
+                  className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
                     active ? 'fw-bold shadow' : ''
                   }`}
                   style={navLinkStyle(active, isDark, isVisible)}
@@ -207,7 +207,7 @@ function Sidebar() {
               <Nav.Link
                 as={Link}
                 to="/admin"
-                className={`d-flex align-items-center ${itemPadding} px-4 rounded-3 ${itemMargin} text-decoration-none ${
+                className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
                   isActive('/admin') ? 'fw-bold shadow' : ''
                 }`}
                 style={{
@@ -227,14 +227,14 @@ function Sidebar() {
                   cursor: 'pointer'
                 }}
               >
-                <span style={{ whiteSpace: 'nowrap' }}>📊 {t('sidebar.stats')}</span>
+                <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.stats')}</span>
               </Nav.Link>
             )}
 
             {/* Botón de Logout */}
             <Nav.Link
               onClick={logout}
-              className={`d-flex align-items-center ${itemPadding} px-4 rounded-3 ${itemMargin} text-decoration-none fw-bold`}
+              className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none fw-bold w-100 mt-auto`}
               style={{
                 backgroundColor: '#f44336',
                 color: 'white',

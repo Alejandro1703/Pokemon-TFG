@@ -121,34 +121,66 @@ function GameAdventurePage() {
   // Usar useState (no useRef) para que se batchee con los datos cargados
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  // Load backpack, boxes and badges from localStorage
+  const token = localStorage.getItem('token');
+
+  // Load backpack, boxes and badges from backend first, then localStorage fallback
   useEffect(() => {
     if (!juegoNombre || !username) return;
+    let loaded = false;
 
-    const storageKey = `adventure_${username}_${juegoNombre}`;
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
+    const loadFromBackend = async () => {
       try {
-        const data = JSON.parse(saved);
-        if (data.backpack) setBackpack(data.backpack);
-        if (data.pokemonBoxes) setPokemonBoxes(data.pokemonBoxes);
-        if (data.earnedBadges) setEarnedBadges(data.earnedBadges);
+        const res = await fetch(`${API_URL}/api/aventuras/${encodeURIComponent(juegoNombre)}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const aventura = await res.json();
+          if (aventura.datos) {
+            const data = JSON.parse(aventura.datos);
+            if (data.backpack) setBackpack(data.backpack);
+            if (data.pokemonBoxes) setPokemonBoxes(data.pokemonBoxes);
+            if (data.earnedBadges) setEarnedBadges(data.earnedBadges);
+            loaded = true;
+          }
+        }
       } catch {
-        // Ignore parse errors
+        // Fallback to localStorage
       }
-    }
-    setDataLoaded(true);
+
+      if (!loaded) {
+        const storageKey = `adventure_${username}_${juegoNombre}`;
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            if (data.backpack) setBackpack(data.backpack);
+            if (data.pokemonBoxes) setPokemonBoxes(data.pokemonBoxes);
+            if (data.earnedBadges) setEarnedBadges(data.earnedBadges);
+          } catch {
+            // Ignore parse errors
+          }
+        }
+      }
+      setDataLoaded(true);
+    };
+
+    loadFromBackend();
   }, [juegoNombre, username]);
 
-  // Auto-save whenever state changes (after initial load)
+  // Auto-save whenever state changes (after initial load) to localStorage + backend
   useEffect(() => {
     if (!dataLoaded || !juegoNombre || !username) return;
     const storageKey = `adventure_${username}_${juegoNombre}`;
-    localStorage.setItem(storageKey, JSON.stringify({
-      backpack,
-      pokemonBoxes,
-      earnedBadges,
-    }));
+    const datos = JSON.stringify({ backpack, pokemonBoxes, earnedBadges });
+    localStorage.setItem(storageKey, datos);
+
+    if (token) {
+      fetch(`${API_URL}/api/aventuras`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ juegoNombre, datos })
+      }).catch(() => {});
+    }
   }, [backpack, pokemonBoxes, earnedBadges, dataLoaded, juegoNombre, username]);
 
   const handleUpdateBackpack = (newBackpack) => {

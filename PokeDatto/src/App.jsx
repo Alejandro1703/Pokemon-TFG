@@ -15,6 +15,8 @@ import EncountersPage from './pages/EncountersPage';
 import GymLeadersPage from './pages/GymLeadersPage';
 import PokemonLeaguePage from './pages/PokemonLeaguePage';
 import AdminStatsPage from './pages/AdminStatsPage';
+import DamageCalcPage from './pages/DamageCalcPage';
+import TeamBuilderPage from './pages/TeamBuilderPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { SettingsProvider } from './contexts/SettingsContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -42,6 +44,8 @@ function App() {
           <Route path="/encuentros" element={<ProtectedRoute><EncountersPage /></ProtectedRoute>} />
           <Route path="/lideres-gimnasio" element={<GymLeadersPage />} />
           <Route path="/liga-pokemon" element={<PokemonLeaguePage />} />
+          <Route path="/calculadora-dano" element={<DamageCalcPage />} />
+          <Route path="/team-builder" element={<ProtectedRoute><TeamBuilderPage /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminStatsPage />} />
         </Routes>
       </div>
