@@ -50,8 +50,8 @@ function Sidebar() {
 
   const isActive = (path) => currentPath === path;
 
-  const itemPadding = 'py-2';
-  const itemFont = '0.95rem';
+  const itemPadding = 'py-1';
+  const itemFont = '0.85rem';
 
   const navLinkStyle = (active, dark, visible) => ({
     backgroundColor: active
@@ -75,7 +75,7 @@ function Sidebar() {
       key={item.path}
       as={Link}
       to={item.path}
-      className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
+      className={`d-flex align-items-center ${itemPadding} px-2 rounded-3 text-decoration-none w-100 flex-shrink-0 ${
         active ? 'fw-bold shadow' : ''
       }`}
       style={navLinkStyle(active, isDark, isVisible)}
@@ -110,7 +110,7 @@ function Sidebar() {
         <div
           className="d-flex align-items-center justify-content-center"
           style={{
-            height: '70px',
+            height: '60px',
             backgroundColor: isDark ? '#1a1b23' : '#42a5f5',
             borderBottom: isDark ? '2px solid #2e303a' : '2px solid #1976d2',
             minWidth: '250px'
@@ -119,128 +119,77 @@ function Sidebar() {
           <h6 className="fw-bold m-0" style={{ fontSize: '1.1rem', color: isDark ? '#c8ccd4' : '#e3f2fd', opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>{t('sidebar.menu')}</h6>
         </div>
 
-      <div className="p-3 text-center">
-        <small style={{ color: isDark ? '#6b7280' : '#90caf9' }}>
-          {isGuest ? t('sidebar.guestAccess') : ''}
-        </small>
-      </div>
+      {!isLoggedIn && !isGuest ? (
+        /* Pantalla de login: botones arriba agrupados */
+        <Nav className="flex-column px-2 py-2" style={{ gap: '6px', overflowY: 'auto' }}>
+          {authItems.map((item) => {
+            const active = isActive(item.path);
+            return renderNavLink(item, active);
+          })}
+          <Nav.Link
+            onClick={enterGuest}
+            className={`d-flex align-items-center ${itemPadding} px-2 rounded-3 text-decoration-none fw-bold w-100`}
+            style={{
+              backgroundColor: isDark ? 'rgba(102,187,106,0.2)' : 'rgba(102,187,106,0.3)',
+              color: isDark ? '#e8eaed' : '#e3f2fd',
+              border: isDark ? '1px solid rgba(102,187,106,0.5)' : '1px solid rgba(102,187,106,0.6)',
+              transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+              fontSize: itemFont,
+              cursor: 'pointer',
+              overflow: 'hidden',
+              transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+              opacity: isVisible ? 1 : 0,
+              pointerEvents: isVisible ? 'auto' : 'none'
+            }}
+          >
+            <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.guestLogin')}</span>
+          </Nav.Link>
+        </Nav>
+      ) : (
+        /* Usuarios/invitados/admins: botones juntos con gap */
+        <Nav className="flex-column px-2 py-2 flex-grow-1" style={{ gap: '6px', overflowY: 'auto' }}>
+          {/* Dashboard - Inicio */}
+          <Nav.Link
+            as={Link}
+            to="/dashboard"
+            className={`d-flex align-items-center ${itemPadding} px-2 rounded-3 text-decoration-none w-100 ${
+              isActive('/dashboard') ? 'fw-bold shadow' : ''
+            }`}
+            style={navLinkStyle(isActive('/dashboard'), isDark, isVisible)}
+          >
+            <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.home')}</span>
+          </Nav.Link>
 
-      <Nav className="flex-column py-2 px-2 flex-grow-1" style={{ overflowY: 'auto', overflowX: 'hidden', gap: '6px' }}>
-        {!isLoggedIn && !isGuest ? (
-          <>
-            {authItems.map((item) => {
-              const active = isActive(item.path);
-              return renderNavLink(item, active);
-            })}
-            {/* Botón Entrar como Invitado */}
-            <Nav.Link
-              onClick={enterGuest}
-              className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none fw-bold w-100`}
-              style={{
-                backgroundColor: isDark ? 'rgba(102,187,106,0.2)' : 'rgba(102,187,106,0.3)',
-                color: isDark ? '#e8eaed' : '#e3f2fd',
-                border: isDark ? '1px solid rgba(102,187,106,0.5)' : '1px solid rgba(102,187,106,0.6)',
-                transition: 'transform 0.35s ease-out, opacity 0.25s ease',
-                fontSize: '1rem',
-                cursor: 'pointer',
-                overflow: 'hidden',
-                transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
-                opacity: isVisible ? 1 : 0,
-                pointerEvents: isVisible ? 'auto' : 'none'
-              }}
-            >
-              <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.guestLogin')}</span>
-            </Nav.Link>
-          </>
-        ) : (
-          <>
-            {/* Dashboard - Inicio */}
+          {/* Items públicos */}
+          {publicItems.map((item) => {
+            const active = isActive(item.path);
+            return (
+              <Nav.Link
+                key={item.path}
+                as={Link}
+                to={item.path}
+                className={`d-flex align-items-center ${itemPadding} px-2 rounded-3 text-decoration-none w-100 ${
+                  active ? 'fw-bold shadow' : ''
+                }`}
+                style={navLinkStyle(active, isDark, isVisible)}
+              >
+                <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
+              </Nav.Link>
+            );
+          })}
+
+          {/* Botón Volver al inicio (solo invitados) */}
+          {isGuest && (
             <Nav.Link
               as={Link}
-              to="/dashboard"
-              className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
-                isActive('/dashboard') ? 'fw-bold shadow' : ''
-              }`}
-              style={navLinkStyle(isActive('/dashboard'), isDark, isVisible)}
-            >
-              <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.home')}</span>
-            </Nav.Link>
-
-            {/* Items públicos */}
-            {publicItems.map((item) => {
-              const active = isActive(item.path);
-              return (
-                <Nav.Link
-                  key={item.path}
-                  as={Link}
-                  to={item.path}
-                  className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
-                    active ? 'fw-bold shadow' : ''
-                  }`}
-                  style={navLinkStyle(active, isDark, isVisible)}
-                >
-                  <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
-                </Nav.Link>
-              );
-            })}
-
-            {/* Items privados (solo usuarios logueados, no invitados) */}
-            {!isGuest && privateItems.map((item) => {
-              const active = isActive(item.path);
-              return (
-                <Nav.Link
-                  key={item.path}
-                  as={Link}
-                  to={item.path}
-                  className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
-                    active ? 'fw-bold shadow' : ''
-                  }`}
-                  style={navLinkStyle(active, isDark, isVisible)}
-                >
-                  <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
-                </Nav.Link>
-              );
-            })}
-
-            {/* Botón Estadísticas (solo ADMIN) */}
-            {isAdmin && (
-              <Nav.Link
-                as={Link}
-                to="/admin"
-                className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none w-100 ${
-                  isActive('/admin') ? 'fw-bold shadow' : ''
-                }`}
-                style={{
-                  backgroundColor: isActive('/admin')
-                    ? (isDark ? '#ab47bc' : '#8e24aa')
-                    : (isDark ? 'rgba(171,71,188,0.2)' : 'rgba(142,36,170,0.3)'),
-                  color: isDark ? '#e8eaed' : '#e3f2fd',
-                  border: isActive('/admin')
-                    ? (isDark ? '2px solid #8e24aa' : '2px solid #7b1fa2')
-                    : (isDark ? '1px solid rgba(171,71,188,0.5)' : '1px solid rgba(142,36,170,0.6)'),
-                  transition: 'transform 0.35s ease-out, opacity 0.25s ease',
-                  fontSize: itemFont,
-                  overflow: 'hidden',
-                  transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
-                  opacity: isVisible ? 1 : 0,
-                  pointerEvents: isVisible ? 'auto' : 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.stats')}</span>
-              </Nav.Link>
-            )}
-
-            {/* Botón de Logout */}
-            <Nav.Link
-              onClick={logout}
-              className={`d-flex align-items-center ${itemPadding} px-3 rounded-3 text-decoration-none fw-bold w-100 mt-auto`}
+              to="/login"
+              className={`d-flex align-items-center ${itemPadding} px-2 rounded-3 text-decoration-none fw-bold w-100`}
               style={{
-                backgroundColor: '#f44336',
-                color: 'white',
-                border: '2px solid #d32f2f',
+                backgroundColor: isDark ? 'rgba(255,167,38,0.2)' : 'rgba(255,167,38,0.3)',
+                color: isDark ? '#e8eaed' : '#e3f2fd',
+                border: isDark ? '1px solid rgba(255,167,38,0.5)' : '1px solid rgba(255,167,38,0.6)',
                 transition: 'transform 0.35s ease-out, opacity 0.25s ease',
-                fontSize: '1rem',
+                fontSize: itemFont,
                 cursor: 'pointer',
                 overflow: 'hidden',
                 transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
@@ -248,11 +197,78 @@ function Sidebar() {
                 pointerEvents: isVisible ? 'auto' : 'none'
               }}
             >
-              <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.logout')}</span>
+              <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.goHome')}</span>
             </Nav.Link>
-          </>
-        )}
-      </Nav>
+          )}
+
+          {/* Items privados (solo usuarios logueados, no invitados) */}
+          {!isGuest && privateItems.map((item) => {
+            const active = isActive(item.path);
+            return (
+              <Nav.Link
+                key={item.path}
+                as={Link}
+                to={item.path}
+                className={`d-flex align-items-center ${itemPadding} px-2 rounded-3 text-decoration-none w-100 ${
+                  active ? 'fw-bold shadow' : ''
+                }`}
+                style={navLinkStyle(active, isDark, isVisible)}
+              >
+                <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
+              </Nav.Link>
+            );
+          })}
+
+          {/* Botón Estadísticas (solo ADMIN) */}
+          {isAdmin && (
+            <Nav.Link
+              as={Link}
+              to="/admin"
+              className={`d-flex align-items-center ${itemPadding} px-2 rounded-3 text-decoration-none w-100 ${
+                isActive('/admin') ? 'fw-bold shadow' : ''
+              }`}
+              style={{
+                backgroundColor: isActive('/admin')
+                  ? (isDark ? '#ab47bc' : '#8e24aa')
+                  : (isDark ? 'rgba(171,71,188,0.2)' : 'rgba(142,36,170,0.3)'),
+                color: isDark ? '#e8eaed' : '#e3f2fd',
+                border: isActive('/admin')
+                  ? (isDark ? '2px solid #8e24aa' : '2px solid #7b1fa2')
+                  : (isDark ? '1px solid rgba(171,71,188,0.5)' : '1px solid rgba(142,36,170,0.6)'),
+                transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+                fontSize: itemFont,
+                overflow: 'hidden',
+                transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? 'auto' : 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.stats')}</span>
+            </Nav.Link>
+          )}
+
+          {/* Botón de Logout */}
+          <Nav.Link
+            onClick={logout}
+            className={`d-flex align-items-center ${itemPadding} px-2 rounded-3 text-decoration-none fw-bold w-100`}
+            style={{
+              backgroundColor: '#f44336',
+              color: 'white',
+              border: '2px solid #d32f2f',
+              transition: 'transform 0.35s ease-out, opacity 0.25s ease',
+              fontSize: itemFont,
+              cursor: 'pointer',
+              overflow: 'hidden',
+              transform: isVisible ? 'translateX(0)' : 'translateX(-120%)',
+              opacity: isVisible ? 1 : 0,
+              pointerEvents: isVisible ? 'auto' : 'none'
+            }}
+          >
+            <span style={{ whiteSpace: 'nowrap' }}>{t('sidebar.logout')}</span>
+          </Nav.Link>
+        </Nav>
+      )}
 
       {/* Botón de toggle en esquina superior derecha */}
       <button

@@ -56,15 +56,15 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
 
   const handleUpdatePassword = async () => {
     if (!currentPassword) {
-      setMessage({ text: 'Introduce tu contrasena actual', type: 'danger' });
+      setMessage({ text: 'Introduce tu contraseña actual', type: 'danger' });
       return;
     }
     if (newPassword.length < 6) {
-      setMessage({ text: 'La nueva contrasena debe tener al menos 6 caracteres', type: 'danger' });
+      setMessage({ text: 'La nueva contraseña debe tener al menos 6 caracteres', type: 'danger' });
       return;
     }
     if (newPassword !== confirmPassword) {
-      setMessage({ text: 'Las contrasenas no coinciden', type: 'danger' });
+      setMessage({ text: 'Las contraseñas no coinciden', type: 'danger' });
       return;
     }
     setLoading(true);
@@ -76,12 +76,12 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
       });
       const data = await response.json();
       if (response.ok) {
-        setMessage({ text: 'Contrasena actualizada correctamente', type: 'success' });
+        setMessage({ text: 'Contraseña actualizada correctamente', type: 'success' });
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
       } else {
-        setMessage({ text: data.message || 'Error al cambiar contrasena', type: 'danger' });
+        setMessage({ text: data.message || 'Error al cambiar contraseña', type: 'danger' });
       }
     } catch {
       setMessage({ text: 'Error de conexion con el servidor', type: 'danger' });
@@ -245,7 +245,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
           </Button>
         </div>
 
-        {/* Cambiar contrasena */}
+        {/* Cambiar contraseña */}
         <div className="p-3 mb-4 rounded-3" style={{ backgroundColor: isDark ? '#2a2520' : '#fff8e1', borderLeft: '4px solid #ff9800' }}>
           <h5 className="fw-bold mb-3">{t('profile.changePassword')}</h5>
           <Form.Group className="mb-3">
