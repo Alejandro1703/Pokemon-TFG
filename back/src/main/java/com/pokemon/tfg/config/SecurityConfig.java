@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -48,7 +49,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:3000"));
+        
+        // Obtenemos la URL de la variable de entorno de Render
+        String allowedOrigin = System.getenv("CORS_ALLOWED_ORIGINS");
+        
+        // Si no existe la variable, usamos localhost por defecto para desarrollo
+        if (allowedOrigin == null || allowedOrigin.isEmpty()) {
+            configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174", "http://localhost:3000"));
+        } else {
+            // Si existe, añadimos la URL de Render + los localhost para seguir trabajando en casa
+            configuration.setAllowedOrigins(Arrays.asList(allowedOrigin, "http://localhost:5173", "http://localhost:5174", "http://localhost:3000"));
+        }
+        
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
