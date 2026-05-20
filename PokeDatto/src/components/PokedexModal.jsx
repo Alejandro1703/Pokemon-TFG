@@ -75,7 +75,7 @@ function PokedexModal({ show, onHide, standalone = false }) {
   const [favorites, setFavorites] = useState(new Set());
 
   const token = localStorage.getItem('token');
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
+  const API_URL = import.meta.env.VITE_API_URL || 'https://pokemon-tfg-backend.onrender.com';
 
   useEffect(() => {
     if (!token) return;

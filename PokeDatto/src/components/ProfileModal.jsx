@@ -33,7 +33,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
     }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:9876/api/user/${user.id}/profile`, {
+      const response = await fetch(`https://pokemon-tfg-backend.onrender.com/api/user/${user.id}/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre: nombre.trim(), email: email.trim() })
@@ -69,7 +69,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
     }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:9876/api/user/${user.id}/password`, {
+      const response = await fetch(`https://pokemon-tfg-backend.onrender.com/api/user/${user.id}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword })
@@ -93,7 +93,7 @@ function ProfileModal({ show, onHide, user, onLogout, onUserUpdate, standalone =
   const handleDeleteAccount = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:9876/api/user/${user.id}`, {
+      const response = await fetch(`https://pokemon-tfg-backend.onrender.com/api/user/${user.id}`, {
         method: 'DELETE'
       });
       if (response.ok) {

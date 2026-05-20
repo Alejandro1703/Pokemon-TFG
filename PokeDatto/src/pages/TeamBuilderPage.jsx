@@ -6,7 +6,7 @@ import { useSettings, useTranslation } from '../contexts/SettingsContext';
 import ALL_POKEMON_DATA from '../data/pokemonData.json';
 import { COMMON_MOVES, COMMON_ITEMS, ITEM_SPRITE_URL } from '../data/teamBuilderData';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
+const API_URL = import.meta.env.VITE_API_URL || 'https://pokemon-tfg-backend.onrender.com';
 
 const TYPE_COLORS = {
   normal: '#A8A878', fire: '#F08030', water: '#6890F0', electric: '#F8D030',

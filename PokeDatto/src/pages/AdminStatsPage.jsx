@@ -24,7 +24,7 @@ function AdminStatsPage() {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:9876/api/admin/stats', {
+        const response = await fetch('https://pokemon-tfg-backend.onrender.com/api/admin/stats', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

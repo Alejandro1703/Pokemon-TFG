@@ -5,7 +5,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import { useSettings, useTranslation } from '../contexts/SettingsContext';
 import { getBadgesForGame, getRegionForGame } from '../components/adventure/gameData';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
+const API_URL = import.meta.env.VITE_API_URL || 'https://pokemon-tfg-backend.onrender.com';
 
 const JUEGOS_IMAGENES = {
   'Rojo Fuego': '/images/juegos/Rojo Fuego.jpeg',

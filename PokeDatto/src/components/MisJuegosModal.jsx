@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Table, Badge, Row, Col, Alert, Card, Spinner } from 'react-bootstrap';
 import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
+const API_URL = import.meta.env.VITE_API_URL || 'https://pokemon-tfg-backend.onrender.com';
 
 const ESTADOS_BASE = {
   completo: 'gameStates.complete',

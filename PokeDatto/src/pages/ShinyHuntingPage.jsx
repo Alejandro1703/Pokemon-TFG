@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
+const API_URL = import.meta.env.VITE_API_URL || 'https://pokemon-tfg-backend.onrender.com';
 
 const METODOS = [
   { key: 'Soft-Reset', labelKey: 'shinyHunting.method.softReset' },

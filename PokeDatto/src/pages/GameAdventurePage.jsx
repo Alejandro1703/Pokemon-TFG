@@ -9,7 +9,7 @@ import PokemonBoxModal from '../components/adventure/PokemonBoxModal';
 import { getRegionForGame } from '../components/adventure/gameData';
 import { useTranslation, useSettings } from '../contexts/SettingsContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
+const API_URL = import.meta.env.VITE_API_URL || 'https://pokemon-tfg-backend.onrender.com';
 
 const JUEGOS_IMAGENES = {
   'Rojo Fuego': '/images/juegos/Rojo Fuego.jpeg',

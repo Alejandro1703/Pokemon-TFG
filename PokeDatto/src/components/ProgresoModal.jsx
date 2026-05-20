@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, Row, Col, Card, Badge, Spinner, Alert } from 'react-bootstrap';
 import { useSettings, useTranslation } from '../contexts/SettingsContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9876';
+const API_URL = import.meta.env.VITE_API_URL || 'https://pokemon-tfg-backend.onrender.com';
 
 // Mapeo de nombres de juegos (de la API) a claves de traducción
 const NOMBRE_A_KEY = {
