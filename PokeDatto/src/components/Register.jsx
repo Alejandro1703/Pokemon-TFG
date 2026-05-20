@@ -248,7 +248,7 @@ function Register() {
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-bold text-dark mb-1 small">
-                    Contrasena
+                    Contraseña
                   </Form.Label>
                   <Form.Control
                     type="password"
@@ -269,14 +269,14 @@ function Register() {
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-bold text-dark mb-1 small">
-                    Confirmar Contrasena
+                    Confirmar Contraseña
                   </Form.Label>
                   <Form.Control
                     type="password"
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    placeholder="Repite tu contrasena"
+                    placeholder="Repite tu contraseña"
                     className="border-2 py-2 px-3"
                     style={{ 
                       borderRadius: '10px',

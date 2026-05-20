@@ -1,5 +1,6 @@
 package com.pokemon.tfg.repository;
 
+import com.pokemon.tfg.entity.Role;
 import com.pokemon.tfg.entity.Usuario;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,5 +22,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     long count();
 
-    List<Usuario> findTop10ByOrderByFechaCreacionDesc();
+    long countByRole(Role role);
+
+    List<Usuario> findAllByOrderByIdAsc();
 }

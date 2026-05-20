@@ -30,14 +30,12 @@ function AuthLayout({ children }) {
     >
       <Header />
       <Sidebar />
-      <Footer />
-      
-      <main 
+
+      <main
         className="d-flex flex-column"
-        style={{ 
+        style={{
           marginLeft: sidebarVisible ? '250px' : '0px',
           paddingTop: '90px',
-          paddingBottom: '70px',
           minHeight: '100vh',
           width: sidebarVisible ? 'calc(100% - 250px)' : '100%',
           transition: 'all 0.4s ease-in-out'
@@ -49,6 +47,10 @@ function AuthLayout({ children }) {
           </div>
         </div>
       </main>
+
+      <div style={{ marginLeft: sidebarVisible ? '250px' : '0px', transition: 'all 0.4s ease-in-out' }}>
+        <Footer />
+      </div>
     </div>
   );
 }

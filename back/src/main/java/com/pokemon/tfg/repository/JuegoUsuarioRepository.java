@@ -22,4 +22,7 @@ public interface JuegoUsuarioRepository extends JpaRepository<JuegoUsuario, Long
 
     @Query("SELECT j.juegoNombre as nombre, COUNT(j) as total FROM JuegoUsuario j GROUP BY j.juegoNombre ORDER BY total DESC")
     List<Map<String, Object>> findTopJuegos();
+
+    @Query("SELECT j.estado as estado, COUNT(j) as total FROM JuegoUsuario j GROUP BY j.estado ORDER BY COUNT(j) DESC")
+    List<Map<String, Object>> findJuegosByEstado();
 }
