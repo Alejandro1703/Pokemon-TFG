@@ -1,7 +1,8 @@
-import { useSettings } from '../../contexts/SettingsContext';
+import { useSettings, useTranslation } from '../../contexts/SettingsContext';
 
 function Footer() {
   const { isDark } = useSettings();
+  const { t } = useTranslation();
 
   return (
     <footer
@@ -30,7 +31,7 @@ function Footer() {
           color: 'rgba(255,255,255,0.85)'
         }}
       >
-        &copy; 2026 PokeDatto. Todos los derechos reservados.
+        {t('footer.copyright')}
       </span>
 
       {/* Right: GitHub icon */}

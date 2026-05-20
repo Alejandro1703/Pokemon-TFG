@@ -9,8 +9,15 @@ function Sidebar() {
   const { t } = useTranslation();
   const location = useLocation();
   const { isLoggedIn, isGuest, isAdmin, logout, enterGuest } = useAuth();
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(() => {
+    const saved = localStorage.getItem('sidebar-visible');
+    return saved === null ? true : saved === 'true';
+  });
   const currentPath = location.pathname;
+
+  useEffect(() => {
+    localStorage.setItem('sidebar-visible', String(isVisible));
+  }, [isVisible]);
 
   useEffect(() => {
     const handleToggleSidebar = (e) => {
@@ -94,7 +101,7 @@ function Sidebar() {
     <div
         className="d-flex flex-column"
         style={{
-          width: isVisible ? '250px' : '32px',
+          width: isVisible ? '250px' : '0px',
           position: 'fixed',
           left: 0,
           top: 0,
@@ -104,7 +111,7 @@ function Sidebar() {
           borderRight: isDark ? '3px solid #2e303a' : '3px solid #42a5f5',
           boxShadow: '4px 0 20px rgba(0,0,0,0.2)',
           transition: 'all 0.4s ease-in-out',
-          overflow: 'visible'
+          overflow: 'hidden'
         }}
       >
         <div
@@ -121,7 +128,7 @@ function Sidebar() {
 
       {!isLoggedIn && !isGuest ? (
         /* Pantalla de login: botones arriba agrupados */
-        <Nav className="flex-column px-2 py-2" style={{ gap: '6px', overflowY: 'auto' }}>
+        <Nav className="flex-column px-2" style={{ gap: '6px', overflowY: 'auto', paddingTop: '48px', paddingBottom: '8px' }}>
           {authItems.map((item) => {
             const active = isActive(item.path);
             return renderNavLink(item, active);
@@ -147,7 +154,7 @@ function Sidebar() {
         </Nav>
       ) : (
         /* Usuarios/invitados/admins: botones juntos con gap */
-        <Nav className="flex-column px-2 py-2 flex-grow-1" style={{ gap: '6px', overflowY: 'auto' }}>
+        <Nav className="flex-column px-2 flex-grow-1" style={{ gap: '6px', overflowY: 'auto', paddingTop: '48px', paddingBottom: '8px' }}>
           {/* Dashboard - Inicio */}
           <Nav.Link
             as={Link}
@@ -270,35 +277,47 @@ function Sidebar() {
         </Nav>
       )}
 
-      {/* Botón de toggle en esquina superior derecha */}
+      {/* Botón de toggle — pestaña en el borde derecho, centrada verticalmente */}
       <button
         onClick={toggleSidebar}
         className="d-flex align-items-center justify-content-center"
         style={{
           position: 'fixed',
-          top: '72px',
-          left: isVisible ? '216px' : '2px',
-          width: isVisible ? '32px' : '28px',
-          height: isVisible ? '32px' : '28px',
-          backgroundColor: isDark ? '#536dfe' : '#1976d2',
-          border: isDark ? '3px solid #3d4fe0' : '3px solid #1565c0',
-          borderRadius: '6px',
+          top: '80px',
+          left: isVisible ? '250px' : '0px',
+          width: '14px',
+          height: '44px',
+          background: isDark
+            ? 'linear-gradient(180deg, #536dfe 0%, #3d4fe0 100%)'
+            : 'linear-gradient(180deg, #42a5f5 0%, #1976d2 100%)',
+          border: 'none',
+          borderRadius: '0 8px 8px 0',
           color: 'white',
-          fontSize: isVisible ? '14px' : '12px',
-          fontWeight: 'bold',
           cursor: 'pointer',
-          transition: 'all 0.4s ease-in-out',
-          zIndex: 501,
-          boxShadow: '2px 2px 8px rgba(0,0,0,0.3)'
+          transition: 'left 0.4s ease-in-out',
+          zIndex: 600,
+          boxShadow: isDark ? '3px 0 10px rgba(83,109,254,0.5)' : '3px 0 10px rgba(25,118,210,0.4)',
+          outline: 'none'
         }}
-        onMouseEnter={(e) => {
-          e.target.style.backgroundColor = isDark ? '#3d4fe0' : '#1565c0';
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.backgroundColor = isDark ? '#536dfe' : '#1976d2';
-        }}
+        onMouseEnter={(e) => { e.currentTarget.style.width = '18px'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.width = '14px'; }}
       >
-        {isVisible ? '◀' : '▶'}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {isVisible
+            ? <polyline points="15 18 9 12 15 6" />
+            : <polyline points="9 18 15 12 9 6" />
+          }
+        </svg>
       </button>
     </div>
   );

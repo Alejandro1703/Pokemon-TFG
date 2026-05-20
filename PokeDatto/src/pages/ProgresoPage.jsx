@@ -230,7 +230,7 @@ function ProgresoPage() {
                 border: activeTab === 'adventures' ? 'none' : `1px solid ${cardBorder}`
               }}
             >
-              🗺️ {t('progress.tabAdventures')}
+              {t('progress.tabAdventures')}
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
@@ -244,7 +244,7 @@ function ProgresoPage() {
                 border: activeTab === 'trainer' ? 'none' : `1px solid ${cardBorder}`
               }}
             >
-              🏆 {t('progress.tabTrainer')}
+              {t('progress.tabTrainer')}
             </Nav.Link>
           </Nav.Item>
         </Nav>

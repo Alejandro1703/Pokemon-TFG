@@ -15,4 +15,9 @@ public class AdminStatsResponse {
     private long totalIntentosShiny;
     private List<Map<String, Object>> topJuegos;
     private List<Map<String, Object>> usuariosRecientes;
+    private long totalEquipos;
+    private List<Map<String, Object>> topPokemonEquipos;
+    private long mediaIntentosShiny;
+    private List<Map<String, Object>> juegosByEstado;
+    private long totalAdmins;
 }

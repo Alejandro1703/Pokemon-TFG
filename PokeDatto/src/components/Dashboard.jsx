@@ -3,43 +3,60 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Card, Row, Col, Button, Spinner } from 'react-bootstrap';
 import DashboardLayout from './layout/DashboardLayout';
 import { useSettings, useTranslation } from '../contexts/SettingsContext';
-
-// Datos de características de la app
-const FEATURES = [
-  {
-    title: 'Colección de Juegos',
-    description: 'Gestiona tu colección de juegos Pokémon con precios actualizados y seguimiento de beneficios.',
-    icon: '🎮',
-    path: '/mis-juegos',
-    color: '#ffc107'
-  },
-  {
-    title: 'Pokédex Completa',
-    description: 'Explora todos los Pokémon con estadísticas, tipos y sprites en alta calidad.',
-    icon: '📱',
-    path: '/pokedex',
-    color: '#ff6b6b'
-  },
-  {
-    title: 'Comparador',
-    description: 'Compara estadísticas entre Pokémon para crear tu equipo perfecto.',
-    icon: '⚔️',
-    path: '/comparador',
-    color: '#4ecdc4'
-  },
-  {
-    title: 'Aventuras',
-    description: 'Inicia aventuras con tus juegos y guarda tu progreso.',
-    icon: '🗺️',
-    path: '/aventuras',
-    color: '#95e1d3'
-  }
-];
+import { useAuth } from '../hooks/useAuth';
 
 // Pokémon destacados para mostrar (IDs)
 const FEATURED_POKEMON = [6, 25, 94, 150, 248, 445]; // Charizard, Pikachu, Gengar, Mewtwo, Tyranitar, Garchomp
 
-// Componente Slider con 5 Pokémon aleatorios que cambian cada 10 segundos
+// ── FeatureCard ──
+function FeatureCard({ title, desc, path, color, locked, isDark, t, navigate }) {
+  return (
+    <Card
+      className="h-100 border-0"
+      onClick={() => !locked && navigate(path)}
+      style={{
+        cursor: locked ? 'default' : 'pointer',
+        backgroundColor: isDark ? '#23252f' : '#fff',
+        boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.08)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+        borderRadius: '10px',
+        overflow: 'hidden'
+      }}
+      onMouseEnter={e => {
+        if (!locked) {
+          e.currentTarget.style.transform = 'translateY(-4px)';
+          e.currentTarget.style.boxShadow = isDark ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.15)';
+        }
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.08)';
+      }}
+    >
+      <div style={{ height: '4px', backgroundColor: color }} />
+      <Card.Body className="p-3">
+        <div className="d-flex align-items-center gap-2 mb-2">
+          <h6 className="fw-bold mb-0" style={{ color: isDark ? '#e8eaed' : '#1f2937', fontSize: '0.95rem' }}>{title}</h6>
+          {locked && <span className="ms-auto" style={{ fontSize: '0.85rem' }}>🔒</span>}
+        </div>
+        <p style={{ color: isDark ? '#9ca3af' : '#6b7280', fontSize: '0.82rem', marginBottom: '0.75rem', lineHeight: '1.45' }}>
+          {desc}
+        </p>
+        {locked ? (
+          <span style={{ fontSize: '0.78rem', color: isDark ? '#4b5563' : '#9ca3af' }}>
+            {t('dashboard.guestLocked')}
+          </span>
+        ) : (
+          <span className="fw-semibold" style={{ fontSize: '0.82rem', color: color }}>
+            {t('dashboard.explore')} →
+          </span>
+        )}
+      </Card.Body>
+    </Card>
+  );
+}
+
+// Componente Slider con 6 Pokémon aleatorios que cambian cada 6 segundos
 function PokemonSliderFixed({ isDark }) {
   const { t } = useTranslation();
   const [featuredPokemon, setFeaturedPokemon] = useState([]);
@@ -343,30 +360,21 @@ function Dashboard() {
   const { isDark } = useSettings();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { isGuest } = useAuth();
   const [pokemonData, setPokemonData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState('Trainer');
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
-    // Obtener username del usuario
+    if (!token) { navigate('/login'); return; }
     if (user) {
       try {
         const userData = JSON.parse(user);
-        setUserName(userData.nombre || userData.username || t('dashboard.welcome'));
-      } catch {
-        setUserName(t('dashboard.welcome'));
-      }
+        setUserName(userData.nombre || userData.username || '');
+      } catch { setUserName(''); }
     }
-
-    // Cargar Pokémon destacados
     const loadPokemon = async () => {
       try {
         const promises = FEATURED_POKEMON.map(id =>
@@ -376,20 +384,40 @@ function Dashboard() {
         );
         const results = await Promise.all(promises);
         setPokemonData(results.filter(p => p !== null));
-      } catch {
-        console.error('Error cargando Pokémon');
-      } finally {
-        setLoading(false);
-      }
+      } catch { /* silent */ } finally { setLoading(false); }
     };
-
     loadPokemon();
   }, [navigate]);
+
+  const publicFeatures = [
+    { title: t('sidebar.pokedex'),      desc: t('dashboard.fullPokedexDesc'),  icon: '📱', path: '/pokedex',           color: '#ef5350' },
+    { title: t('sidebar.comparator'),   desc: t('dashboard.comparatorDesc'),   icon: '⚔️', path: '/comparador',        color: '#42a5f5' },
+    { title: t('sidebar.damageCalc'),   desc: t('dashboard.damageCalcDesc'),   icon: '💥', path: '/calculadora-dano',  color: '#ff7043' },
+    { title: t('sidebar.gymLeaders'),   desc: t('dashboard.gymLeadersDesc'),   icon: '🏅', path: '/lideres-gimnasio',  color: '#ab47bc' },
+    { title: t('sidebar.pokemonLeague'),desc: t('dashboard.leagueDesc'),       icon: '👑', path: '/liga-pokemon',      color: '#ffd54f' },
+    { title: t('sidebar.games'),        desc: t('dashboard.gamesDesc'),        icon: '🎮', path: '/juegos',            color: '#66bb6a' },
+  ];
+
+  const privateFeatures = [
+    { title: t('sidebar.myGames'),      desc: t('dashboard.myGamesDesc'),      icon: '🗃️', path: '/mis-juegos',       color: '#ffa726' },
+    { title: t('sidebar.adventures'),   desc: t('dashboard.adventuresDesc'),   icon: '🗺️', path: '/aventuras',        color: '#26c6da' },
+    { title: t('sidebar.teamBuilder'),  desc: t('dashboard.teamBuilderDesc'),  icon: '🧩', path: '/team-builder',     color: '#5c6bc0' },
+    { title: t('sidebar.progress'),     desc: t('dashboard.progressDesc'),     icon: '📊', path: '/progreso',         color: '#ec407a' },
+    { title: t('sidebar.shinyHunting'), desc: t('dashboard.shinyHuntingDesc'), icon: '✨', path: '/shiny-hunting',    color: '#7e57c2' },
+    { title: t('sidebar.encounters'),   desc: t('dashboard.encountersDesc'),   icon: '🌿', path: '/encuentros',       color: '#4caf50' },
+    { title: t('sidebar.profile'),      desc: t('dashboard.profileDesc'),      icon: '👤', path: '/perfil',           color: '#78909c' },
+  ];
+
+  const bgPrimary   = isDark ? '#1a1b23' : '#f8f9fa';
+  const bgSecondary = isDark ? '#23252f' : '#ffffff';
+  const textPrimary = isDark ? '#e8eaed' : '#1f2937';
+  const textMuted   = isDark ? '#9ca3af' : '#6b7280';
 
   return (
     <DashboardLayout>
       <div className="p-0">
-        {/* Hero Section */}
+
+        {/* ── Hero ── */}
         <div
           className="text-center py-5 px-4"
           style={{
@@ -400,107 +428,119 @@ function Dashboard() {
           }}
         >
           <div className="container">
-            <h1
-              className="fw-bold mb-3"
-              style={{
-                fontSize: '2.5rem',
-                color: isDark ? '#e8eaed' : '#333',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
-              }}
-            >
-              {t('dashboard.welcome')} {userName}!
+            <h1 className="fw-bold mb-2" style={{ fontSize: '2.2rem', color: textPrimary, textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
+              {t('dashboard.welcome')}{userName ? `, ${userName}` : ''}!
             </h1>
-            <p className="text-secondary fs-5 mb-4" style={{ maxWidth: '700px', margin: '0 auto' }}>
+            <p style={{ color: textMuted, maxWidth: '680px', margin: '0 auto 1.5rem', fontSize: '1rem' }}>
               {t('dashboard.subtitle')}
             </p>
-
-            {/* Pokémon estáticos */}
-            <div className="d-flex justify-content-center flex-wrap gap-3 mt-4">
+            <div className="d-flex justify-content-center flex-wrap gap-3 mt-3">
               {loading ? (
                 <Spinner animation="border" variant="primary" />
               ) : (
-                pokemonData.slice(0, 3).map((pokemon) => (
-                  <div
+                pokemonData.slice(0, 3).map(pokemon => (
+                  <img
                     key={pokemon.id}
-                    className="position-relative"
-                  >
-                    <img
-                      src={pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default}
-                      alt={pokemon.name}
-                      style={{
-                        width: '120px',
-                        height: '120px',
-                        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
-                      }}
-                    />
-                  </div>
+                    src={pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default}
+                    alt={pokemon.name}
+                    style={{ width: '110px', height: '110px', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' }}
+                  />
                 ))
               )}
             </div>
           </div>
         </div>
 
-        {/* Sección de Bienvenida */}
-        <div className="py-5 px-4" style={{ backgroundColor: isDark ? '#1a1b23' : '#f8f9fa' }}>
+        {/* ── Herramientas (públicas) ── */}
+        <div className="py-5 px-4" style={{ backgroundColor: bgPrimary }}>
           <div className="container">
-            <Row className="align-items-center">
-              <Col lg={6} className="mb-4 mb-lg-0">
-                <h2 className="fw-bold mb-3" style={{ color: isDark ? '#e8eaed' : '#333' }}>
-                  {t('dashboard.welcomeSection')}
-                </h2>
-                <p className="text-secondary fs-5 mb-4">
-                  {t('dashboard.welcomeText')}
-                </p>
-                <div className="d-flex flex-wrap gap-3">
-                  <Button
-                    as={Link}
-                    to="/juegos"
-                    variant="primary"
-                    className="rounded-pill px-4 py-2 fw-bold"
-                    style={{ fontSize: '1.1rem' }}
-                  >
-                    🎮 {t('dashboard.viewGames')}
-                  </Button>
-                  <Button
-                    as={Link}
-                    to="/pokedex"
-                    variant="outline-primary"
-                    className="rounded-pill px-4 py-2 fw-bold"
-                    style={{ fontSize: '1.1rem', borderWidth: '2px' }}
-                  >
-                    📱 {t('dashboard.explorePokedex')}
-                  </Button>
-                </div>
-              </Col>
-              <Col lg={6} className="text-center">
-                {!loading && pokemonData[3] && (
-                  <MewtwoAudioPlayer pokemonData={pokemonData} isDark={isDark} />
-                )}
-              </Col>
+            <h2 className="fw-bold mb-1" style={{ color: textPrimary }}>{t('dashboard.publicTools')}</h2>
+            <p className="mb-4" style={{ color: textMuted, fontSize: '0.9rem' }}>{t('dashboard.publicToolsDesc')}</p>
+            <Row className="g-3">
+              {publicFeatures.map(f => (
+                <Col key={f.path} xs={12} sm={6} lg={4}>
+                  <FeatureCard {...f} locked={false} isDark={isDark} t={t} navigate={navigate} />
+                </Col>
+              ))}
             </Row>
           </div>
         </div>
 
-        {/* Slider de Pokémon Destacados (5 fijos) */}
-        <PokemonSliderFixed isDark={isDark} />
-
-        {/* Footer del Dashboard */}
+        {/* ── Banner separador con Mewtwo ── */}
         <div
-          className="py-4 px-4 text-center"
+          className="d-flex align-items-center justify-content-center py-4"
           style={{
             backgroundColor: isDark ? '#0d47a1' : '#1976d2',
-            color: isDark ? '#e8eaed' : '#e3f2fd'
+            borderTop: isDark ? '3px solid #536dfe' : '3px solid #1565c0',
+            borderBottom: isDark ? '3px solid #536dfe' : '3px solid #1565c0',
+            minHeight: '180px',
+            position: 'relative',
+            overflow: 'hidden'
           }}
         >
-          <p className="mb-2 fw-bold" style={{ fontSize: '1.2rem' }}>
-            🌟 {t('dashboard.startAdventure')} 🌟
-          </p>
-          <p className="mb-0" style={{ opacity: 0.8 }}>
-            {t('dashboard.manageCollection')}
-          </p>
+          <div style={{ position: 'absolute', top: '-20px', left: '5%', width: '130px', height: '130px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.05)' }} />
+          <div style={{ position: 'absolute', bottom: '-30px', right: '8%', width: '170px', height: '170px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.04)' }} />
+          <div className="d-flex flex-column align-items-center gap-2 position-relative" style={{ zIndex: 1 }}>
+            <p
+              className="fw-bold m-0 text-center"
+              style={{
+                color: 'rgba(255,255,255,0.95)',
+                fontSize: '1.05rem',
+                textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                letterSpacing: '0.5px'
+              }}
+            >
+              {t('dashboard.discoverPowerful')}
+            </p>
+            {!loading && pokemonData[3] ? (
+              <MewtwoAudioPlayer pokemonData={pokemonData} isDark={isDark} />
+            ) : (
+              /* 🖼️ PLACEHOLDER */
+              <div
+                className="d-flex flex-column align-items-center justify-content-center"
+                style={{
+                  width: '280px', height: '130px',
+                  border: '2px dashed rgba(255,255,255,0.35)',
+                  borderRadius: '12px',
+                  color: 'rgba(255,255,255,0.55)',
+                  fontSize: '0.85rem',
+                  gap: '6px'
+                }}
+              >
+                <span>[ Imagen banner ]</span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
+        {/* ── Mi Espacio (privado) ── */}
+        <div className="py-5 px-4" style={{ backgroundColor: bgSecondary }}>
+          <div className="container">
+            <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+              <div>
+                <h2 className="fw-bold mb-1" style={{ color: textPrimary }}>{t('dashboard.mySpace')}</h2>
+                <p className="mb-0" style={{ color: textMuted, fontSize: '0.9rem' }}>{t('dashboard.mySpaceDesc')}</p>
+              </div>
+              {isGuest && (
+                <Button as={Link} to="/register" variant="primary" className="rounded-pill px-4 fw-bold align-self-center">
+                  {t('dashboard.registerNow')}
+                </Button>
+              )}
+            </div>
+            <Row className="g-3">
+              {privateFeatures.map(f => (
+                <Col key={f.path} xs={12} sm={6} lg={4}>
+                  <FeatureCard {...f} locked={isGuest} isDark={isDark} t={t} navigate={navigate} />
+                </Col>
+              ))}
+            </Row>
+          </div>
+        </div>
+
+        {/* ── Slider Pokémon aleatorios ── */}
+        <PokemonSliderFixed isDark={isDark} />
+
+      </div>
     </DashboardLayout>
   );
 }

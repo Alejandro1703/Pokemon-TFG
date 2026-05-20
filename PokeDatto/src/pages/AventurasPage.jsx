@@ -176,22 +176,57 @@ function AventurasPage() {
                       )}
                     </div>
                     <div className="d-flex flex-column gap-2">
-                      <Button
-                        variant="success"
-                        size="sm"
-                        className="rounded-pill"
+                      <span
+                        role="button"
+                        tabIndex={0}
                         onClick={() => iniciarAventura(juego)}
+                        onKeyDown={(e) => e.key === 'Enter' && iniciarAventura(juego)}
+                        className="d-inline-flex align-items-center justify-content-center px-3 py-1 rounded-pill fw-bold"
+                        style={{
+                          fontSize: '0.8rem',
+                          color: '#fff',
+                          backgroundColor: '#66bb6a',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          userSelect: 'none',
+                          boxShadow: '0 2px 6px rgba(102,187,106,0.3)'
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.backgroundColor = '#57a85a';
+                          e.currentTarget.style.boxShadow = '0 3px 10px rgba(102,187,106,0.4)';
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.backgroundColor = '#66bb6a';
+                          e.currentTarget.style.boxShadow = '0 2px 6px rgba(102,187,106,0.3)';
+                        }}
                       >
                         {t('adventures.start')}
-                      </Button>
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="rounded-pill"
+                      </span>
+                      <span
+                        role="button"
+                        tabIndex={0}
                         onClick={() => abrirEdicion(juego)}
+                        onKeyDown={(e) => e.key === 'Enter' && abrirEdicion(juego)}
+                        className="d-inline-flex align-items-center justify-content-center px-3 py-1 rounded-pill fw-bold"
+                        style={{
+                          fontSize: '0.8rem',
+                          color: '#42a5f5',
+                          backgroundColor: 'rgba(66,165,245,0.08)',
+                          border: '1px solid rgba(66,165,245,0.3)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          userSelect: 'none'
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.backgroundColor = 'rgba(66,165,245,0.18)';
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.backgroundColor = 'rgba(66,165,245,0.08)';
+                        }}
                       >
                         {t('adventures.edit')}
-                      </Button>
+                      </span>
                     </div>
                   </Card.Body>
                 </Card>

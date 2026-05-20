@@ -33,6 +33,7 @@ com/pokemon/tfg/controller/ShinyHuntingController.class
 com/pokemon/tfg/service/AventuraService.class
 com/pokemon/tfg/entity/Aventura.class
 com/pokemon/tfg/service/EquipoPokemonService.class
+com/pokemon/tfg/controller/AdminController$1.class
 com/pokemon/tfg/dto/LoginRequest.class
 com/pokemon/tfg/dto/AventuraRequest.class
 com/pokemon/tfg/service/FavoritoService.class

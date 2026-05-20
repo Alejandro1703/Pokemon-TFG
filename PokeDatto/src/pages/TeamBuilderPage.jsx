@@ -227,9 +227,55 @@ function TeamBuilderPage() {
                         <h6 className="fw-bold mb-1" style={{ color: textPrimary }}>{team.nombre}</h6>
                         {team.juegoNombre && <small style={{ color: textSecondary }}>{team.juegoNombre}</small>}
                       </div>
-                      <div className="d-flex gap-1">
-                        <Button variant="outline-primary" size="sm" onClick={() => openEditTeam(team)}>✏️</Button>
-                        <Button variant="outline-danger" size="sm" onClick={() => deleteTeam(team.id)}>🗑️</Button>
+                      <div className="d-flex gap-2">
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => openEditTeam(team)}
+                          onKeyDown={(e) => e.key === 'Enter' && openEditTeam(team)}
+                          className="d-inline-flex align-items-center px-3 py-1 rounded-pill fw-bold"
+                          style={{
+                            fontSize: '0.78rem',
+                            color: isDark ? '#90caf9' : '#1976d2',
+                            backgroundColor: isDark ? 'rgba(25,118,210,0.15)' : 'rgba(25,118,210,0.08)',
+                            border: `1px solid ${isDark ? 'rgba(25,118,210,0.35)' : 'rgba(25,118,210,0.25)'}`,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            userSelect: 'none'
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.backgroundColor = isDark ? 'rgba(25,118,210,0.25)' : 'rgba(25,118,210,0.15)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.backgroundColor = isDark ? 'rgba(25,118,210,0.15)' : 'rgba(25,118,210,0.08)';
+                          }}
+                        >
+                          {t('common.edit')}
+                        </span>
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => deleteTeam(team.id)}
+                          onKeyDown={(e) => e.key === 'Enter' && deleteTeam(team.id)}
+                          className="d-inline-flex align-items-center px-3 py-1 rounded-pill fw-bold"
+                          style={{
+                            fontSize: '0.78rem',
+                            color: isDark ? '#ef9a9a' : '#d32f2f',
+                            backgroundColor: isDark ? 'rgba(211,47,47,0.15)' : 'rgba(211,47,47,0.08)',
+                            border: `1px solid ${isDark ? 'rgba(211,47,47,0.35)' : 'rgba(211,47,47,0.25)'}`,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            userSelect: 'none'
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.backgroundColor = isDark ? 'rgba(211,47,47,0.25)' : 'rgba(211,47,47,0.15)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.backgroundColor = isDark ? 'rgba(211,47,47,0.15)' : 'rgba(211,47,47,0.08)';
+                          }}
+                        >
+                          {t('common.delete')}
+                        </span>
                       </div>
                     </div>
                     <div className="d-flex gap-3 flex-wrap">
